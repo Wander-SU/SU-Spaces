@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('base_bookings', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('Course',30);
-            $table->string('Semester',30);
-            $table->string('Academic_Year',30);
-            $table->string('Academic_Session',30);
-            $table->string('Subject',30);
-            $table->string('Course_Number',30);
-            $table->string('Unit_Name',30);
-            $table->string('Lesson_Day',30);
-            $table->time('Start_Time');
-            $table->time('End_Time');
+            $table->string('course',30);
+            $table->string('semester',30);
+            $table->string('academic_year',30);
+            $table->string('academic_session',30);
+            $table->string('subject',30);
+            $table->string('course_number',30);
+            $table->string('unit_name',30);
+            $table->string('lesson_day',30);
+            $table->time('start_time');
+            $table->time('end_time');
         });
     }
 

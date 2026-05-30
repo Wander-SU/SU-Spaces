@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->time('Start_Time');
-            $table->time('End_Time');
-            $table->enum('Status',["Booked","Passed","Voided"]);
-            $table->integer('Attendee_Count');
-            $table->string('Purpose');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->enum('status',["Booked","Passed","Voided"]);
+            $table->integer('attendee_count');
+            $table->string('purpose');
         });
     }
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('building_name',45);
-            $table->string('buidling_abbrev',10);
+            $table->string('building_abbrev',10);
         });
     }
 
