@@ -116,7 +116,7 @@ class RoomSeeder extends Seeder
         // 4. UNIVERSITY LIBRARY - ID: 4
         // ==========================================
         $libRooms = [
-            ['name' => 'BasementClassroom', 'capacity' => 120],
+            ['name' => 'Basement Classroom', 'capacity' => 120],
             ['name' => 'Seminar Room', 'capacity' => 24], // New Room
         ];
 
