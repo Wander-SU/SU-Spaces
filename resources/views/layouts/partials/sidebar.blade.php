@@ -68,7 +68,7 @@
       
         {{-- Users --}}
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="{{ route('baseBookings.index') }}" class="nav-link">
             <i class="nav-icon bi bi-calendar-date-fill"></i>
             <p>Timetable</p>
           </a>
