@@ -4,6 +4,7 @@ use App\Models\BaseBooking;
 use App\Models\Room;
 use App\Rules\AlphaSpaces;
 use App\Rules\CourseSessionData;
+use App\Rules\DateValid;
 use App\Rules\DayOfWeek;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -149,7 +150,7 @@ new class extends Component
         
 
         // Save
-        BaseBooking::create([
+        $baseBooking = BaseBooking::create([
           'course' =>$this->course,
           'semester' =>$this->semester,
           'academic_year' =>$this->academic_year,
@@ -162,13 +163,14 @@ new class extends Component
           'end_time'=>$this->end_time,
           'room_id'=>$this->room_id
         ]);
+        $baseBooking->save();
 
         // Show the table
         $this->reset();
         $this->showForm = false;
 
         // Give a message back to the user
-        session()->flash('success','Sub Speciality Added Successfully');
+        session()->flash('success','Base Booking Added Successfully');
     }
 
     /**

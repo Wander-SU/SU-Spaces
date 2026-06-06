@@ -20,7 +20,7 @@
   <div class="col-12">
     <div class="card">      
       <div class="card-body">
-          <livewire:update-timetable.update-timetable/>gi
+          <livewire:update-timetable.update-timetable/>
       </div>
       <!-- /.card-body -->
     </div>
