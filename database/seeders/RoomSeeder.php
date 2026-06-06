@@ -98,8 +98,8 @@ class RoomSeeder extends Seeder
         // 3. STUDENT CENTER (STC) - ID: 3
         // ==========================================
         $stcRooms = [
-            ['name' => 'ChelaLab', 'capacity' => 42],
-            ['name' => 'Seminar Room', 'capacity' => 34], // New Room
+            ['name' => 'Chela Lab', 'capacity' => 42],
+            ['name' => 'Seminar Room (STC)', 'capacity' => 34], // New Room
             ['name' => 'iLab Kifaru', 'capacity' => 67],
         ];
 
@@ -116,8 +116,8 @@ class RoomSeeder extends Seeder
         // 4. UNIVERSITY LIBRARY - ID: 4
         // ==========================================
         $libRooms = [
-            ['name' => 'BasementClassroom', 'capacity' => 120],
-            ['name' => 'Seminar Room', 'capacity' => 24], // New Room
+            ['name' => 'Basement Classroom (LIB 1)', 'capacity' => 120],
+            ['name' => 'Seminar Room (LIB)', 'capacity' => 24], // New Room
         ];
 
         foreach ($libRooms as $roomData) {
@@ -154,13 +154,13 @@ class RoomSeeder extends Seeder
             ['name' => 'RM 10', 'capacity' => 56],
             
             // Labs & Special Rooms
-            ['name' => 'SuswaLab', 'capacity' => 65],
-            ['name' => 'MasingaLab', 'capacity' => 63],
-            ['name' => 'ElgonLab', 'capacity' => 35],
-            ['name' => 'KindarumaLab', 'capacity' => 60],
-            ['name' => 'LongonotLab', 'capacity' => 37],
-            ['name' => 'AberdareLab', 'capacity' => 47],
-            ['name' => 'LanguageLab', 'capacity' => 20],
+            ['name' => 'Suswa Lab', 'capacity' => 65],
+            ['name' => 'Masinga Lab', 'capacity' => 63],
+            ['name' => 'Elgon Lab', 'capacity' => 35],
+            ['name' => 'Kindaruma Lab', 'capacity' => 60],
+            ['name' => 'Longonot Lab', 'capacity' => 37],
+            ['name' => 'Aberdare Lab', 'capacity' => 47],
+            ['name' => 'Language Lab', 'capacity' => 20],
             ['name' => 'RM B', 'capacity' => 48],
             ['name' => 'Kitchen 5', 'capacity' => 50],
             ['name' => 'RM B', 'capacity' => 48],
@@ -216,8 +216,8 @@ class RoomSeeder extends Seeder
             ['name' => 'The Forge 1', 'capacity' => 80],
             ['name' => 'The Forge 2', 'capacity' => 100],
             ['name' => 'Electronic & Machine Labs', 'capacity' => 20],
-            ['name' => 'Chemistry lab', 'capacity' => 45],
-            ['name' => 'Physics lab', 'capacity' => 45],
+            ['name' => 'Chemistry Lab', 'capacity' => 45],
+            ['name' => 'Physics Lab', 'capacity' => 45],
         ];
 
         foreach ($sercRooms as $roomData) {

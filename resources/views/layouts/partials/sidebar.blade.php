@@ -6,7 +6,7 @@
     <a href="{{ URL::to('/') }}" class="brand-link">
       <!--begin::Brand Image-->
       <img
-        src="{{ asset('adminlte/assets/img/thibitisha.png') }}"
+        src="{{ asset('adminlte/assets/img/photo1.png') }}"
         alt="{{ env('APP_NAME')}}"
         class="brand-image opacity-75 shadow"
       />
@@ -68,7 +68,7 @@
       
         {{-- Users --}}
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="{{ route('baseBookings.index') }}" class="nav-link">
             <i class="nav-icon bi bi-calendar-date-fill"></i>
             <p>Timetable</p>
           </a>
