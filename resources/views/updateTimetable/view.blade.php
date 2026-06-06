@@ -1,15 +1,15 @@
 @extends('layouts.admin')
 
 {{-- Page Title in Browser Tab --}}
-@section('title', 'Roles Management')
+@section('title', 'Base Bookings Management')
 
 {{-- Page Heading --}}
-@section('page-title', 'Roles')
+@section('page-title', 'Base Bookings')
 
 {{-- Breadcrumb --}}
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ URL::to('/') }}">Home</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Roles</li>
+  <li class="breadcrumb-item"><a href="{{ URL::to('/') }}">Base Bookings</a></li>
+  <li class="breadcrumb-item active" aria-current="page">View</li>
 @endsection
 
 
@@ -18,26 +18,9 @@
 @section('content')
 <div class="row">
   <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">All Roles</h3>
-        <div class="card-tools">
-          <form action="{{ route('baseBookings.updateFull') }}" method="POST">
-            <button type="submit" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-circle"></i> Update Full Timetable
-            </button>
-          </form>
-        </div>
-      </div>
-      <!-- /.card-header -->
-      
+    <div class="card">      
       <div class="card-body">
-          
-          
-          {{-- Pagination --}}
-          <div class="mt-3">
-            
-          </div>
+          <livewire:update-timetable.update-timetable/>gi
       </div>
       <!-- /.card-body -->
     </div>
