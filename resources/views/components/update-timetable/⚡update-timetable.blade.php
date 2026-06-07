@@ -511,7 +511,7 @@ new class extends Component
                 <th>Subject</th>
                 <th>Course</th>
                 <th>Unit Name</th>
-                <th style="width: 200px">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>        
             <tbody>

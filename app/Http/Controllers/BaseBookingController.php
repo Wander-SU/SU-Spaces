@@ -238,6 +238,6 @@ class BaseBookingController extends Controller
         // Close the stream
         fclose($handle);
 
-        return redirect()->route('baseBookings.index')->with("success","You inserted ".$importedRows." rows");
+        return redirect()->route('baseBookings.index')->with("info","You inserted ".$importedRows." rows");
     }
 }
