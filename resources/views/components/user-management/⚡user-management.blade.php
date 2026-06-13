@@ -361,6 +361,8 @@ new class extends Component
                         <i class="bi bi-sort-alpha-down"></i>
                     @endif
                 </th>
+                <th>Admission Number / Employee ID</th>
+                <th>Faculty and Course</th>
                 <th>User Email</th>
                 <th>User Status</th>
                 <th>Actions</th>
@@ -371,8 +373,16 @@ new class extends Component
               <tr>
                 {{-- Can have {{ $loop->iteration }} --}}
                 <td>{{$loop->iteration}}</td>
-                <td> {{$user->name}}</td>
+                <td>{{ trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->name }}</td>
                 <td>{{$user->role->role_name}}</td>
+                <td>{{ $user->admission_number ?: ($user->employee_id ?: '-') }}</td>
+                <td>
+                  @if($user->faculty || $user->course)
+                    {{ $user->faculty ?: '-' }} / {{ $user->course ?: '-' }}
+                  @else
+                    -
+                  @endif
+                </td>
                 <td>{{$user->email}}</td>
                 <td><span class="{{ $user->active==1 ? 'badge bg-success' : 'badge bg-warning text-dark' }}">
                     {{$user->active ? "Active" : "Banned"}}

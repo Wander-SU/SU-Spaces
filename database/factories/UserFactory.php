@@ -24,14 +24,35 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+        $admissionNumber = str_pad((string) fake()->numberBetween(0, 999999), 6, '0', STR_PAD_LEFT);
+
         return [
-            'name' => fake()->name(),
+            'name' => $firstName.' '.$lastName,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'gender' => fake()->randomElement(['Male', 'Female']),
+            'account_type' => 'student',
+            'admission_number' => $admissionNumber,
+            'employee_id' => null,
+            'faculty' => fake()->randomElement(['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS', 'SI']),
+            'year_of_study' => (string) fake()->numberBetween(1, 5),
+            'office_location' => null,
+            'username' => $admissionNumber,
+            'course' => fake()->randomElement([
+                'BSc Computer Science',
+                'BSc Software Engineering',
+                'BSc Data Science',
+                'BSc Information Systems',
+                'BSc Information Technology',
+            ]),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'active'=>1,
-            'role_id'=>2, // By default student
+            'active' => 1,
+            'role_id' => 2, // By default student
         ];
     }
 
@@ -48,22 +69,55 @@ class UserFactory extends Factory
 
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'role_id'=>1
-        ]);
+        return $this->state(function (array $attributes): array {
+            $employeeId = str_pad((string) fake()->numberBetween(0, 999999), fake()->randomElement([5, 6]), '0', STR_PAD_LEFT);
+
+            return [
+                'role_id' => 1,
+                'account_type' => 'lecturer',
+                'admission_number' => null,
+                'employee_id' => $employeeId,
+                'year_of_study' => null,
+                'course' => null,
+                'office_location' => 'Admin Block',
+                'username' => $employeeId,
+            ];
+        });
     }
 
     public function lecturer(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'role_id'=>3
-        ]);
+        return $this->state(function (array $attributes): array {
+            $employeeId = str_pad((string) fake()->numberBetween(0, 999999), fake()->randomElement([5, 6]), '0', STR_PAD_LEFT);
+
+            return [
+                'role_id' => 3,
+                'account_type' => 'lecturer',
+                'admission_number' => null,
+                'employee_id' => $employeeId,
+                'year_of_study' => null,
+                'course' => null,
+                'office_location' => fake()->randomElement(['MST Block', 'Madaraka Wing', 'SBS Block']),
+                'username' => $employeeId,
+            ];
+        });
     }
 
     public function itSupport(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'role_id'=>4
-        ]);
+        return $this->state(function (array $attributes): array {
+            $employeeId = str_pad((string) fake()->numberBetween(0, 999999), fake()->randomElement([5, 6]), '0', STR_PAD_LEFT);
+
+            return [
+                'role_id' => 4,
+                'account_type' => 'lecturer',
+                'admission_number' => null,
+                'employee_id' => $employeeId,
+                'year_of_study' => null,
+                'course' => null,
+                'office_location' => 'ICT Helpdesk',
+                'username' => $employeeId,
+            ];
+        });
     }
 }
