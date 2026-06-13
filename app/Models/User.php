@@ -32,7 +32,24 @@ class User extends Authenticatable
         ];
     }
 
-    protected $fillable =[];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'active',
+        'role_id',
+        'first_name',
+        'last_name',
+        'gender',
+        'account_type',
+        'admission_number',
+        'employee_id',
+        'faculty',
+        'year_of_study',
+        'office_location',
+        'username',
+        'course',
+    ];
 
     // A user belongs to a role
     public function role(): BelongsTo

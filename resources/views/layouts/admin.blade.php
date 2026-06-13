@@ -3,7 +3,8 @@
   <!--begin::Head-->
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>@yield('title', 'Thibitisha | Dashboard')</title>
+    <title>@yield('title', 'SU-Spaces | Dashboard')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/strathmore_emblem.png') }}" />
     
     <!--begin::Accessibility Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
