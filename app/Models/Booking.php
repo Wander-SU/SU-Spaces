@@ -12,10 +12,11 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable =[
-        'start_time',
-        'end_time',
+        'start_time_id',
+        'end_time_id',
         'status',
         'attendee_count',
+        'booking_date',
         'purpose',
         'room_id',
         'user_id'
@@ -31,5 +32,17 @@ class Booking extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // A booking start time belongs to a timeSlot
+    public function startTimeSlot(): BelongsTo
+    {
+        return $this->belongsTo(TimeSlot::class,'start_time_id');
+    }
+
+    // A booking end time belongs to a timeSlot
+    public function endTimeSlot(): BelongsTo
+    {
+        return $this->belongsTo(TimeSlot::class,'end_time_id');
     }
 }

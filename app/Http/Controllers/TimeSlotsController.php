@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBookingRequest;
-use App\Http\Requests\UpdateBookingRequest;
-use App\Models\Booking;
+use App\Http\Requests\StoreTimeSlotsRequest;
+use App\Http\Requests\UpdateTimeSlotsRequest;
+use App\Models\TimeSlot;
 
-class BookingController extends Controller
+class TimeSlotsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('quickAccess.view');
+        //
     }
 
     /**
@@ -27,7 +27,7 @@ class BookingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBookingRequest $request)
+    public function store(StoreTimeSlotsRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class BookingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Booking $booking)
+    public function show(TimeSlot $timeSlot)
     {
         //
     }
@@ -43,7 +43,7 @@ class BookingController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Booking $booking)
+    public function edit(TimeSlot $timeSlot)
     {
         //
     }
@@ -51,7 +51,7 @@ class BookingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookingRequest $request, Booking $booking)
+    public function update(UpdateTimeSlotsRequest $request, TimeSlot $timeSlot)
     {
         //
     }
@@ -59,7 +59,7 @@ class BookingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Booking $booking)
+    public function destroy(TimeSlot $timeSlot)
     {
         //
     }

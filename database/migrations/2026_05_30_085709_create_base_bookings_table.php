@@ -22,8 +22,6 @@ return new class extends Migration
             $table->string('course_number',30);
             $table->string('unit_name',160);
             $table->string('lesson_day',30);
-            $table->time('start_time');
-            $table->time('end_time');
         });
     }
 

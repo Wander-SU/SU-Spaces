@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->enum('status',["Booked","Passed","Voided"]);
-            $table->integer('attendee_count');
-            $table->string('purpose');
-            $table->date('booking_date');
+        Schema::table('bookings', function (Blueprint $table) {
+            $table->foreignId('end_time_id')->constrained('time_slots');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bookings');
+        Schema::table('bookings', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('end_time_id');
+        });
     }
 };
