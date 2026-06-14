@@ -8,7 +8,7 @@
 
 {{-- Breadcrumb --}}
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ URL::to('/') }}">Users</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('userManagement.index') }}">Users</a></li>
   <li class="breadcrumb-item active" aria-current="page">View</li>
 @endsection
 

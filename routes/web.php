@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\BaseBookingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\BaseBookingController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 // Resource Routes
 Route::resource('/baseBookings',BaseBookingController::class);
 Route::resource('/userManagement',UserController::class);
+Route::resource('/bookings',BookingController::class);
 
 // Update Timetable Route
 Route::post('/baseBookings/updateFull',[BaseBookingController::class,'updateFull'])->name('baseBookings.updateFull');

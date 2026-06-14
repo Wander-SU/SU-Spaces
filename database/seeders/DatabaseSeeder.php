@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             UserSeeder::class,
             BookingSeeder::class,
+            TimeSlotSeeder::class
         ]);
         
         User::factory(60)->create();

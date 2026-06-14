@@ -2,6 +2,7 @@
 
 use App\Models\BaseBooking;
 use App\Models\Room;
+use App\Models\TimeSlot;
 use App\Rules\AlphaSpaces;
 use App\Rules\CourseSessionData;
 use App\Rules\DateValid;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 
 new class extends Component
 {
+    use WithPagination;
     protected $paginationTheme = "bootstrap";
     public $search;
     public $orderDirection1 = "asc";
@@ -19,8 +21,7 @@ new class extends Component
     public $id;
     public $room_name;
     public $course, $semester, $academic_year, $academic_session, $subject, $course_number, $unit_name, $lesson_day;
-    public $start_time, $end_time, $room_id;
-
+    public $start_time_id, $end_time_id, $room_id;
     public $orderField;
     public $showForm = false;
     public $isEditing = false;
@@ -29,6 +30,9 @@ new class extends Component
     {
       // Get Room Details
       $rooms = Room::all();
+
+      // Get TimeSlot Details
+      $timeSlots = TimeSlot::all();
       
       // Get Base Bookings
       $baseBookings = BaseBooking::query()
@@ -42,10 +46,10 @@ new class extends Component
       ->orderBy('buildings.building_name',$this->orderDirection1)
       ->orderBy('rooms.room_name',$this->orderDirection2)
       ->orderByRaw("FIELD(base_bookings.lesson_day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')")
-      ->orderBy('base_bookings.start_time',$this->orderDirectionTime)
+      ->orderBy('base_bookings.start_time_id',$this->orderDirectionTime)
       ->paginate(env('PAGINATION_COUNT',50));
-      
-      return view('components.update-timetable.⚡update-timetable',compact('baseBookings','rooms'));
+    
+      return view('components.update-timetable.⚡update-timetable',compact('baseBookings','timeSlots','rooms'));
     }
 
     public function orderBy($field)
@@ -71,7 +75,7 @@ new class extends Component
           }
         }
 
-        if($this->orderField=="start_time"){
+        if($this->orderField=="start_time_id"){
           if($this->orderDirectionTime == "asc"){
             $this->orderDirectionTime = "desc";
           }
@@ -104,16 +108,28 @@ new class extends Component
 
     /**
      * Get Time Conflict
+     * Check the base boooking table where the room_is is the room_id we are working with
+     * Check the lesson day is the day we are working with
+     * Check the Id of the booking is not the one we are currently editing
+     * Check Two things:
+          *If the start_time_id on the row is less than the end time of what we have there is a conflict, if something starts earlier than we finish we should not book
+          *IF the end_time_id on the row is more than the start time of the booking we should not book, we cannot book before they end their class
     */
     public function hasTimeConflict(){
       return BaseBooking::where('room_id',$this->room_id)
       ->where('lesson_day',$this->lesson_day)
       ->when($this->id,fn($q) => $q->where('id','!=',$this->id))
       ->where(function($q){
-        $q->where('start_time','<',$this->end_time)
-        ->where('end_time','>',$this->start_time);
+        $q->where('start_time_id','<',$this->end_time_id)
+        ->where('end_time_id','>',$this->start_time_id);
       })
       ->exists();
+    }
+
+    public function backwardsTimeLogic(){
+      if($this->end_time_id<$this->start_time_id){
+        return true;
+      }
     }
 
     /**
@@ -142,12 +158,17 @@ new class extends Component
         // Validation
         $this->validate();
 
-        // Get if time error
+        // Get if timing conflict
         if($this->hasTimeConflict()){
-          $this->addError('start_time','This room already has a booking that overlaps with the selected time on ' . $this->lesson_day . '.');
+          $this->addError('start_time_id','This room already has a booking that overlaps with the selected time on ' . $this->lesson_day . '.');
           return;
         }
         
+        // Get if wrong End Time Logic
+        if($this->backwardsTimeLogic()){
+          $this->addError('end_time_id','This time is less than the specified start time indicated .');
+          return;
+        }
 
         // Save
         $baseBooking = BaseBooking::create([
@@ -159,8 +180,8 @@ new class extends Component
           'course_number' =>$this->course_number,
           'unit_name' =>$this->unit_name,
           'lesson_day' =>$this->lesson_day,
-          'start_time'=>$this->start_time,
-          'end_time'=>$this->end_time,
+          'start_time_id'=>$this->start_time_id,
+          'end_time_id'=>$this->end_time_id,
           'room_id'=>$this->room_id
         ]);
         $baseBooking->save();
@@ -190,8 +211,8 @@ new class extends Component
         $this->course_number = $baseBooking->course_number; 
         $this->unit_name = $baseBooking->unit_name; 
         $this->lesson_day = $baseBooking->lesson_day; 
-        $this->start_time = $baseBooking->start_time; 
-        $this->end_time = $baseBooking->end_time; 
+        $this->start_time_id = $baseBooking->start_time_id; 
+        $this->end_time_id = $baseBooking->end_time_id; 
         $this->showForm = true;
         $this->isEditing = true;
     }
@@ -204,10 +225,16 @@ new class extends Component
       // Validate
       $this->validate();
 
-      // Get if time error
-        if($this->hasTimeConflict()){
-          $this->addError('start_time','This room already has a booking that overlaps with the selected time on ' . $this->lesson_day . '.');
-          return;
+      // Get if time conflict
+      if($this->hasTimeConflict()){
+        $this->addError('start_time_id','This room already has a booking that overlaps with the selected time on ' . $this->lesson_day . '.');
+        return;
+      }
+    
+      // Get if wrong End Time Logic
+      if($this->backwardsTimeLogic()){
+        $this->addError('end_time_id','This time is less than the specified start time indicated .');
+        return;
         }
 
       // Get the basebooking needed
@@ -221,8 +248,8 @@ new class extends Component
       $baseBooking->course_number = $this->course_number;
       $baseBooking->unit_name = $this->unit_name;
       $baseBooking->lesson_day = $this->lesson_day;
-      $baseBooking->start_time = $this->start_time;
-      $baseBooking->end_time = $this->end_time;
+      $baseBooking->start_time_id = $this->start_time_id;
+      $baseBooking->end_time_id = $this->end_time_id;
       $baseBooking->room_id=$this->room_id;
       $baseBooking->save();
 
@@ -393,9 +420,17 @@ new class extends Component
                 </div>
                 {{-- Start Time --}}
                 <div class="col-md-4 mb-3">
-                  <label for="start_time" class="form-label">Start Time</label>
-                  <input required wire:model="start_time" type="time" name="start_time" class="form-control @error('name') is-invalid @enderror" value="{{old('start_time')}}">
-                  @error('start_time')
+                  <label for="start_time_id" class="form-label">Start Time</label>
+                  <select required wire:model="start_time_id" name="start_time_id" class="form-control @error('name') is-invalid @enderror" value="{{old('start_time_id')}}">
+                    @foreach ($timeSlots as $timeSlot)
+                      @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00")
+                        <option value="{{ $timeSlot->id }}">
+                          {{ $timeSlot->start_time }}
+                        </option>
+                      @endif
+                    @endforeach
+                  </select>
+                  @error('start_time_id')
                     <div class="invalid-feedback">
                       {{ $message }}
                     </div>
@@ -404,9 +439,17 @@ new class extends Component
 
                 {{-- End Time --}}
                 <div class="col-md-4 mb-3">
-                  <label for="end_time" class="form-label">End Time</label>
-                  <input required wire:model="end_time" type="time" name="end_time" class="form-control @error('name') is-invalid @enderror" value="{{old('end_time')}}">
-                  @error('end_time')
+                  <label for="end_time_id" class="form-label">End Time</label>
+                  <select required wire:model="end_time_id" name="end_time_id" class="form-control @error('name') is-invalid @enderror" value="{{old('end_time_id')}}">
+                    @foreach ( $timeSlots as $timeSlot )
+                      @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00")
+                        <option value="{{ $timeSlot->id }}">
+                          {{ $timeSlot->end_time }}
+                        </option>
+                      @endif
+                    @endforeach
+                  </select>
+                  @error('end_time_id')
                     <div class="invalid-feedback">
                       {{ $message }}
                     </div>
@@ -499,7 +542,7 @@ new class extends Component
                 </th>
                 <th>Lesson Day</th>
                 <th>
-                    <a href="#" wire:click="orderBy('start_time')">
+                    <a href="#" wire:click="orderBy('start_time_id')">
                         Time
                     </a>
                     @if($orderDirection2=="asc")
@@ -522,7 +565,7 @@ new class extends Component
                 <td> {{$baseBooking->building_name}}</td>
                 <td>{{$baseBooking->room_name}}</td>
                 <td>{{$baseBooking->lesson_day}}</td>
-                <td>{{$baseBooking->start_time}}-{{$baseBooking->end_time}}</td>
+                <td>{{$baseBooking->startTimeSlot->start_time}}-{{$baseBooking->endTimeSlot->end_time}}</td>
                 <td>{{$baseBooking->subject}}</td>
                 <td>{{$baseBooking->course}}</td>
                 <td>{{$baseBooking->unit_name}}</td>
