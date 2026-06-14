@@ -35,7 +35,7 @@
 
         {{-- Quick Access --}}
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="{{ route('bookings.index') }}" class="nav-link">
             <i class="nav-icon bi bi-fast-forward-btn-fill"></i>
             <p>
               Quick Access
