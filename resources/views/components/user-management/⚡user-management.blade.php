@@ -13,6 +13,7 @@ use Livewire\WithPagination;
 
 new class extends Component
 {
+    use WithPagination;
     protected $paginationTheme = "bootstrap";
     public $search;
     public $orderDirection1 = "asc";
