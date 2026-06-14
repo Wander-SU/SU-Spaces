@@ -119,7 +119,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('default')->with('success', 'Registration successful. Welcome to SU-Spaces.');
+        return redirect()->route('bookings.index')->with('success', 'Registration successful. Welcome to SU-Spaces.');
     }
 
     public function sendToken(Request $request): JsonResponse
