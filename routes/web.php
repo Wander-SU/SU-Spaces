@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('layouts.admin');
+    return view('auth.login');
 })->name('default');
 
 Route::middleware('guest')->group(function () {
@@ -29,10 +29,12 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-// Resource Routes
-Route::resource('/baseBookings',BaseBookingController::class);
-Route::resource('/userManagement',UserController::class);
-Route::resource('/bookings',BookingController::class);
+Route::middleware('auth')->group(function () {
+    // Resource Routes
+    Route::resource('/baseBookings',BaseBookingController::class);
+    Route::resource('/userManagement',UserController::class);
+    Route::resource('/bookings',BookingController::class);
 
-// Update Timetable Route
-Route::post('/baseBookings/updateFull',[BaseBookingController::class,'updateFull'])->name('baseBookings.updateFull');
+    // Update Timetable Route
+    Route::post('/baseBookings/updateFull',[BaseBookingController::class,'updateFull'])->name('baseBookings.updateFull');
+});
