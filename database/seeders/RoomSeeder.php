@@ -163,7 +163,6 @@ class RoomSeeder extends Seeder
             ['name' => 'Language Lab', 'capacity' => 20],
             ['name' => 'RM B', 'capacity' => 48],
             ['name' => 'Kitchen 5', 'capacity' => 50],
-            ['name' => 'RM B', 'capacity' => 48],
         ];
 
         foreach ($cbRooms as $roomData) {
