@@ -40,10 +40,10 @@ class BaseBookingController extends Controller
         "Suswa Lab" => 59, "Masinga Lab" => 60, "Elgon Lab" => 61, "Kindaruma" => 62,
         "Longonot" => 63, "Aberdare" => 64, "Lang Lab" => 65,
         "RM B" => 66, "Kitchen 5" => 67,
-        "SBS 1" => 69, "SBS 2" => 70,
-        "Shaba" => 71, "Zumaridi" => 72,
-        "The Forge 1" => 73, "The Forge 2" => 74,"Electronics lab"=>75,
-        "Electronic and machine labs" => 75, "Chemistry lab" => 76, "Physics Lab" => 77,
+        "SBS 1" => 68, "SBS 2" => 69,
+        "Shaba" => 70, "Zumaridi" => 71,
+        "The Forge 1" => 72, "The Forge 2" => 73,"Electronics lab"=>74,
+        "Electronic and machine labs" => 74, "Chemistry lab" => 75, "Physics Lab" => 76,
     ];
 
     /**
@@ -309,7 +309,8 @@ class BaseBookingController extends Controller
     public function mapRoom(String $roomName)
     {
         // Map the room name to an Id and return null when unmapped.
-        return self::$roomNameToId[$roomName] ?? null;
+        $roomId = self::$roomNameToId[$roomName];
+        return $roomId;
     }
 
     /**
@@ -328,33 +329,6 @@ class BaseBookingController extends Controller
     {
         $endTimeId =  self::$endTimeToId[$endTime];
         return $endTimeId;
-    }
-
-    /**
-     * Parse CSV time text and map it to a time_slots foreign key id.
-     */
-    private function mapCsvTimeToSlotId(?string $time, bool $isEndTime = false): ?int
-    {
-        $time = trim((string) $time);
-
-        if ($time === '') {
-            return null;
-        }
-
-        // CSV values can be "8:15", "08:15", or already "08:15:00".
-        foreach (['H:i:s', 'H:i', 'G:i'] as $format) {
-            try {
-                $normalized = Carbon::createFromFormat($format, $time)->format('H:i:s');
-
-                return $isEndTime
-                    ? (self::$endTimeToId[$normalized] ?? null)
-                    : (self::$startTimeToId[$normalized] ?? null);
-            } catch (\Throwable $e) {
-                continue;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -431,8 +405,17 @@ class BaseBookingController extends Controller
                     $lesson_start =null;
                 }
 
-                $startTimeId = $this->mapCsvTimeToSlotId($lesson_start, false);
-                $endTimeId = $this->mapCsvTimeToSlotId($lesson_end, true);
+                // Lesson_end format
+                if(!empty($lesson_end)){
+                    try{
+                        $lesson_end =Carbon::createFromFormat("H:i",trim($lesson_end))->format('H:i:s');
+                        $lesson_end=self::mapEndTime($lesson_end);
+                    }catch(\Throwable $e){
+                        $lesson_end =null;
+                    }
+                }else{
+                    $lesson_end =null;
+                }
 
                 // Map the rooms
                 $room_id = null;
@@ -441,7 +424,7 @@ class BaseBookingController extends Controller
                     $room_id = self::mapRoom(trim($venue));
                 }
                 
-                if($room_id!=null && $startTimeId!=null && $endTimeId!=null){
+                if($room_id!=null){
                     // Map database columns to CSV columns 
                     $dataToInsert[] = [
                         'created_at'=>$created_at,
@@ -454,8 +437,8 @@ class BaseBookingController extends Controller
                         'course_number' => trim($course_number),
                         'unit_name' => trim($unit_name),
                         'lesson_day' => trim($lesson_day),
-                        'start_time_id' => $startTimeId,
-                        'end_time_id' => $endTimeId,
+                        'start_time_id' => $lesson_start,
+                        'end_time_id' => $lesson_end,
                         'room_id' => trim($room_id)
                     ];
                 }
