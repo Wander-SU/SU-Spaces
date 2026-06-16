@@ -27,8 +27,7 @@
       <li class="nav-item dropdown user-menu">
         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
           <img
-            {{-- src="https://avatar.iran.liara.run/username?username={{ auth()->user()->name }}" --}}
-            src="https://avatar.iran.liara.run/username?username=SU+Spaces"
+            src="https://avatarapi.runflare.run/username?username={{ auth()->user()->name }}]&background=[Hex Color Codes]"
             class="user-image rounded-circle shadow"
             alt="User Image"
           />
@@ -38,14 +37,12 @@
           <!--begin::User Image-->
           <li class="user-header text-bg-secondary">
             <img
-              {{-- src="https://avatar.iran.liara.run/username?username={{ auth()->user()->name }}" --}}
-              src="https://avatar.iran.liara.run/username?username=SU+Spaces"
+              src="https://avatarapi.runflare.run/username?username={{ auth()->user()->name }}]&background=[Hex Color Codes]"
               class="rounded-circle shadow"
               alt="User Image"
             />
             <p>
-              {{-- <small>{{ auth()->user()->role->description }} since {{date('Y',strtotime(auth()->user()->created_at))}}</small> --}}
-              <small>Should be changed since Yesterday</small>
+              <small>{{ auth()->user()->role->role_name }} since {{date('Y',strtotime(auth()->user()->created_at))}}</small>
             </p>
           </li>
           <!--end::User Image-->
