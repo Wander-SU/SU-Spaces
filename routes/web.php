@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('/baseBookings',BaseBookingController::class);
     Route::resource('/userManagement',UserController::class);
     Route::resource('/bookings',BookingController::class);
+    // Previous bookings report page with date filters.
+    Route::get('/previous-bookings', [BookingController::class, 'previousBookings'])->name('bookings.previous');
+    // Cancel action from a confirmed booking card in the previous bookings page.
+    Route::post('/previous-bookings/{booking}/cancel', [BookingController::class, 'cancelFromPrevious'])->name('bookings.previous.cancel');
 
     // Update Timetable Route
     Route::post('/baseBookings/updateFull',[BaseBookingController::class,'updateFull'])->name('baseBookings.updateFull');

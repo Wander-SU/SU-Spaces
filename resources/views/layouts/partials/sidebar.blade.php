@@ -53,12 +53,12 @@
           </a>
         </li>
 
-        {{-- Previous Bookings --}}
+        {{-- Previous bookings report/list page --}}
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="{{ route('bookings.previous') }}" class="nav-link">
             <i class="nav-icon bi bi-clock-history"></i>
             <p>
-              Previous Bookings
+              All Bookings
             </p>
           </a>
         </li>

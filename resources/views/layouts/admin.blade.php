@@ -43,6 +43,17 @@
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.css') }}" />
     <!--end::Required Plugin(AdminLTE)-->
+
+    @if (file_exists(public_path('build/manifest.json')))
+      @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+        tailwind.config = {
+          darkMode: 'class',
+        };
+      </script>
+    @endif
     
     {{-- Page-specific styles --}}
     @stack('styles')
