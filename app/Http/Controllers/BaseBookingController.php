@@ -397,7 +397,7 @@ class BaseBookingController extends Controller
                 if(!empty($lesson_start)){
                     try{
                         $lesson_start =Carbon::createFromFormat("H:i",trim($lesson_start))->format('H:i:s');
-                        $lesson_start=self::mapEndTime($lesson_start);
+                        $lesson_start=self::mapStartTime($lesson_start);
                     }catch(\Throwable $e){
                         $lesson_start =null;
                     }

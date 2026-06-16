@@ -43,7 +43,6 @@ new class extends Component
     public $room_id;
     public $orderField;
     public $showForm = false;
-    public $user_id=0;  //Test Purposes
     public $lecBooked=0;
     public $isPrivilegedBook;
     public $vacancies;
@@ -246,7 +245,7 @@ new class extends Component
      * Remove the form from view
     */
     public function cancel(){
-        $this->reset();
+        $this->resetExcept(["search_date","search_building","room_name","building_name"]);
         $this->showForm = false;
     }
 
@@ -368,7 +367,7 @@ new class extends Component
         "purpose"=>$this->book_reason,
         "booking_date"=>$this->book_date,
         "room_id"=>$this->room_id,
-        "user_id"=>1,
+        "user_id"=>auth()->user()->id,
         "start_time_id"=>$this->start_time_id,
         "end_time_id"=>$this->end_time_id,
       ]);
@@ -376,9 +375,9 @@ new class extends Component
 
       // Show the table
       $this->showForm = false;
-      $this->resetExcept(["search_date","search_building","room_name","building_name"]);
+      $this->resetExcept(["search_date","search_building","room_name","building_name","number_occupants"]);
 
-      session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants");
+      session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       }
       catch(\Throwable $e){
         session()->flash('failure',"There was a database error");
@@ -433,8 +432,8 @@ new class extends Component
         if(count($toVoid)>0){
           forEach($toVoid as $voidable){
             // Change this to do it only on Students
-            if($voidable["user_id"]!=1){
-              $this->addError('lecturer_booked','Could not book this room because a lecturer'.$voidable["user_id"].'has booked this room at'.$voidable["start_time_id"].'to'.$voidable["end_time_id"].'for a'.$voidable["purpose"] );
+            if($voidable->user->role->role_name!="Student"){
+              $this->addError('lecturer_booked','Could not book this room because a lecturer "'.$voidable->user->name.'"has booked this room at '.$voidable->startTimeSlot->start_time.' to '.$voidable->endTimeSlot->end_time.' for: '.$voidable["purpose"] );
               return;
             }
           }
@@ -451,7 +450,7 @@ new class extends Component
         "purpose"=>$this->book_reason,
         "booking_date"=>$this->book_date,
         "room_id"=>$this->room_id,
-        "user_id"=>1,
+        "user_id"=>auth()->user()->id,
         "start_time_id"=>$this->start_time_id,
         "end_time_id"=>$this->end_time_id,
       ]);
@@ -461,7 +460,7 @@ new class extends Component
       $this->showForm = false;
       $this->resetExcept(["search_date","search_building","room_name","building_name"]);
 
-      session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants");
+      session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       }
       catch(\Throwable $e){
         session()->flash('failure',"There was a database error");
@@ -647,8 +646,8 @@ new class extends Component
                   <div class="col-md-6 mb-3">
                     <label for="number_occupants" class="form-label">Number of Occupants</label>
                     <input required wire:model.live.debounce.500ms="number_occupants"
-                     @if($this->user_id!=1) disabled @endif
-                     type="number" min=1 name="number_occupants" class="form-control @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
+                     @if(auth()->user()->role->role_name!="Student") disabled @endif
+                     type="number" min=1 name="number_occupants" max="30" class="form-control @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
                     @error('number_occupants')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -660,7 +659,7 @@ new class extends Component
                   <div class="col-md-6 mb-3">
                     <label for="book_reason" class="form-label">Reason For Booking</label>
                     <select required wire:model="book_reason" type="text" name="book_reason" class="form-control @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
-                      @if($this->user_id==1)
+                      @if(auth()->user()->role->role_name=="Student")
                         <option value="Individual Study">Individual Study</option>
                         <option value="Group Study">Group Study</option>
                       @else
@@ -682,13 +681,25 @@ new class extends Component
                       </div>
                   @enderror
 
+                  {{-- Edit if the error in number of occupants entered, number of vacancies etc --}}
+                  @if ($this->vacancies <= 0 || $this->vacancies<$this->number_occupants)
+                    <div class="invalid-feedback col-md-12">
+                      <small>
+                        <ul>Either:
+                        <li>Vacancies less than 1</li> 
+                        <li>number of occupants > number of vacancies</lli>
+                        </ul>
+                      </small>
+                    </div>
+                  @endif
+
                   </div>
                 </div>
               <div class="card-footer">
                   <a href=" #" wire:click="cancel" class="btn btn-danger">
                     <i class="bi bi-arrow-left"></i> Back
                   </a>
-                  @if($this->user_id==1)
+                  @if(auth()->user()->role->role_name=="Student")
                     <button type="submit" class="btn btn-primary" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
                     </button>
@@ -836,7 +847,7 @@ new class extends Component
                     {{-- If you selected a search date we can do the vacancy math --}}
                     @if($this->search_date!="")
                       {{-- This is what is there for students --}}
-                      @if($this->user_id==1)
+                      @if(auth()->user()->role->role_name=="Student")
                         <td>{{$roomAvailable->capacity }}</td>
                         {{-- Show the booking form --}}
                         <td>
