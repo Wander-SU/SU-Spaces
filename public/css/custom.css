@@ -1,0 +1,20 @@
+/* Self Specified CSS */
+/* CSS for the screen that contains the svgs. */
+.svg-scroll-container svg{
+  /* Force the svg to go to a particular size */
+  width: 100vw !important;
+  height: auto !important;
+
+  /* Make sure it is crisp*/
+  image-rendering: pixelated;
+}
+
+/* CSS for the phases */
+.phase{
+    cursor:pointer;
+}
+
+.phase:hover rect{
+    fill:black !important;
+    stroke:white !important;
+}
