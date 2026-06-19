@@ -43,6 +43,7 @@
        style="fill:#fcfcfc;stroke:#000000;stroke-width:4.94071"
        id="rect1"
        class="building-section"
+       @click="Livewire.dispatch('partSelected',{partName:'CentralPart'})"
        width="587.18597"
        height="133.20139"
        x="202.29834"
@@ -51,6 +52,7 @@
        style="fill:#fcfcfc;stroke:#000000;stroke-width:6.97274"
        id="rect2"
        class="building-section"
+       @click="Livewire.dispatch('partSelected',{partName:'LeftWing'})"
        width="134.12589"
        height="273.71774"
        x="204.77379"
@@ -58,7 +60,7 @@
     <rect
        style="fill:#fcfcfc;stroke:#000000;stroke-width:6.88202"
        id="rect2-8"
-       class="building-section"
+       s1
        width="134.21661"
        height="266.46152"
        x="654.97906"

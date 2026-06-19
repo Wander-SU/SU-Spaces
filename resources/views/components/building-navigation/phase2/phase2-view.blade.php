@@ -1,7 +1,7 @@
-<div>
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
+<div x-data>
 <svg
    width="1920mm"
    height="1080mm"
@@ -48,6 +48,8 @@
      id="layer1">
     <g
        id="g14"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'Forge'})"
        transform="matrix(1.1340906,0,0,1.0388244,-534.8085,0.45987971)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:4.97568"
@@ -73,6 +75,8 @@
     </g>
     <g
        id="g12"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'OvalBuilding'})"
        transform="matrix(1.1430264,-0.03202256,0.02003943,0.60017012,-724.68833,265.77938)">
       <path
          style="fill:#fcfcfc;stroke:#000000;stroke-width:5.91496"
@@ -94,6 +98,8 @@
     </g>
     <g
        id="g16"
+       class="building-banned"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'Auditorium'})"
        transform="matrix(1.1340906,0,0,1.0388244,-623.23982,-54.92406)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:4.64797"
@@ -105,6 +111,8 @@
     </g>
     <g
        id="g20"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'MSB'})"
        transform="matrix(1.9051426,0,0,1.6176777,-1881.0889,-134.85093)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:5.91496"
@@ -116,6 +124,8 @@
     </g>
     <g
        id="g15"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'Library'})"
        transform="matrix(1.1340906,0,0,1.0388244,-635.73522,-153.85585)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:5.30342"
@@ -127,6 +137,8 @@
     </g>
     <g
        id="g17"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'STMB'})"
        transform="matrix(1.1340906,0,0,1.0388244,-607.07547,-0.30026493)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:4.36356"
@@ -138,6 +150,8 @@
     </g>
     <g
        id="g19"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'SBS'})"
        transform="matrix(1.1340906,0,0,1.0388244,-624.2471,-10.196326)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:3.4489"
@@ -149,6 +163,8 @@
     </g>
     <g
        id="g18"
+       class="building"
+       @click="Livewire.dispatch('buildingSelected',{buildingName:'STC'})"
        transform="matrix(1.1340906,0,0,1.0388244,-626.83243,-23.550553)">
       <rect
          style="fill:#fcfcfc;stroke:#000000;stroke-width:3.93309"
