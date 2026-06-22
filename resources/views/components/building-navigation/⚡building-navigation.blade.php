@@ -1,12 +1,17 @@
 <?php
 
+use App\Traits\Concerns\ComputeStatuses;
 use App\Models\TimeSlot;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
+    // Inherited functionality
+    use ComputeStatuses;
+
     //Public Variables
+    public array $roomStatuses = [];
     public $phaseName;
     public $partName;
     public $roomName;
@@ -26,6 +31,9 @@ new class extends Component
         if($this->search_date==""){
             $this->search_date=now()->format('Y-m-d');
         }
+
+        // Compute Statuses
+        $this->computeStatuses();
 
         $timeSlots = TimeSlot::all();
 
@@ -93,6 +101,15 @@ new class extends Component
     */
     public function updatedStartTimeId(){
         $this->computeEndTimeId();
+        $this->computeStatuses();
+    }
+
+    public function updatedEndTimeId(){
+        $this->computeStatuses();
+    }
+
+    public function updatedSearchDate(){
+        $this->computeStatuses();
     }
 
    /**

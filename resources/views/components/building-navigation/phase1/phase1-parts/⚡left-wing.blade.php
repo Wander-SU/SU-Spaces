@@ -1,11 +1,29 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
-   public function render(){
-      return view('components.building-navigation.phase1.phase1-parts.⚡left-wing');
-   }
+    public array $roomStatuses = [];
+
+    public function render(){
+        return view('components.building-navigation.phase1.phase1-parts.⚡left-wing');
+    }
+
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
 }
 ?>
 
@@ -62,7 +80,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'LT2'})"
             >
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.08475"
+                style="fill:{{ $this->roomColor('LT 2') }};stroke:#000000;stroke-width:2.08475"
                 id="rect5-78-59"
                 width="511.89023"
                 height="237.18636"
@@ -74,7 +92,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'LT1'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.11517"
+                style="fill:{{ $this->roomColor('LT 1') }};stroke:#000000;stroke-width:2.11517"
                 id="rect5-78-2"
                 width="516.69452"
                 height="241.88896"
@@ -93,7 +111,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'LT4'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.08475"
+                style="fill:{{ $this->roomColor('LT 4') }};stroke:#000000;stroke-width:2.08475"
                 id="rect5-78-7"
                 width="511.89023"
                 height="237.18636"
@@ -113,7 +131,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'LT6'})"
             >
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.08475"
+                style="fill:{{ $this->roomColor('LT 6') }};stroke:#000000;stroke-width:2.08475"
                 id="rect5-78-6"
                 width="511.89023"
                 height="237.18636"
@@ -125,7 +143,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'LT3'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.18035"
+                style="fill:{{ $this->roomColor('LT 3') }};stroke:#000000;stroke-width:2.18035"
                 id="rect5-78-5"
                 width="560.39691"
                 height="236.98273"
@@ -138,7 +156,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'LT5'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.20239"
+                style="fill:{{ $this->roomColor('LT 5') }};stroke:#000000;stroke-width:2.20239"
                 id="rect5-78"
                 width="560.37396"
                 height="241.80716"
@@ -151,7 +169,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'Kitchen5'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:2.0351"
+                style="fill:{{ $this->roomColor('Kitchen 5') }};stroke:#000000;stroke-width:2.0351"
                 id="rect5-78-26"
                 width="487.69498"
                 height="237.23601"

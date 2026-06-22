@@ -1,11 +1,29 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
-   public function render(){
-      return view('components.building-navigation.phase1.phase1-parts.⚡central-part');
-   }
+    public array $roomStatuses = [];
+
+    public function render(){
+        return view('components.building-navigation.phase1.phase1-parts.⚡central-part');
+    }
+
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
 }
 ?>
 

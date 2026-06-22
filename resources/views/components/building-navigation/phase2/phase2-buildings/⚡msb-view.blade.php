@@ -1,11 +1,30 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
-   public function render(){
-      return view('components.building-navigation.phase2.phase2-buildings.⚡msb-view');
-   }
+    public array $roomStatuses = [];
+
+    public function render(){
+        return view('components.building-navigation.phase2.phase2-buildings.⚡msb-view');
+    }
+    
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
+
 }
 ?>
 
@@ -71,7 +90,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb5'})"
             transform="matrix(0.47350485,0,0,0.59990243,439.42005,57.342808)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 5') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-3"
                 width="480.04895"
                 height="295.78775"
@@ -91,7 +110,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb10'})"
             transform="matrix(0.53834829,0,0,0.59971612,569.24271,-137.00092)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 10') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-13"
                 width="480.04895"
                 height="295.78775"
@@ -104,7 +123,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb7'})"
             transform="matrix(0.47350485,0,0,0.59990243,-208.78558,-139.21905)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 7') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-5"
                 width="480.04895"
                 height="295.78775"
@@ -124,7 +143,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb13'})"
             transform="matrix(0.47350485,0,0,0.59990243,380.35499,-326.00734)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 13') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-0"
                 width="480.04895"
                 height="295.78775"
@@ -137,7 +156,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb12'})"
             transform="matrix(0.47350485,0,0,0.59990243,-34.450399,-323.02554)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 12') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-6"
                 width="480.04895"
                 height="295.78775"
@@ -150,7 +169,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb14'})"
             transform="matrix(0.54735216,0,0,0.5996908,637.22922,-317.85811)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 14') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-0-8-5"
                 width="480.04895"
                 height="295.78775"
@@ -171,7 +190,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb1'})"
             transform="matrix(0.86875585,0,0,0.5989048,-422.25694,253.60469)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 1') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9"
                 width="480.04895"
                 height="295.78775"
@@ -184,7 +203,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb3'})"
             transform="matrix(0.47350485,0,0,0.59990243,-209.41483,59.018016)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 3') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9"
                 width="480.04895"
                 height="295.78775"
@@ -197,7 +216,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb4'})"
             transform="matrix(0.47350485,0,0,0.59990243,-37.363355,58.408688)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 4') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2"
                 width="480.04895"
                 height="295.78775"
@@ -210,7 +229,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb8'})"
             transform="matrix(0.47350485,0,0,0.59990243,-38.376278,-137.10736)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 8') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-2"
                 width="480.04895"
                 height="295.78775"
@@ -223,7 +242,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb2'})"
             transform="matrix(0.94479995,0,0,0.59874164,230.13687,253.05148)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 2') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-0"
                 width="480.04895"
                 height="295.78775"
@@ -236,7 +255,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb6'})"
             transform="matrix(0.5538209,0,0,0.59967291,628.41118,60.329295)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 6') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-0-2"
                 width="480.04895"
                 height="295.78775"
@@ -249,7 +268,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msbSeminar'})"
             transform="matrix(0.66012345,0,0,0.56573364,-306.47496,471.17843)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB Seminar') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4"
                 width="480.04895"
                 height="295.78775"
@@ -262,7 +281,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb9'})"
             transform="matrix(0.47350485,0,0,0.59990243,379.18075,-110.93384)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 9') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-1"
                 width="480.04895"
                 height="295.78775"
@@ -275,7 +294,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'msb11'})"
             transform="matrix(0.47350485,0,0,0.59990243,-188.10433,-340.72152)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('MSB 11') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2-7"
                 width="480.04895"
                 height="295.78775"

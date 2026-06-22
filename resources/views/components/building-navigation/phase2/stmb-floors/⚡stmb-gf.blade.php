@@ -1,11 +1,29 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
+   public array $roomStatuses = [];
+
    public function render(){
       return view('components.building-navigation.phase2.stmb-floors.⚡stmb-gf');
    }
+
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
 }
 ?>
 
@@ -61,7 +79,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'gf-01'})"
             transform="matrix(0.7776267,0,0,1.1796938,329.97088,-16.560587)">
             <rect
-               style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+               style="fill:{{ $this->roomColor('STMB GF-01') }};stroke:#000000;stroke-width:1.565"
                id="rect2"
                width="1072.2625"
                height="324.17239"
@@ -74,7 +92,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'gf-02'})"
             transform="matrix(1.5865436,0,0,0.99930243,45.573449,0.58997446)">
             <rect
-               style="fill:#fcfcfc;stroke:#000000;stroke-width:1.07625"
+               style="fill:{{ $this->roomColor('STMB GF-02') }};stroke:#000000;stroke-width:1.07625"
                id="rect3"
                width="524.15179"
                height="399.47006"

@@ -1,11 +1,30 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
-   public function render(){
-      return view('components.building-navigation.phase2.stmb-floors.⚡stmb-basement');
-   }
+    public array $roomStatuses = [];
+
+    public function render(){
+        return view('components.building-navigation.phase2.stmb-floors.⚡stmb-basement');
+    }
+
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
+
 }
 ?>
 
@@ -61,7 +80,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'b1-03'})"
             transform="matrix(0.50034878,0,0,1.1806045,158.64227,-16.749839)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('STMB B1-03') }};stroke:#000000;stroke-width:1.565"
                 id="rect2"
                 width="1072.2625"
                 height="324.17239"
@@ -73,7 +92,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'b1-04'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.07625"
+                style="fill:{{ $this->roomColor('STMB B1-04') }};stroke:#000000;stroke-width:1.07625"
                 id="rect3"
                 width="524.15179"
                 height="399.47006"
@@ -86,7 +105,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'b1-01'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.5096"
+                style="fill:{{ $this->roomColor('STMB B1-01') }};stroke:#000000;stroke-width:1.5096"
                 id="rect4"
                 width="581.90326"
                 height="376.17847"
@@ -98,7 +117,7 @@ new class extends Component{
             class="room"
             @click="Livewire.dispatch('roomSelected',{roomName:'b1-06'})">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.49725"
+                style="fill:{{ $this->roomColor('STMB B1-06') }};stroke:#000000;stroke-width:1.49725"
                 id="rect5"
                 width="581.91565"
                 height="399.04913"

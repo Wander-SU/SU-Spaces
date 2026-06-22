@@ -1,11 +1,30 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 new class extends Component{
-   public function render(){
-      return view('components.building-navigation.phase2.phase2-buildings.⚡sbs-view');
-   }
+    public array $roomStatuses = [];
+
+    public function render(){
+        return view('components.building-navigation.phase2.phase2-buildings.⚡sbs-view');
+    }
+    
+    #[On('statusUpdated')]
+    public function statusUpdated(array $statuses){
+        $this->roomStatuses = $statuses;
+    }
+
+
+    public function roomColor(string $roomName): string
+    {
+        return match($this->roomStatuses[$roomName] ?? 'available'){
+            'base_booking' => '#ef4444',
+            'at_capacity' => '#f97316',
+            default => '#22bf34ff'
+        };
+    }
+
 }
 ?>
 
@@ -61,7 +80,7 @@ new class extends Component{
         @click="Livewire.dispatch('roomSelected',{roomName:'sbs2'})"
             transform="matrix(0.61616923,0,0,0.59950684,-277.37749,439.76232)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('SBS 2') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9"
                 width="480.04895"
                 height="295.78775"
@@ -74,7 +93,7 @@ new class extends Component{
         @click="Livewire.dispatch('roomSelected',{roomName:'sbs1'})"
             transform="matrix(0.76750932,0,0,0.59913492,-146.40309,443.62328)">
             <rect
-                style="fill:#fcfcfc;stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('SBS 1') }};stroke:#000000;stroke-width:1.565"
                 id="rect1-4-9-9-2"
                 width="480.04895"
                 height="295.78775"
