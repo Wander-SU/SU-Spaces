@@ -1,5 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<?php
+
+use Livewire\Component;
+
+new class extends Component{
+   public function render(){
+      return view('components.building-navigation.phase2.phase2-buildings.⚡stc-view');
+   }
+}
+?>
 
 <div x-data>
     <svg

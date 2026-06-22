@@ -1,5 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<?php
+
+use Livewire\Component;
+
+new class extends Component{
+   public function render(){
+      return view('components.building-navigation.bird-eye-view.⚡bird-eye-view');
+   }
+}
+?>
 
 <div x-data>
    <svg

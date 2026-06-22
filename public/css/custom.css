@@ -16,7 +16,9 @@
     cursor:pointer;
 }
 
-.phase:hover rect{
+.phase:hover rect,
+.phase:hover path
+{
     fill:black !important;
     stroke:white !important;
 }
@@ -44,6 +46,8 @@
     fill:grey !important;
 }
 
-.building:hover rect{
+.building:hover rect,
+.building:hover path
+{
     fill:black !important;
 }
