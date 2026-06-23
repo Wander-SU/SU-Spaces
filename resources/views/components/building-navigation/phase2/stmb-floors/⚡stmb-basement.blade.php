@@ -77,10 +77,10 @@ new class extends Component{
             <g
             id="g3"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'b1-03'})"
+            @click="Livewire.dispatch('roomSelected',{roomName:'b-03'})"
             transform="matrix(0.50034878,0,0,1.1806045,158.64227,-16.749839)">
             <rect
-                style="fill:{{ $this->roomColor('STMB B1-03') }};stroke:#000000;stroke-width:1.565"
+                style="fill:{{ $this->roomColor('STMB B-03') }};stroke:#000000;stroke-width:1.565"
                 id="rect2"
                 width="1072.2625"
                 height="324.17239"
@@ -90,9 +90,9 @@ new class extends Component{
             <g
             id="g7"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'b1-04'})">
+            @click="Livewire.dispatch('roomSelected',{roomName:'b-04'})">
             <rect
-                style="fill:{{ $this->roomColor('STMB B1-04') }};stroke:#000000;stroke-width:1.07625"
+                style="fill:{{ $this->roomColor('STMB B-04') }};stroke:#000000;stroke-width:1.07625"
                 id="rect3"
                 width="524.15179"
                 height="399.47006"
@@ -103,9 +103,9 @@ new class extends Component{
             <g
             id="g5"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'b1-01'})">
+            @click="Livewire.dispatch('roomSelected',{roomName:'b-01'})">
             <rect
-                style="fill:{{ $this->roomColor('STMB B1-01') }};stroke:#000000;stroke-width:1.5096"
+                style="fill:{{ $this->roomColor('STMB B-01') }};stroke:#000000;stroke-width:1.5096"
                 id="rect4"
                 width="581.90326"
                 height="376.17847"
@@ -115,9 +115,9 @@ new class extends Component{
             <g
             id="g6"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'b1-06'})">
+            @click="Livewire.dispatch('roomSelected',{roomName:'b-02'})">
             <rect
-                style="fill:{{ $this->roomColor('STMB B1-06') }};stroke:#000000;stroke-width:1.49725"
+                style="fill:{{ $this->roomColor('STMB B-02') }};stroke:#000000;stroke-width:1.49725"
                 id="rect5"
                 width="581.91565"
                 height="399.04913"

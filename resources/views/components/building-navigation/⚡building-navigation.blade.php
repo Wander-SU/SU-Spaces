@@ -197,7 +197,7 @@ new class extends Component
                         <select wire:model.live.debounce.100ms="start_time_id" type="time" name="start_time_id"
                         class="form-control {{ $errors->has('start_time_id') ? 'is-invalid' : '' }}" value="{{ old('start_time_id') }}">
                             @foreach($timeSlots as $timeSlot)
-                                @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && ($timeSlot->id-2)%4==0)
+                                @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00")
                                     <option value="{{ $timeSlot->id }}">{{$timeSlot->start_time}}</option>
                                 @endif
                             @endforeach
@@ -214,9 +214,13 @@ new class extends Component
                     <div class="input-group input-group-sm">
                         {{--  show inline error messages --}}
                         <label for="end _time" class="me-2">End:</label>
-                        <select wire:model="end_time_id" type="time" name="start_time_id"
-                        class="form-control {{ $errors->has('end_time_id') ? 'is-invalid' : '' }}" disabled value="{{ old('end_time_id') }}">
-                            <option>{{$end_time}}</option>
+                        <select wire:model.live.debounce.100ms="end_time_id" type="time" name="end_time_id"
+                        class="form-control {{ $errors->has('end_time_id') ? 'is-invalid' : '' }}" value="{{ old('end_time_id') }}">
+                            @foreach($timeSlots as $timeSlot)
+                                @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && ($timeSlot->id-$start_time_id)>=0 && ($timeSlot->id-$start_time_id)<=12)
+                                    <option value="{{ $timeSlot->id }}">{{$timeSlot->end_time}}</option>
+                                @endif
+                            @endforeach
                         </select>
                         @error('search_date')
                             <div class="invalid-feedback">
