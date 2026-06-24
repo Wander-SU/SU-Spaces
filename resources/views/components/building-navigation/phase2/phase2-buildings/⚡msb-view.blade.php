@@ -200,7 +200,7 @@ new class extends Component{
             <g
             id="g2-0-4"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'msb3,room_id:25'})"
+            @click="Livewire.dispatch('roomSelected',{roomName:'msb3',room_id:25})"
             transform="matrix(0.47350485,0,0,0.59990243,-209.41483,59.018016)">
             <rect
                 style="fill:{{ $this->roomColor('MSB 3') }};stroke:#000000;stroke-width:1.565"

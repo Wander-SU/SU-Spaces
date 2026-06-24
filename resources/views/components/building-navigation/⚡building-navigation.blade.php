@@ -2,12 +2,14 @@
 
 use App\Traits\Concerns\ComputeStatuses;
 use App\Models\TimeSlot;
+use App\Models\Room;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use App\Models\Building;
 
 new class extends Component
 {
-    // Inherited functionality
+    // Inherited functionality from the trait (Multiple Inheritance not found in php)
     use ComputeStatuses;
 
     //Public Variables
@@ -15,6 +17,7 @@ new class extends Component
     public $phaseName;
     public $partName;
     public $roomName;
+    public $room_id;
     public $buildingName;
     public $stmbFloor;
     public $start_time_id;
@@ -54,8 +57,49 @@ new class extends Component
     }
 
     #[On('roomSelected')]
-    public function roomSelected($roomName){
+    public function roomSelected($roomName,$room_id){
         $this->roomName= $roomName;
+        $this->room_id= $room_id;
+        $this->showBookForm();
+
+    }
+
+    public function showBookForm()
+    {
+        if(auth()->user()->role->role_name!="Student"){
+            $privilegedBook=True;
+        }
+        else{
+            $privilegedBook = False;
+        }
+        $room = Room::findOrFail($this->room_id);
+        $building = Building::findOrFail($room->building_id);
+        $this->building_id = $building->id;
+        $this->building_name = $building->building_name;
+        $this->room_capacity = $room->capacity;
+        $this->room_id = $room->id;
+        $this->room_name = $room->room_name;
+        if(auth()->user()->role->role_name!="Student"){
+            $this->number_occupants = $room->capacity;
+        }
+        else{
+            $this->number_occupants = 1;
+        }
+        $this->book_date = $this->search_date;
+        $this->dispatch('initiateShowFormFromNav',[
+            'showForm' => True,
+            'isPrivilegedBook' => $privilegedBook,
+            'building_id'=>$this->building_id,
+            'building_name'=>$this->building_name,
+            'room_capacity' => $this->room_capacity,
+            'room_id' => $this->room_id,
+            'room_name' => $this->room_name,
+            'book_date' => $this->book_date,
+            'number_occupants' => $this->number_occupants,
+            'start_time_id' => $this->start_time_id,
+            'end_time_id' => $this->end_time_id,
+            'search_date'=>$this->search_date
+      ]);
     }
 
     #[On('buildingSelected')]
@@ -77,6 +121,7 @@ new class extends Component
         $this->partName=null;
         $this->roomName=null;
         $this->stmbFloor=null;
+        $this->dispatch('initiatedHideForm');
     }
 
     /**
@@ -87,6 +132,7 @@ new class extends Component
         $this->partName=null;
         $this->roomName=null;
         $this->stmbFloor=null;
+        $this->dispatch('initiatedHideForm');
     }
 
     /**
@@ -94,6 +140,7 @@ new class extends Component
     */
     public function backToStmbView(){
         $this->stmbFloor=null;
+        $this->dispatch('initiatedHideForm');
     }
 
     /**
@@ -139,6 +186,10 @@ new class extends Component
       </div>
     @endif
 
+    {{-- Form for Booking--}}
+    {{-- Only shows up if set to true --}}
+    <livewire:book-forms.book-form/>
+
     <div class="card-info">
         <div class="card-header">
             {{-- Buttons to Cancel --}}
@@ -167,12 +218,6 @@ new class extends Component
                     </a>
                 @endif
 
-
-                @if($this->roomName!=null)
-                <form class="mt-4 inline-block rounded-2">
-                    <input type="text" disabled wire:model='roomName' value={{ old('roomName') }}>
-                </form>
-                @endif
             </div>
             <div class="card-tools">
                 {{-- Search Date form --}}
