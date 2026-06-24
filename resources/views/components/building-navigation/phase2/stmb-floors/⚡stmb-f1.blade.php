@@ -76,7 +76,7 @@ new class extends Component{
          <g
             id="g8"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'f1-04'})">
+            @click="Livewire.dispatch('roomSelected',{roomName:'f1-04',room_id:10})">
             <rect
                style="fill:{{ $this->roomColor('STMB F1-04') }};stroke:#000000;stroke-width:1.93521"
                id="rect4-5"
@@ -88,7 +88,7 @@ new class extends Component{
          <g
             id="g5"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'f1-01'})">>
+            @click="Livewire.dispatch('roomSelected',{roomName:'f1-01',room_id:7})">>
             <rect
                style="fill:{{ $this->roomColor('STMB F1-01') }};stroke:#000000;stroke-width:1.565"
                id="rect2"
@@ -100,7 +100,7 @@ new class extends Component{
          <g
             id="g9"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'f1-05'})">>
+            @click="Livewire.dispatch('roomSelected',{roomName:'f1-05',room_id:11})">>
             <rect
                style="fill:{{ $this->roomColor('STMB F1-05') }};stroke:#000000;stroke-width:1.63522"
                id="rect3"
@@ -112,7 +112,7 @@ new class extends Component{
          <g
             id="g6"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'f1-02'})">>
+            @click="Livewire.dispatch('roomSelected',{roomName:'f1-02',room_id:8})">>
             <rect
                style="fill:{{ $this->roomColor('STMB F1-02') }};stroke:#000000;stroke-width:1.92453"
                id="rect4"
@@ -124,7 +124,7 @@ new class extends Component{
          <g
             id="g7"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'f1-03'})">>
+            @click="Livewire.dispatch('roomSelected',{roomName:'f1-03',room_id:9})">>
             <rect
                style="fill:{{ $this->roomColor('STMB F1-03') }};stroke:#000000;stroke-width:1.92453"
                id="rect4-7"

@@ -77,7 +77,7 @@ new class extends Component{
             <g
             id="g2-0-4"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'sbs2'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'sbs2',room_id:69})"
             transform="matrix(0.61616923,0,0,0.59950684,-277.37749,439.76232)">
             <rect
                 style="fill:{{ $this->roomColor('SBS 2') }};stroke:#000000;stroke-width:1.565"
@@ -90,7 +90,7 @@ new class extends Component{
             <g
             id="g2-0-4-5"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'sbs1'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'sbs1',room_id:68})"
             transform="matrix(0.76750932,0,0,0.59913492,-146.40309,443.62328)">
             <rect
                 style="fill:{{ $this->roomColor('SBS 1') }};stroke:#000000;stroke-width:1.565"

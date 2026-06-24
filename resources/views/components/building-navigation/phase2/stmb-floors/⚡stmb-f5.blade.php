@@ -75,7 +75,7 @@ new class extends Component{
         <g
         id="g8"
           class="room"
-       @click="Livewire.dispatch('roomSelected',{roomName:'f5-04'})"
+       @click="Livewire.dispatch('roomSelected',{roomName:'f5-04',room_id:20})"
         transform="translate(12.78607,1.399037)">
         <rect
             style="fill:{{ $this->roomColor('STMB F5-04') }};stroke:#000000;stroke-width:1.93521"
@@ -88,7 +88,7 @@ new class extends Component{
         <g
         id="g5"
          class="room"
-       @click="Livewire.dispatch('roomSelected',{roomName:'f5-01'})"
+       @click="Livewire.dispatch('roomSelected',{roomName:'f5-01',room_id:17})"
         transform="translate(12.78607,1.399037)">
         <rect
             style="fill:{{ $this->roomColor('STMB F5-01') }};stroke:#000000;stroke-width:1.565"
@@ -101,7 +101,7 @@ new class extends Component{
         <g
         id="g9"
           class="room"
-       @click="Livewire.dispatch('roomSelected',{roomName:'f5-05'})"
+       @click="Livewire.dispatch('roomSelected',{roomName:'f5-05',room_id:21})"
         transform="translate(12.78607,1.399037)">
         <rect
             style="fill:{{ $this->roomColor('STMB F5-05') }};stroke:#000000;stroke-width:1.63522"
@@ -114,7 +114,7 @@ new class extends Component{
         <g
         id="g6"
           class="room"
-       @click="Livewire.dispatch('roomSelected',{roomName:'f5-02'})"
+       @click="Livewire.dispatch('roomSelected',{roomName:'f5-02',room_id:18})"
         transform="translate(12.78607,1.399037)">
         <rect
             style="fill:{{ $this->roomColor('STMB F5-02') }};stroke:#000000;stroke-width:1.92453"
@@ -127,7 +127,7 @@ new class extends Component{
         <g
         id="g7"
           class="room"
-       @click="Livewire.dispatch('roomSelected',{roomName:'f5-03'})"
+       @click="Livewire.dispatch('roomSelected',{roomName:'f5-03',room_id:19})"
         transform="translate(12.78607,1.399037)">
         <rect
             style="fill:{{ $this->roomColor('STMB F5-03') }};stroke:#000000;stroke-width:1.92453"

@@ -78,7 +78,7 @@ new class extends Component{
             id="g5"
             transform="matrix(8.804808,0,0,3.8114906,-84.555262,-31.467659)"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'aberdareLab'})">       
+            @click="Livewire.dispatch('roomSelected',{roomName:'aberdareLab',room_id:64})">      
             <rect
                style="fill:{{ $this->roomColor('Aberdare Lab') }};stroke:#000000;stroke-width:1.565"
                id="rect2"
@@ -90,7 +90,7 @@ new class extends Component{
          <g
             id="g6"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'longonotLab'})"
+            @click="Livewire.dispatch('roomSelected',{roomName:'longonotLab',room_id:63})"
             transform="matrix(8.804808,0,0,3.8114906,-84.555262,-31.467659)">
             <rect
                style="fill:{{ $this->roomColor('Longonot Lab') }};stroke:#000000;stroke-width:1.565"
@@ -104,7 +104,7 @@ new class extends Component{
          <g
             id="g7"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'roomB'})"
+            @click="Livewire.dispatch('roomSelected',{roomName:'roomB',room_id:66})"
             transform="matrix(8.804808,0,0,3.8114906,-84.555262,-31.467659)">
             <rect
                style="fill:{{ $this->roomColor('RM B') }};stroke:#000000;stroke-width:1.565"
@@ -117,7 +117,7 @@ new class extends Component{
          <g
             id="g8"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'elgonLab'})"
+            @click="Livewire.dispatch('roomSelected',{roomName:'elgonLab',room_id:61})"
             transform="matrix(8.804808,0,0,3.8114906,-84.555262,-31.467659)">
             <rect
                style="fill:{{ $this->roomColor('Elgon Lab') }};stroke:#000000;stroke-width:1.565"

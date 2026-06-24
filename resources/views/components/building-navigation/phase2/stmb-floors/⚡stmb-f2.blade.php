@@ -76,7 +76,7 @@ new class extends Component{
             <g
             id="g8"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'f2-04'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'f2-04',room_id:15})"
             transform="translate(14.613582,-10.368605)">
             <rect
                 style="fill:{{ $this->roomColor('STMB F2-04') }};stroke:#000000;stroke-width:1.93521"
@@ -89,7 +89,7 @@ new class extends Component{
             <g
             id="g5"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'f2-01'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'f2-01',room_id:12})"
             transform="translate(14.613582,-10.368605)">
             <rect
                 style="fill:{{ $this->roomColor('STMB F2-01') }};stroke:#000000;stroke-width:1.565"
@@ -102,7 +102,7 @@ new class extends Component{
             <g
             id="g9"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'f2-05'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'f2-05',room_id:16})"
             transform="translate(14.613582,-10.368605)">
             <rect
                 style="fill:{{ $this->roomColor('STMB F2-05') }};stroke:#000000;stroke-width:1.63522"
@@ -115,7 +115,7 @@ new class extends Component{
             <g
             id="g6"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'f2-02'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'f2-02',room_id:13})"
             transform="translate(14.613582,-10.368605)">
             <rect
                 style="fill:{{ $this->roomColor('STMB F2-02') }};stroke:#000000;stroke-width:1.92453"
@@ -128,7 +128,7 @@ new class extends Component{
             <g
             id="g7"
             class="room"
-        @click="Livewire.dispatch('roomSelected',{roomName:'f2-03'})"
+        @click="Livewire.dispatch('roomSelected',{roomName:'f2-03',room_id:14})"
             transform="translate(14.613582,-10.368605)">
             <rect
                 style="fill:{{ $this->roomColor('STMB F2-03') }};stroke:#000000;stroke-width:1.92453"
