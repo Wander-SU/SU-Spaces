@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorebuildingRequest;
 use App\Http\Requests\UpdatebuildingRequest;
-use App\Models\building;
+use App\Models\Building;
 
 class BuildingController extends Controller
 {
@@ -13,7 +13,7 @@ class BuildingController extends Controller
      */
     public function index()
     {
-        //
+        return view('buildingNavigation.view');
     }
 
     /**
@@ -35,7 +35,7 @@ class BuildingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(building $building)
+    public function show(Building $building)
     {
         //
     }
@@ -43,7 +43,7 @@ class BuildingController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(building $building)
+    public function edit(Building $building)
     {
         //
     }
@@ -51,7 +51,7 @@ class BuildingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatebuildingRequest $request, building $building)
+    public function update(UpdatebuildingRequest $request, Building $building)
     {
         //
     }
@@ -59,7 +59,7 @@ class BuildingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(building $building)
+    public function destroy(Building $building)
     {
         //
     }

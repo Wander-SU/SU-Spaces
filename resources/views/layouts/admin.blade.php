@@ -54,6 +54,9 @@
         };
       </script>
     @endif
+    {{-- Begin: Localised StyleSheet --}}
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    {{-- End: Localised Stylesheet --}}
     
     {{-- Page-specific styles --}}
     @stack('styles')

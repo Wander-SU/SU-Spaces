@@ -1,0 +1,53 @@
+/* Self Specified CSS */
+/* CSS for the screen that contains the svgs. */
+.svg-scroll-container svg{
+  /* Force the svg to go to a particular size */
+  width: 100vw !important;
+  height: 70vh !important;
+
+  /* Make sure it is crisp*/
+  image-rendering: pixelated;
+}
+
+/* CSS for the phases */
+.phase,
+.building,
+.building-section{
+    cursor:pointer;
+}
+
+.phase:hover rect,
+.phase:hover path
+{
+    fill:black !important;
+    stroke:white !important;
+}
+
+.building-section:hover,
+.building-section:hover rect{
+    fill:black !important;
+}
+
+
+
+.room rect{
+    cursor:pointer;
+}
+
+.room:hover rect{
+    fill:black !important;
+    stroke:white !important;
+}
+
+.room-banned rect,
+.building-banned rect,
+.building-section-banned rect{
+    cursor:not-allowed;
+    fill:grey !important;
+}
+
+.building:hover rect,
+.building:hover path
+{
+    fill:black !important;
+}
