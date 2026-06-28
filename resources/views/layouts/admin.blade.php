@@ -164,7 +164,7 @@
     <!--begin::Required Plugin(AdminLTE)-->
     <script src="{{ asset('adminlte/js/adminlte.js') }}"></script>
     <!--end::Required Plugin(AdminLTE)-->
-    
+
     <!--begin::OverlayScrollbars Configure-->
     <script>
       const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';

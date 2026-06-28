@@ -9,10 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' };
-    </script>
+    @if (file_exists(public_path('build/manifest.json')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = { darkMode: 'class' };
+        </script>
+    @endif
 </head>
 <body class="min-h-screen bg-[#FDFDFC] font-['Instrument_Sans',sans-serif] dark:bg-[#0a0a0a]">
     <div class="relative min-h-screen overflow-hidden bg-center bg-no-repeat" style="background-image: url('{{ asset('images/log_in_background.jpeg') }}'); background-size: 120vmin;">
