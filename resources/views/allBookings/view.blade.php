@@ -85,6 +85,7 @@
         $sortBy = old('sort_by', request('sort_by', 'newest'));
         $bookings = collect($bookings ?? []);
         $priorityAlerts = collect($priorityAlerts ?? []);
+        $hasAnyBookings = (bool) ($hasAnyBookings ?? false);
         $hasDateFilter = !empty($fromDate) || !empty($toDate);
 
         // Dynamic heading text that reflects the selected date-window mode.
@@ -145,22 +146,23 @@
                 Confirmed Bookings @if($hasDateFilter && $headingWindowText) ({{ $headingWindowText }})@endif
             </h2>
 
-            {{-- UX rule: no selected filters means show guidance empty state instead of any booking list. --}}
-            @if(!$hasDateFilter)
+            @if($bookings->isEmpty())
                 <div class="rounded-lg border border-dashed border-[#e3e3e0] p-8 text-center dark:border-[#3E3E3A]">
                     <div class="mx-auto mb-5 flex h-28 w-28 items-center justify-center rounded-full bg-[#f6f6f4] dark:bg-[#232322]">
                         <svg class="h-16 w-16 text-[#1b1b18] dark:text-[#EDEDEC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 2v3m8-3v3M4 9h16M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
                         </svg>
                     </div>
-                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">No bookings made yet? Let's find you a room!</p>
+                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">
+                        {{ $hasDateFilter ? 'No confirmed bookings found for the selected date range.' : 'No confirmed bookings found yet. Let\'s find you a room!' }}
+                    </p>
                     <div class="mt-5">
                         <a href="{{ route('bookings.index') }}" class="inline-flex items-center rounded-md bg-gradient-to-r from-[#0048AD] to-[#FF383C] px-6 py-2 font-medium text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#0048AD]/30">
                             Find a room now
                         </a>
                     </div>
                 </div>
-            @elseif($bookings->isNotEmpty())
+            @else
                 <div class="space-y-3">
                     @foreach($bookings as $booking)
                         {{-- Confirmed booking card with status badge and cancel action. --}}
@@ -193,10 +195,6 @@
                             </div>
                         </article>
                     @endforeach
-                </div>
-            @else
-                <div class="rounded-lg border border-dashed border-[#e3e3e0] p-6 text-center dark:border-[#3E3E3A]">
-                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">No confirmed bookings found for the selected date range.</p>
                 </div>
             @endif
         </section>
