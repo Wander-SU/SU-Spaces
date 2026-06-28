@@ -65,6 +65,16 @@
             margin-right: 8px;
         }
 
+        .all-bookings-page .status-edit::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #2563EB;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
         .all-bookings-page .cancelled-text {
             text-decoration: line-through;
         }
@@ -196,7 +206,8 @@
                             <div class="booking-details text-sm text-[#1b1b18] dark:text-[#EDEDEC] md:w-2/4">
                                 {{ $booking['schedule'] ?? data_get($booking, 'schedule', 'Date and time not available') }}
                                 <p class="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">
-                                    Reason: {{ $booking['reason'] ?? data_get($booking, 'reason', 'Not specified') }}
+                                    Reason: {{ $booking['reason'] ?? data_get($booking, 'reason', 'Not specified') }} |
+                                    Occupants: {{ $booking['occupants'] ?? data_get($booking, 'occupants', 0) }}
                                 </p>
                             </div>
 
@@ -205,16 +216,22 @@
                                     {{ $booking['status'] ?? data_get($booking, 'status', 'Confirmed') }}
                                 </span>
 
-                                <form method="POST" action="{{ route('bookings.previous.cancel', data_get($booking, 'id')) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                    @csrf
-                                    {{-- Preserve current filters so refresh stays on the same view window after POST redirect. --}}
-                                    <input type="hidden" name="from_date" value="{{ $fromDate }}">
-                                    <input type="hidden" name="to_date" value="{{ $toDate }}">
-                                    <input type="hidden" name="sort_by" value="{{ $sortBy }}">
-                                    <button type="submit" class="status-cancel inline-flex items-center text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-gray-200">
-                                        Cancel Booking
-                                    </button>
-                                </form>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('bookings.previous.edit', ['booking' => data_get($booking, 'id'), 'from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="status-edit inline-flex items-center text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-blue-100">
+                                        Edit
+                                    </a>
+
+                                    <form method="POST" action="{{ route('bookings.previous.cancel', data_get($booking, 'id')) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        @csrf
+                                        {{-- Preserve current filters so refresh stays on the same view window after POST redirect. --}}
+                                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                                        <button type="submit" class="status-cancel inline-flex items-center text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-gray-200">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </article>
                     @endforeach

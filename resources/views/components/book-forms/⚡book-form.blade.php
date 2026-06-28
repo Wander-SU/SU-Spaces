@@ -163,6 +163,11 @@ new class extends Component
       $this->validate();
       $status = "Booked";
 
+      if ($this->violatesStudentReasonRule()) {
+        $this->addError('book_reason', 'For fewer than 2 occupants, reason must be Individual Study.');
+        return;
+      }
+
       // Check all timing conflicts
       // Get if timing conflict
       if($this->hasTimeConflict()){
@@ -179,6 +184,11 @@ new class extends Component
       // Format the Start and End Time IDs
       $this->start_time_id = (int)trim($this->start_time_id);
       $this->end_time_id = (int)trim($this->end_time_id);
+
+      if($this->hasExactDuplicateBooking()){
+        $this->addError('booking_duplicate','You already have this exact booking. Duplicate bookings are not allowed.');
+        return;
+      }
 
       // dd($this->start_time_id,$this->end_time_id);
       // dd($this->start_time_id,$this->end_time_id);
@@ -258,6 +268,11 @@ new class extends Component
       // Format the Start and End Time IDs
       $this->start_time_id = (int)trim($this->start_time_id);
       $this->end_time_id = (int)trim($this->end_time_id);
+
+      if($this->hasExactDuplicateBooking()){
+        $this->addError('booking_duplicate','You already have this exact booking. Duplicate bookings are not allowed.');
+        return;
+      }
 
       // Create the tuple that is needed
       try{
@@ -419,11 +434,32 @@ new class extends Component
       return $utilised;
     }
 
+    public function hasExactDuplicateBooking(): bool
+    {
+      return Booking::query()
+        ->where('user_id', auth()->id())
+        ->where('room_id', $this->room_id)
+        ->where('booking_date', $this->book_date)
+        ->where('start_time_id', $this->start_time_id)
+        ->where('end_time_id', $this->end_time_id)
+        ->where('status', 'Booked')
+        ->exists();
+    }
+
     /**
      * Function to get the vacancies
     */
     public function computeVacancies(){
       $this->vacancies = $this->room_capacity - $this->roomUtilisationUsingIds($this->start_time_id,$this->end_time_id,$this->room_id,$this->search_date);
+    }
+
+    private function violatesStudentReasonRule(): bool
+    {
+      $roleName = strtolower((string) optional(auth()->user()->role)->role_name);
+      $occupants = (int) $this->number_occupants;
+      $reason = strtolower(trim((string) $this->book_reason));
+
+      return $roleName === 'student' && $occupants < 2 && $reason !== 'individual study';
     }
 
     /**
@@ -600,7 +636,7 @@ new class extends Component
                       <option>--Select One--</option>
                       @if(auth()->user()->role->role_name=="Student")
                         <option value="Individual Study">Individual Study</option>
-                        <option value="Group Study">Group Study</option>
+                        <option value="Group Study" @disabled((int) $this->number_occupants < 2)>Group Study</option>
                       @else
                         <option value="CAT">CAT</option>
                         <option value="Examination">Examination</option>
@@ -615,6 +651,12 @@ new class extends Component
 
                   {{-- Lec Booked Error  --}}
                   @error('lecturer_booked')
+                      <div class="invalid-feedback col-md-12">
+                        {{ $message }}
+                      </div>
+                  @enderror
+
+                  @error('booking_duplicate')
                       <div class="invalid-feedback col-md-12">
                         {{ $message }}
                       </div>
