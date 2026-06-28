@@ -220,7 +220,6 @@
             @endforeach
         </section>
     </div>
-
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('bookings-filters');
@@ -242,4 +241,5 @@
                 });
             });
         </script>
+
 @endsection
