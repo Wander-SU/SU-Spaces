@@ -6,12 +6,15 @@ use App\Models\BaseBooking;
 use App\Models\Booking;
 use App\Models\TimeSlot;
 use App\Rules\DateGreaterThanToday;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
+  private const UNDO_NEW_BOOKING_SECONDS = 15;
+
     public $isPrivilegedBook;
     public $vacancies;  // Variable is never used as old="" rather bound to a wire:model
     public $number_occupants;
@@ -32,6 +35,8 @@ new class extends Component
     public $initial_start_time_id;
     public $initial_end_time_id;
     public $now;
+    public $undoBookingId = null;
+    public $undoBookingExpiresAt = null;
 
     public function render(){
         $timeSlots = TimeSlot::all();
@@ -202,6 +207,7 @@ new class extends Component
         "end_time_id"=>$this->end_time_id,
       ]);
       $booking->save();
+      $this->registerUndoNewBooking($booking);
 
       // Show the table
       $this->showForm = false;
@@ -286,6 +292,7 @@ new class extends Component
         "end_time_id"=>$this->end_time_id,
       ]);
       $booking->save();
+      $this->registerUndoNewBooking($booking);
 
       // Show the table
       $this->showForm = false;
@@ -296,6 +303,54 @@ new class extends Component
       catch(\Throwable $e){
         session()->flash('failure',"There was a database error");
       }
+    }
+
+    public function undoNewBooking()
+    {
+      if (empty($this->undoBookingId)) {
+        session()->flash('error', 'No recent booking found to undo.');
+        return;
+      }
+
+      $booking = Booking::find($this->undoBookingId);
+      if (!$booking || (int) $booking->user_id !== (int) auth()->user()->id) {
+        $this->undoBookingId = null;
+        $this->undoBookingExpiresAt = null;
+        session()->flash('error', 'Undo window has expired or this booking is unavailable.');
+        return;
+      }
+
+      $cacheKey = $this->undoNewBookingCacheKey((int) auth()->user()->id, (int) $booking->id);
+      $undoAllowed = (bool) Cache::pull($cacheKey, false);
+      if (!$undoAllowed || $booking->status !== 'Booked') {
+        $this->undoBookingId = null;
+        $this->undoBookingExpiresAt = null;
+        session()->flash('error', 'Undo window has expired or this booking can no longer be undone.');
+        return;
+      }
+
+      $booking->status = 'Voided';
+      $booking->save();
+
+      $this->undoBookingId = null;
+      $this->undoBookingExpiresAt = null;
+      session()->flash('success', 'Booking undone successfully.');
+    }
+
+    private function registerUndoNewBooking(Booking $booking): void
+    {
+      $this->undoBookingId = (int) $booking->id;
+      $this->undoBookingExpiresAt = now()->addSeconds(self::UNDO_NEW_BOOKING_SECONDS)->timestamp;
+      Cache::put(
+        $this->undoNewBookingCacheKey((int) auth()->user()->id, (int) $booking->id),
+        true,
+        now()->addSeconds(self::UNDO_NEW_BOOKING_SECONDS)
+      );
+    }
+
+    private function undoNewBookingCacheKey(int $userId, int $bookingId): string
+    {
+      return 'bookings:undo-new:' . $userId . ':' . $bookingId;
     }
 
     /**
@@ -390,6 +445,42 @@ new class extends Component
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    @endif
+
+    @if($undoBookingId && $undoBookingExpiresAt)
+      <div
+        x-data="{
+          expiry: {{ (int) $undoBookingExpiresAt }},
+          remaining: 0,
+          timer: null,
+          init() {
+            const tick = () => {
+              const nowTs = Math.floor(Date.now() / 1000);
+              this.remaining = Math.max(0, this.expiry - nowTs);
+              if (this.remaining <= 0 && this.timer) {
+                clearInterval(this.timer);
+              }
+            };
+            tick();
+            this.timer = setInterval(tick, 1000);
+          }
+        }"
+        class="alert alert-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2"
+        role="alert"
+      >
+        <span>
+          Booking created. Undo available for
+          <strong x-text="remaining"></strong>s.
+        </span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-dark"
+          wire:click="undoNewBooking"
+          x-bind:disabled="remaining <= 0"
+        >
+          Undo booking
+        </button>
       </div>
     @endif
 
