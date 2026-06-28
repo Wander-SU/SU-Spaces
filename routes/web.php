@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/previous-bookings', [BookingController::class, 'previousBookings'])->name('bookings.previous');
     // Cancel action from a confirmed booking card in the previous bookings page.
     Route::post('/previous-bookings/{booking}/cancel', [BookingController::class, 'cancelFromPrevious'])->name('bookings.previous.cancel');
+    // Undo cancellation for a short grace period.
+    Route::post('/previous-bookings/{booking}/undo-cancel', [BookingController::class, 'undoCancelFromPrevious'])->name('bookings.previous.undo-cancel');
     Route::resource('/buildingNavigation',BuildingController::class);
 
     // Update Timetable Route

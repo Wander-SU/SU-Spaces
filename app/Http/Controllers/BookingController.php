@@ -7,9 +7,12 @@ use App\Http\Requests\UpdateBookingRequest;
 use App\Models\Booking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class BookingController extends Controller
 {
+    private const UNDO_CANCEL_SECONDS = 30;
+
     /**
      * Display a listing of the resource.
      */
@@ -76,35 +79,46 @@ class BookingController extends Controller
                     'id' => $booking->id,
                     'room_name' => optional($booking->room)->room_name ?? 'ROOM',
                     'schedule' => $bookingDate->format('l, jS F Y') . ' | ' . $formattedStart . ' to ' . $formattedEnd,
+                    'reason' => (string) ($booking->purpose ?? ''),
                     'status' => 'Confirmed',
                 ];
             });
 
-        $priorityAlertsQuery = Booking::query()
-            ->with('room')
-            ->where('user_id', $userId)
-            ->where('status', 'Voided');
+        $userRoleName = strtolower((string) optional($request->user()->role)->role_name);
 
-        if (!empty($fromDate)) {
-            $priorityAlertsQuery->whereDate('booking_date', '>=', $fromDate);
+        $priorityAlerts = collect();
+        if ($userRoleName === 'student') {
+            $priorityAlertsQuery = Booking::query()
+                ->with('room')
+                ->where('user_id', $userId)
+                ->where('status', 'Voided')
+                ->where(function ($query) {
+                    $query->whereRaw('LOWER(purpose) LIKE ?', ['%cat%'])
+                        ->orWhereRaw('LOWER(purpose) LIKE ?', ['%exam%'])
+                        ->orWhereRaw('LOWER(purpose) LIKE ?', ['%examination%']);
+                });
+
+            if (!empty($fromDate)) {
+                $priorityAlertsQuery->whereDate('booking_date', '>=', $fromDate);
+            }
+
+            if (!empty($toDate)) {
+                $priorityAlertsQuery->whereDate('booking_date', '<=', $toDate);
+            }
+
+            $priorityAlerts = $priorityAlertsQuery
+                ->latest('updated_at')
+                ->take(5)
+                ->get()
+                // Map voided bookings into a simplified alert payload for the Priority Alerts section.
+                ->map(function (Booking $booking) {
+                    return [
+                        'room_name' => optional($booking->room)->room_name ?? 'ROOM',
+                        'status' => 'Reassigned',
+                        'note' => 'Note: Room has been reassigned to Faculty for a CAT. Your booking has been cancelled.',
+                    ];
+                });
         }
-
-        if (!empty($toDate)) {
-            $priorityAlertsQuery->whereDate('booking_date', '<=', $toDate);
-        }
-
-        $priorityAlerts = $priorityAlertsQuery
-            ->latest('updated_at')
-            ->take(5)
-            ->get()
-            // Map voided bookings into a simplified alert payload for the Priority Alerts section.
-            ->map(function (Booking $booking) {
-                return [
-                    'room_name' => optional($booking->room)->room_name ?? 'ROOM',
-                    'status' => 'Reassigned',
-                    'note' => 'Note: Room has been reassigned to Faculty for a CAT. Your booking has been cancelled.',
-                ];
-            });
 
         return view('allBookings.view', compact('bookings', 'priorityAlerts', 'fromDate', 'toDate', 'today', 'hasAnyBookings'));
     }
@@ -122,8 +136,12 @@ class BookingController extends Controller
         $bookingDate = Carbon::parse($booking->booking_date)->format('jS F Y');
 
         if ($booking->status === 'Booked') {
-            // Delete cancelled booking so it is removed from confirmed cards and does not surface as a priority alert.
-            Booking::query()->whereKey($booking->id)->delete();
+            // Keep an auditable record using a valid enum status.
+            Booking::query()
+                ->whereKey($booking->id)
+                ->update(['status' => 'Voided']);
+
+            Cache::put($this->undoCacheKey($request->user()->id, $booking->id), true, now()->addSeconds(self::UNDO_CANCEL_SECONDS));
         }
 
         return redirect()
@@ -133,7 +151,49 @@ class BookingController extends Controller
                 'to_date' => $request->input('to_date'),
                 'sort_by' => $request->input('sort_by', 'newest'),
             ])
-            ->with('success', "Booking for {$roomName} on {$bookingDate} has been cancelled.");
+            ->with('success', "Booking for {$roomName} on {$bookingDate} has been cancelled.")
+            ->with('undo_booking_id', $booking->id)
+            ->with('undo_expires_at', now()->addSeconds(self::UNDO_CANCEL_SECONDS)->timestamp);
+    }
+
+    /**
+     * Undo a booking cancellation within a short server-verified window.
+     */
+    public function undoCancelFromPrevious(Request $request, Booking $booking)
+    {
+        if ((int) $booking->user_id !== (int) $request->user()->id) {
+            abort(403);
+        }
+
+        $cacheKey = $this->undoCacheKey($request->user()->id, $booking->id);
+        $undoAllowed = (bool) Cache::pull($cacheKey, false);
+
+        if (!$undoAllowed || $booking->status !== 'Voided') {
+            return redirect()
+                ->route('bookings.previous', [
+                    'from_date' => $request->input('from_date'),
+                    'to_date' => $request->input('to_date'),
+                    'sort_by' => $request->input('sort_by', 'newest'),
+                ])
+                ->with('error', 'Undo window has expired or this booking can no longer be restored.');
+        }
+
+        Booking::query()
+            ->whereKey($booking->id)
+            ->update(['status' => 'Booked']);
+
+        return redirect()
+            ->route('bookings.previous', [
+                'from_date' => $request->input('from_date'),
+                'to_date' => $request->input('to_date'),
+                'sort_by' => $request->input('sort_by', 'newest'),
+            ])
+            ->with('success', 'Cancellation undone. Your booking has been restored.');
+    }
+
+    private function undoCacheKey(int $userId, int $bookingId): string
+    {
+        return 'bookings:undo:' . $userId . ':' . $bookingId;
     }
 
     /**

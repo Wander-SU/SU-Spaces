@@ -100,6 +100,26 @@
     @endphp
 
     <div class="all-bookings-page rounded-xl border border-[#e3e3e0] bg-white p-4 md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+        @if(session('undo_booking_id') && session('undo_expires_at'))
+            <div id="undo-cancel-banner" data-expiry-ts="{{ (int) session('undo_expires_at') }}" class="mb-4 rounded-lg border border-[#f5c2c7] bg-[#fff3f5] p-3 text-sm text-[#7a1e1e]">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p>
+                        Booking cancelled.
+                        <span class="font-semibold">Undo available for <span id="undo-seconds-left">30</span>s.</span>
+                    </p>
+                    <form method="POST" action="{{ route('bookings.previous.undo-cancel', session('undo_booking_id')) }}" class="inline-flex">
+                        @csrf
+                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                        <button id="undo-cancel-button" type="submit" class="inline-flex items-center rounded-md border border-[#7a1e1e]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#7a1e1e] transition hover:bg-[#fff8f9]">
+                            Undo cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         {{-- Top filter bar: drives server-side query and re-renders list/alerts --}}
         <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -175,6 +195,9 @@
 
                             <div class="booking-details text-sm text-[#1b1b18] dark:text-[#EDEDEC] md:w-2/4">
                                 {{ $booking['schedule'] ?? data_get($booking, 'schedule', 'Date and time not available') }}
+                                <p class="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                    Reason: {{ $booking['reason'] ?? data_get($booking, 'reason', 'Not specified') }}
+                                </p>
                             </div>
 
                             <div class="md:w-1/4 md:text-right flex flex-col items-start gap-2 md:items-end">
@@ -199,46 +222,78 @@
             @endif
         </section>
 
-        <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
+        @if($priorityAlerts->isNotEmpty())
+            <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
 
-        <section>
-            <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
+            <section>
+                <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
 
-            @foreach($priorityAlerts as $alert)
-                {{-- Alerts are derived from voided bookings returned by the backend mapper. --}}
-                <article class="priority-alert rounded-lg p-4 mb-6">
-                    <div class="flex items-start justify-between gap-3">
-                        <p class="cancelled-text text-sm font-semibold text-[#7a1e1e]">
-                            {{ $alert['room_name'] ?? data_get($alert, 'room_name', 'ROOM') }}
+                @foreach($priorityAlerts as $alert)
+                    {{-- Alerts are derived from voided bookings returned by the backend mapper. --}}
+                    <article class="priority-alert rounded-lg p-4 mb-6">
+                        <div class="flex items-start justify-between gap-3">
+                            <p class="cancelled-text text-sm font-semibold text-[#7a1e1e]">
+                                {{ $alert['room_name'] ?? data_get($alert, 'room_name', 'ROOM') }}
+                            </p>
+                            <p class="text-sm font-semibold text-red-600">● {{ $alert['status'] ?? data_get($alert, 'status', 'Reassigned') }}</p>
+                        </div>
+                        <p class="mt-2 text-sm text-[#7a1e1e] italic">
+                            {{ $alert['note'] ?? data_get($alert, 'note') }}
                         </p>
-                        <p class="text-sm font-semibold text-red-600">● {{ $alert['status'] ?? data_get($alert, 'status', 'Reassigned') }}</p>
-                    </div>
-                    <p class="mt-2 text-sm text-[#7a1e1e] italic">
-                        {{ $alert['note'] ?? data_get($alert, 'note') }}
-                    </p>
-                </article>
-            @endforeach
-        </section>
+                    </article>
+                @endforeach
+            </section>
+        @endif
     </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('bookings-filters');
                 if (!form) {
+                    // Continue to allow undo banner countdown setup.
+                }
+
+                if (form) {
+                    let submitTimer = null;
+                    // Apply filters quickly on change with a short debounce to avoid duplicate submits.
+                    form.querySelectorAll('input, select').forEach((field) => {
+                        field.addEventListener('change', () => {
+                            if (submitTimer) {
+                                clearTimeout(submitTimer);
+                            }
+                            submitTimer = setTimeout(() => {
+                                form.submit();
+                            }, 120);
+                        });
+                    });
+                }
+
+                const undoBanner = document.getElementById('undo-cancel-banner');
+                const undoSecondsEl = document.getElementById('undo-seconds-left');
+                const undoButton = document.getElementById('undo-cancel-button');
+                if (!undoBanner || !undoSecondsEl || !undoButton) {
                     return;
                 }
 
-                let submitTimer = null;
-                // Apply filters quickly on change with a short debounce to avoid duplicate submits.
-                form.querySelectorAll('input, select').forEach((field) => {
-                    field.addEventListener('change', () => {
-                        if (submitTimer) {
-                            clearTimeout(submitTimer);
-                        }
-                        submitTimer = setTimeout(() => {
-                            form.submit();
-                        }, 120);
-                    });
-                });
+                const expiryTs = Number(undoBanner.dataset.expiryTs || 0);
+                if (!Number.isFinite(expiryTs) || expiryTs <= 0) {
+                    return;
+                }
+
+                const tick = () => {
+                    const nowTs = Math.floor(Date.now() / 1000);
+                    const remaining = Math.max(0, expiryTs - nowTs);
+                    undoSecondsEl.textContent = String(remaining);
+
+                    if (remaining <= 0) {
+                        undoButton.disabled = true;
+                        undoButton.classList.add('opacity-60', 'cursor-not-allowed');
+                        undoBanner.classList.add('opacity-80');
+                        clearInterval(intervalId);
+                    }
+                };
+
+                tick();
+                const intervalId = setInterval(tick, 1000);
             });
         </script>
 
