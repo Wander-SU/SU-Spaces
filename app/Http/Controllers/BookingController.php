@@ -23,6 +23,8 @@ class BookingController extends Controller
      */
     public function previousBookings(Request $request)
     {
+        $userId = $request->user()->id;
+
         // Bound date filters to today to prevent future-date queries in the report view.
         $today = Carbon::today()->toDateString();
         $fromDate = $request->query('from_date');
@@ -42,21 +44,11 @@ class BookingController extends Controller
 
         $sortBy = $request->query('sort_by', 'newest');
         $sortDirection = $sortBy === 'oldest' ? 'asc' : 'desc';
-        $hasDateFilter = !empty($fromDate) || !empty($toDate);
-
-        // Page behavior: if no date filters are selected, show the empty state by returning empty collections.
-        if (!$hasDateFilter) {
-            return view('allBookings.view', [
-                'today' => $today,
-                'fromDate' => $fromDate,
-                'toDate' => $toDate,
-                'bookings' => collect(),
-                'priorityAlerts' => collect(),
-            ]);
-        }
+        $hasAnyBookings = Booking::query()->where('user_id', $userId)->exists();
 
         $bookingsQuery = Booking::query()
             ->with(['room', 'startTimeSlot', 'endTimeSlot'])
+            ->where('user_id', $userId)
             ->where('status', 'Booked');
 
         if (!empty($fromDate)) {
@@ -90,6 +82,7 @@ class BookingController extends Controller
 
         $priorityAlertsQuery = Booking::query()
             ->with('room')
+            ->where('user_id', $userId)
             ->where('status', 'Voided');
 
         if (!empty($fromDate)) {
@@ -113,7 +106,7 @@ class BookingController extends Controller
                 ];
             });
 
-        return view('allBookings.view', compact('bookings', 'priorityAlerts', 'fromDate', 'toDate', 'today'));
+        return view('allBookings.view', compact('bookings', 'priorityAlerts', 'fromDate', 'toDate', 'today', 'hasAnyBookings'));
     }
 
     /**
@@ -121,6 +114,10 @@ class BookingController extends Controller
      */
     public function cancelFromPrevious(Request $request, Booking $booking)
     {
+        if ((int) $booking->user_id !== (int) $request->user()->id) {
+            abort(403);
+        }
+
         $roomName = optional($booking->room)->room_name ?? 'Selected room';
         $bookingDate = Carbon::parse($booking->booking_date)->format('jS F Y');
 
