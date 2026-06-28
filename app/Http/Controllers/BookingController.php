@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
+use App\Models\BaseBooking;
 use App\Models\Booking;
+use App\Models\Building;
+use App\Models\Room;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -80,6 +84,7 @@ class BookingController extends Controller
                     'room_name' => optional($booking->room)->room_name ?? 'ROOM',
                     'schedule' => $bookingDate->format('l, jS F Y') . ' | ' . $formattedStart . ' to ' . $formattedEnd,
                     'reason' => (string) ($booking->purpose ?? ''),
+                    'occupants' => (int) ($booking->attendee_count ?? 0),
                     'status' => 'Confirmed',
                 ];
             });
@@ -191,9 +196,127 @@ class BookingController extends Controller
             ->with('success', 'Cancellation undone. Your booking has been restored.');
     }
 
+    /**
+     * Show edit page for switching building/room while keeping same date/time.
+     */
+    public function editFromPrevious(Request $request, Booking $booking)
+    {
+        $booking->load(['room.building', 'startTimeSlot', 'endTimeSlot']);
+
+        if ((int) $booking->user_id !== (int) $request->user()->id) {
+            abort(403);
+        }
+
+        if ($booking->status !== 'Booked') {
+            return redirect()->route('bookings.previous')->with('error', 'Only active bookings can be edited.');
+        }
+
+        $fromDate = $request->query('from_date');
+        $toDate = $request->query('to_date');
+        $sortBy = $request->query('sort_by', 'newest');
+
+        $buildings = Building::query()
+            ->orderBy('building_name', 'asc')
+            ->get(['id', 'building_name', 'building_abbrev']);
+
+        $defaultBuildingId = (int) (optional($booking->room)->building_id ?? 0);
+        $selectedBuildingId = (int) $request->query('building_id', $defaultBuildingId);
+
+        $availableRooms = $this->getAvailableRoomsForBookingSlot($booking, $selectedBuildingId > 0 ? $selectedBuildingId : null);
+
+        return view('allBookings.edit', compact(
+            'booking',
+            'buildings',
+            'selectedBuildingId',
+            'availableRooms',
+            'fromDate',
+            'toDate',
+            'sortBy'
+        ));
+    }
+
+    /**
+     * Persist updated room for a booking while preserving its date/time.
+     */
+    public function updateRoomFromPrevious(Request $request, Booking $booking)
+    {
+        if ((int) $booking->user_id !== (int) $request->user()->id) {
+            abort(403);
+        }
+
+        if ($booking->status !== 'Booked') {
+            return redirect()->route('bookings.previous')->with('error', 'Only active bookings can be edited.');
+        }
+
+        $validated = $request->validate([
+            'building_id' => ['required', 'integer', 'exists:buildings,id'],
+            'room_id' => ['required', 'integer', 'exists:rooms,id'],
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date'],
+            'sort_by' => ['nullable', 'in:newest,oldest'],
+        ]);
+
+        $selectedBuildingId = (int) $validated['building_id'];
+        $newRoomId = (int) $validated['room_id'];
+
+        $availableRooms = $this->getAvailableRoomsForBookingSlot($booking, $selectedBuildingId);
+        if (!$availableRooms->contains('id', $newRoomId)) {
+            return back()
+                ->withInput()
+                ->with('error', 'Selected room is not available for that day and time.');
+        }
+
+        $booking->room_id = $newRoomId;
+        $booking->save();
+
+        return redirect()
+            ->route('bookings.previous', [
+                'from_date' => $validated['from_date'] ?? null,
+                'to_date' => $validated['to_date'] ?? null,
+                'sort_by' => $validated['sort_by'] ?? 'newest',
+            ])
+            ->with('success', 'Booking updated successfully.');
+    }
+
     private function undoCacheKey(int $userId, int $bookingId): string
     {
         return 'bookings:undo:' . $userId . ':' . $bookingId;
+    }
+
+    private function getAvailableRoomsForBookingSlot(Booking $booking, ?int $buildingId = null): Collection
+    {
+        $bookingDate = Carbon::parse($booking->booking_date)->toDateString();
+        $lessonDay = Carbon::parse($bookingDate)->format('l');
+        $startTimeId = (int) $booking->start_time_id;
+        $endTimeId = (int) $booking->end_time_id;
+
+        $blockedByBaseBookingRoomIds = BaseBooking::query()
+            ->where('lesson_day', $lessonDay)
+            ->where('start_time_id', '<', $endTimeId)
+            ->where('end_time_id', '>', $startTimeId)
+            ->pluck('room_id')
+            ->all();
+
+        $blockedByBookingRoomIds = Booking::query()
+            ->whereDate('booking_date', '=', $bookingDate, 'and')
+            ->where('status', 'Booked')
+            ->whereKeyNot($booking->id)
+            ->where('start_time_id', '<', $endTimeId)
+            ->where('end_time_id', '>', $startTimeId)
+            ->pluck('room_id')
+            ->all();
+
+        $roomsQuery = Room::query()
+            ->with('building')
+            ->whereNotIn('id', array_unique(array_merge($blockedByBaseBookingRoomIds, $blockedByBookingRoomIds)))
+            ->where('capacity', '>=', (int) $booking->attendee_count)
+            ->orderBy('room_name', 'asc');
+
+        if (!empty($buildingId)) {
+            $roomsQuery->where('building_id', $buildingId);
+        }
+
+        return $roomsQuery->get();
     }
 
     /**

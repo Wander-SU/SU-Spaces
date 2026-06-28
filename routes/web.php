@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/previous-bookings', [BookingController::class, 'previousBookings'])->name('bookings.previous');
     // Cancel action from a confirmed booking card in the previous bookings page.
     Route::post('/previous-bookings/{booking}/cancel', [BookingController::class, 'cancelFromPrevious'])->name('bookings.previous.cancel');
+    // Edit action to change only building/room while preserving date/time.
+    Route::get('/previous-bookings/{booking}/edit', [BookingController::class, 'editFromPrevious'])->name('bookings.previous.edit');
+    Route::post('/previous-bookings/{booking}/update-room', [BookingController::class, 'updateRoomFromPrevious'])->name('bookings.previous.update-room');
     // Undo cancellation for a short grace period.
     Route::post('/previous-bookings/{booking}/undo-cancel', [BookingController::class, 'undoCancelFromPrevious'])->name('bookings.previous.undo-cancel');
     Route::resource('/buildingNavigation',BuildingController::class);
