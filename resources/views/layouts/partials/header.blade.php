@@ -1,5 +1,5 @@
 <!--begin::Header-->
-<nav class="app-header navbar navbar-expand bg-body" data-bs-theme="dark">
+<nav class="app-header navbar navbar-expand bg-body position-sticky top-0 end-0" data-bs-theme="dark">
   <!--begin::Container-->
   <div class="container-fluid">
     <!--begin::Start Navbar Links-->
@@ -27,7 +27,7 @@
       <li class="nav-item dropdown user-menu">
         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
           <img
-            src="https://avatarapi.runflare.run/username?username={{ auth()->user()->name }}]&background=[Hex Color Codes]"
+            src="https://avatarapi.runflare.run/username?username=[{{auth()->user()->name}}]&background=[Hex Color Codes]"
             class="user-image rounded-circle shadow"
             alt="User Image"
           />
@@ -37,7 +37,7 @@
           <!--begin::User Image-->
           <li class="user-header text-bg-secondary">
             <img
-              src="https://avatarapi.runflare.run/username?username={{ auth()->user()->name }}]&background=[Hex Color Codes]"
+              src="https://avatarapi.runflare.run/username?username=[{{auth()->user()->name}}]&background=[Hex Color Codes]"
               class="rounded-circle shadow"
               alt="User Image"
             />

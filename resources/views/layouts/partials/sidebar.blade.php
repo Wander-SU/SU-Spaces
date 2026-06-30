@@ -34,7 +34,7 @@
         <li class="nav-header">Booking Rooms</li>
 
         {{-- Quick Access --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="{{ route('bookings.index') }}" class="nav-link">
             <i class="nav-icon bi bi-fast-forward-btn-fill"></i>
             <p>
@@ -44,7 +44,7 @@
         </li>
 
         {{-- Book Rooms --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="{{ route('buildingNavigation.index') }}" class="nav-link">
             <i class="nav-icon bi bi-bookmark-check-fill"></i>
             <p>
@@ -54,7 +54,7 @@
         </li>
 
         {{-- Previous bookings report/list page --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="{{ route('bookings.previous') }}" class="nav-link">
             <i class="nav-icon bi bi-clock-history"></i>
             <p>
@@ -67,7 +67,7 @@
         <li class="nav-header">Timetable Management</li>
       
         {{-- Users --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="{{ route('baseBookings.index') }}" class="nav-link">
             <i class="nav-icon bi bi-calendar-date-fill"></i>
             <p>Timetable</p>
@@ -78,7 +78,7 @@
         <li class="nav-header">User Management</li>
       
         {{-- Users --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="{{ route('userManagement.index') }}" class="nav-link">
             <i class="nav-icon bi bi-person-lines-fill"></i>
             <p>Users</p>
@@ -89,7 +89,7 @@
         <li class="nav-header">Reports Section</li>
       
         {{-- Users --}}
-        <li class="nav-item">
+        <li class="glass-hover">
           <a href="#" class="nav-link">
             <i class="nav-icon bi bi-bar-chart-line"></i>
             <p>Reports</p>

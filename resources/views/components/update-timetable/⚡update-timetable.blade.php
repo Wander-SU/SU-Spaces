@@ -15,6 +15,7 @@ new class extends Component
     use WithPagination;
     protected $paginationTheme = "bootstrap";
     public $search;
+    public $smallDevice=False;
     public $orderDirection1 = "asc";
     public $orderDirection2 = "asc";
     public $orderDirectionTime = "asc";
@@ -148,6 +149,18 @@ new class extends Component
             'unit_name' => ['required','max:160',$course_data],
             'lesson_day' => ['required','max:30',new DayOfWeek()]
         ];
+    }
+
+    /**
+     * Show the form on small devices
+    */
+    public function showHidden(){
+      if($this->smallDevice==False){
+        $this->smallDevice = True;
+      }
+      else{
+        $this->smallDevice = False;
+      }
     }
 
     /**
@@ -477,25 +490,25 @@ new class extends Component
         <div class="card-tools">
 
           {{-- Update the timetable fully --}}
-          <form  class="d-inline-block me-2"
+          <form  class="d-none d-md-inline-block me-2"
           action="{{ route('baseBookings.updateFull') }}" method="POST">
-            <button type="submit" class="btn btn-primary btn-sm">
+            <button type="submit" class="d-none d-md-inline-block btn btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto">
                 <i class="bi bi-plus-circle"></i> Update Full Timetable
             </button>
           </form>
 
           {{-- Add a base booking --}}
-          <a href="#" wire:click="add" class="btn btn-primary btn-sm">
+          <a href="#" wire:click="add" class="d-none d-md-inline-block btn btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto">
             <i class="bi bi-plus-circle"></i> Add  Base Booking
           </a>
+
           {{-- Search form --}}
-          <form class="d-inline-block me-2">
+          <form class="d-none d-md-inline-block me-2">
               <div class="input-group input-group-sm">
                   {{--  show inline error messages --}}
                   <input wire:model.live.debounce.700ms="search" type="text" name="search"
                     class="form-control {{ $errors->has('search') ? 'is-invalid' : '' }}"
-                    placeholder="Search Base Bookings" 
-                    autofocus>
+                    placeholder="Search Base Bookings">
                     @error('search')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -506,16 +519,73 @@ new class extends Component
           
           {{-- Link to reset --}}
           <a href="#"  wire:click="clearSearch"
-            class="btn btn-success" 
+            class="d-md-inline-block d-none btn btn-success" 
             title="Reset">
             <i class="bi bi-arrow-clockwise"></i>
           </a>
+
+          {{-- Link to show the filter icon--}}
+          <a href="#"  wire:click="showHidden"
+            class="d-md-none d-inline-block btn btn-dark" 
+            title="Show Hidden">            
+            <i class="bi bi-funnel-fill"></i>
+          </a>
         </div>
+
+        @if($this->smallDevice)
+          <div class="d-block ms-2 row">
+            <div class="col-md-4 mt-4">
+              {{-- Update the timetable fully --}}
+              <form  class="me-2 pt-4"
+              action="{{ route('baseBookings.updateFull') }}" method="POST">
+                <button type="submit" class="btn btn-primary btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto">
+                    <i class="bi bi-plus-circle"></i>  Update Full Timetable
+                </button>
+              </form>
+
+
+              {{-- Add a base booking --}}
+              <div class="col-md-4 my-2 me-2">
+                  <a href="#" wire:click="add" class="btn btn-primary btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto">
+                    <i class="bi bi-plus-circle"></i>  Add  Base Booking
+                  </a>
+              </div>
+
+              {{-- Search form --}}
+              <div class="col-md-4 my-2 me-2">
+                <form class="me-2">
+                    <div class="input-group input-group-sm">
+                        {{--  show inline error messages --}}
+                        <input wire:model.live.debounce.700ms="search" type="text" name="search"
+                          class="form-control {{ $errors->has('search') ? 'is-invalid' : '' }}"
+                          placeholder="Search Base Bookings" >
+                          @error('search')
+                            <div class="invalid-feedback">
+                              {{ $message }}
+                            </div>
+                          @enderror
+                    </div>
+                </form>
+              </div>
+              
+              {{-- Link to reset --}}
+              <div class="col-md-4 my-2 me-2">
+                <a href="#"  wire:click="clearSearch"
+                  class="btn btn-success btn-sm" 
+                  title="Reset">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Reset Search
+                </a>
+              </div>
+            </div>
+          </div>
+        @endif
       </div>      
       <!-- /.card-header -->
       
       <div class="card-body">
         @if(count($baseBookings)!=0)
+        <div class="quick-access-table-wrap table-responsive">
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
@@ -590,6 +660,7 @@ new class extends Component
               @endforeach
             </tbody>
           </table>
+        </div>
         @else
           <tbody>
             <p class="text-danger">No Room or Building matches the search key</p>
@@ -599,7 +670,7 @@ new class extends Component
       <!-- /.card-body -->
       <div class="card-footer">
         {{-- Pagination --}}
-          <div class="mt-3">
+        <div class="mt-3" data-bs-theme="dark">
                 {{ $baseBookings->links('pagination::bootstrap-5') }}
           </div>
       </div>
