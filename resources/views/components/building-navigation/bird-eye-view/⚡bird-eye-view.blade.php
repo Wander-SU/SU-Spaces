@@ -6,6 +6,11 @@ new class extends Component{
    public function render(){
       return view('components.building-navigation.bird-eye-view.⚡bird-eye-view');
    }
+
+   public function selectPhase(string $phaseName): void
+   {
+      $this->dispatch('phaseSelected', phaseName: $phaseName);
+   }
 }
 ?>
 
@@ -49,10 +54,15 @@ new class extends Component{
       id="layer1">
       <g
          id="g5" class="phase"
+         wire:click="selectPhase('Phase1')"
+         onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
          @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})">
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:5.39882"
             id="rect3"
+            wire:click="selectPhase('Phase1')"
+            onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
+            @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
             width="719.04675"
             height="749.90393"
             x="117.29296"
@@ -84,10 +94,15 @@ new class extends Component{
       </g>
       <g
          id="g21" class="phase"
+         wire:click="selectPhase('Phase2')"
+         onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
          @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})">
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:5.91496"
             id="rect5"
+            wire:click="selectPhase('Phase2')"
+            onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
+            @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
             width="956.57141"
             height="1015.3469"
             x="865.46942"
