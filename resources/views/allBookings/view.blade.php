@@ -65,6 +65,16 @@
             margin-right: 8px;
         }
 
+        .all-bookings-page .status-edit::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #2563EB;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
         .all-bookings-page .cancelled-text {
             text-decoration: line-through;
         }
@@ -85,6 +95,7 @@
         $sortBy = old('sort_by', request('sort_by', 'newest'));
         $bookings = collect($bookings ?? []);
         $priorityAlerts = collect($priorityAlerts ?? []);
+        $hasAnyBookings = (bool) ($hasAnyBookings ?? false);
         $hasDateFilter = !empty($fromDate) || !empty($toDate);
 
         // Dynamic heading text that reflects the selected date-window mode.
@@ -99,6 +110,26 @@
     @endphp
 
     <div class="all-bookings-page rounded-xl border border-[#e3e3e0] bg-white p-4 md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+        @if(session('undo_booking_id') && session('undo_expires_at'))
+            <div id="undo-cancel-banner" data-expiry-ts="{{ (int) session('undo_expires_at') }}" class="mb-4 rounded-lg border border-[#f5c2c7] bg-[#fff3f5] p-3 text-sm text-[#7a1e1e]">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p>
+                        Booking cancelled.
+                        <span class="font-semibold">Undo available for <span id="undo-seconds-left">30</span>s.</span>
+                    </p>
+                    <form method="POST" action="{{ route('bookings.previous.undo-cancel', session('undo_booking_id')) }}" class="inline-flex">
+                        @csrf
+                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                        <button id="undo-cancel-button" type="submit" class="inline-flex items-center rounded-md border border-[#7a1e1e]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#7a1e1e] transition hover:bg-[#fff8f9]">
+                            Undo cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         {{-- Top filter bar: drives server-side query and re-renders list/alerts --}}
         <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -145,22 +176,23 @@
                 Confirmed Bookings @if($hasDateFilter && $headingWindowText) ({{ $headingWindowText }})@endif
             </h2>
 
-            {{-- UX rule: no selected filters means show guidance empty state instead of any booking list. --}}
-            @if(!$hasDateFilter)
+            @if($bookings->isEmpty())
                 <div class="rounded-lg border border-dashed border-[#e3e3e0] p-8 text-center dark:border-[#3E3E3A]">
                     <div class="mx-auto mb-5 flex h-28 w-28 items-center justify-center rounded-full bg-[#f6f6f4] dark:bg-[#232322]">
                         <svg class="h-16 w-16 text-[#1b1b18] dark:text-[#EDEDEC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 2v3m8-3v3M4 9h16M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
                         </svg>
                     </div>
-                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">No bookings made yet? Let's find you a room!</p>
+                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">
+                        {{ $hasDateFilter ? 'No confirmed bookings found for the selected date range.' : 'No confirmed bookings found yet. Let\'s find you a room!' }}
+                    </p>
                     <div class="mt-5">
                         <a href="{{ route('bookings.index') }}" class="inline-flex items-center rounded-md bg-gradient-to-r from-[#0048AD] to-[#FF383C] px-6 py-2 font-medium text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#0048AD]/30">
                             Find a room now
                         </a>
                     </div>
                 </div>
-            @elseif($bookings->isNotEmpty())
+            @else
                 <div class="space-y-3">
                     @foreach($bookings as $booking)
                         {{-- Confirmed booking card with status badge and cancel action. --}}
@@ -173,6 +205,10 @@
 
                             <div class="booking-details text-sm text-[#1b1b18] dark:text-[#EDEDEC] md:w-2/4">
                                 {{ $booking['schedule'] ?? data_get($booking, 'schedule', 'Date and time not available') }}
+                                <p class="mt-1 text-xs text-[#706f6c] dark:text-[#A1A09A]">
+                                    Reason: {{ $booking['reason'] ?? data_get($booking, 'reason', 'Not specified') }} |
+                                    Occupants: {{ $booking['occupants'] ?? data_get($booking, 'occupants', 0) }}
+                                </p>
                             </div>
 
                             <div class="md:w-1/4 md:text-right flex flex-col items-start gap-2 md:items-end">
@@ -180,68 +216,102 @@
                                     {{ $booking['status'] ?? data_get($booking, 'status', 'Confirmed') }}
                                 </span>
 
-                                <form method="POST" action="{{ route('bookings.previous.cancel', data_get($booking, 'id')) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                    @csrf
-                                    {{-- Preserve current filters so refresh stays on the same view window after POST redirect. --}}
-                                    <input type="hidden" name="from_date" value="{{ $fromDate }}">
-                                    <input type="hidden" name="to_date" value="{{ $toDate }}">
-                                    <input type="hidden" name="sort_by" value="{{ $sortBy }}">
-                                    <button type="submit" class="status-cancel inline-flex items-center text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-gray-200">
-                                        Cancel Booking
-                                    </button>
-                                </form>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('bookings.previous.edit', ['booking' => data_get($booking, 'id'), 'from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="status-edit inline-flex items-center text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-blue-100">
+                                        Edit
+                                    </a>
+
+                                    <form method="POST" action="{{ route('bookings.previous.cancel', data_get($booking, 'id')) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        @csrf
+                                        {{-- Preserve current filters so refresh stays on the same view window after POST redirect. --}}
+                                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                                        <button type="submit" class="status-cancel inline-flex items-center text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-gray-200">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </article>
                     @endforeach
                 </div>
-            @else
-                <div class="rounded-lg border border-dashed border-[#e3e3e0] p-6 text-center dark:border-[#3E3E3A]">
-                    <p class="text-sm text-[#1b1b18] dark:text-[#EDEDEC]">No confirmed bookings found for the selected date range.</p>
-                </div>
             @endif
         </section>
 
-        <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
+        @if($priorityAlerts->isNotEmpty())
+            <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
 
-        <section>
-            <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
+            <section>
+                <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
 
-            @foreach($priorityAlerts as $alert)
-                {{-- Alerts are derived from voided bookings returned by the backend mapper. --}}
-                <article class="priority-alert rounded-lg p-4 mb-6">
-                    <div class="flex items-start justify-between gap-3">
-                        <p class="cancelled-text text-sm font-semibold text-[#7a1e1e]">
-                            {{ $alert['room_name'] ?? data_get($alert, 'room_name', 'ROOM') }}
+                @foreach($priorityAlerts as $alert)
+                    {{-- Alerts are derived from voided bookings returned by the backend mapper. --}}
+                    <article class="priority-alert rounded-lg p-4 mb-6">
+                        <div class="flex items-start justify-between gap-3">
+                            <p class="cancelled-text text-sm font-semibold text-[#7a1e1e]">
+                                {{ $alert['room_name'] ?? data_get($alert, 'room_name', 'ROOM') }}
+                            </p>
+                            <p class="text-sm font-semibold text-red-600">● {{ $alert['status'] ?? data_get($alert, 'status', 'Reassigned') }}</p>
+                        </div>
+                        <p class="mt-2 text-sm text-[#7a1e1e] italic">
+                            {{ $alert['note'] ?? data_get($alert, 'note') }}
                         </p>
-                        <p class="text-sm font-semibold text-red-600">● {{ $alert['status'] ?? data_get($alert, 'status', 'Reassigned') }}</p>
-                    </div>
-                    <p class="mt-2 text-sm text-[#7a1e1e] italic">
-                        {{ $alert['note'] ?? data_get($alert, 'note') }}
-                    </p>
-                </article>
-            @endforeach
-        </section>
+                    </article>
+                @endforeach
+            </section>
+        @endif
     </div>
-
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const form = document.getElementById('bookings-filters');
                 if (!form) {
+                    // Continue to allow undo banner countdown setup.
+                }
+
+                if (form) {
+                    let submitTimer = null;
+                    // Apply filters quickly on change with a short debounce to avoid duplicate submits.
+                    form.querySelectorAll('input, select').forEach((field) => {
+                        field.addEventListener('change', () => {
+                            if (submitTimer) {
+                                clearTimeout(submitTimer);
+                            }
+                            submitTimer = setTimeout(() => {
+                                form.submit();
+                            }, 120);
+                        });
+                    });
+                }
+
+                const undoBanner = document.getElementById('undo-cancel-banner');
+                const undoSecondsEl = document.getElementById('undo-seconds-left');
+                const undoButton = document.getElementById('undo-cancel-button');
+                if (!undoBanner || !undoSecondsEl || !undoButton) {
                     return;
                 }
 
-                let submitTimer = null;
-                // Apply filters quickly on change with a short debounce to avoid duplicate submits.
-                form.querySelectorAll('input, select').forEach((field) => {
-                    field.addEventListener('change', () => {
-                        if (submitTimer) {
-                            clearTimeout(submitTimer);
-                        }
-                        submitTimer = setTimeout(() => {
-                            form.submit();
-                        }, 120);
-                    });
-                });
+                const expiryTs = Number(undoBanner.dataset.expiryTs || 0);
+                if (!Number.isFinite(expiryTs) || expiryTs <= 0) {
+                    return;
+                }
+
+                const tick = () => {
+                    const nowTs = Math.floor(Date.now() / 1000);
+                    const remaining = Math.max(0, expiryTs - nowTs);
+                    undoSecondsEl.textContent = String(remaining);
+
+                    if (remaining <= 0) {
+                        undoButton.disabled = true;
+                        undoButton.classList.add('opacity-60', 'cursor-not-allowed');
+                        undoBanner.classList.add('opacity-80');
+                        clearInterval(intervalId);
+                    }
+                };
+
+                tick();
+                const intervalId = setInterval(tick, 1000);
             });
         </script>
+
 @endsection

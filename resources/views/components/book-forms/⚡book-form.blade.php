@@ -6,12 +6,15 @@ use App\Models\BaseBooking;
 use App\Models\Booking;
 use App\Models\TimeSlot;
 use App\Rules\DateGreaterThanToday;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
+  private const UNDO_NEW_BOOKING_SECONDS = 15;
+
     public $isPrivilegedBook;
     public $vacancies;  // Variable is never used as old="" rather bound to a wire:model
     public $number_occupants;
@@ -32,6 +35,8 @@ new class extends Component
     public $initial_start_time_id;
     public $initial_end_time_id;
     public $now;
+    public $undoBookingId = null;
+    public $undoBookingExpiresAt = null;
 
     public function render(){
         $timeSlots = TimeSlot::all();
@@ -158,6 +163,11 @@ new class extends Component
       $this->validate();
       $status = "Booked";
 
+      if ($this->violatesStudentReasonRule()) {
+        $this->addError('book_reason', 'For fewer than 2 occupants, reason must be Individual Study.');
+        return;
+      }
+
       // Check all timing conflicts
       // Get if timing conflict
       if($this->hasTimeConflict()){
@@ -174,6 +184,11 @@ new class extends Component
       // Format the Start and End Time IDs
       $this->start_time_id = (int)trim($this->start_time_id);
       $this->end_time_id = (int)trim($this->end_time_id);
+
+      if($this->hasExactDuplicateBooking()){
+        $this->addError('booking_duplicate','You already have this exact booking. Duplicate bookings are not allowed.');
+        return;
+      }
 
       // dd($this->start_time_id,$this->end_time_id);
       // dd($this->start_time_id,$this->end_time_id);
@@ -202,6 +217,7 @@ new class extends Component
         "end_time_id"=>$this->end_time_id,
       ]);
       $booking->save();
+      $this->registerUndoNewBooking($booking);
 
       // Show the table
       $this->showForm = false;
@@ -253,6 +269,11 @@ new class extends Component
       $this->start_time_id = (int)trim($this->start_time_id);
       $this->end_time_id = (int)trim($this->end_time_id);
 
+      if($this->hasExactDuplicateBooking()){
+        $this->addError('booking_duplicate','You already have this exact booking. Duplicate bookings are not allowed.');
+        return;
+      }
+
       // Create the tuple that is needed
       try{
         // Get the total number of voidable bookings that we should do
@@ -286,6 +307,7 @@ new class extends Component
         "end_time_id"=>$this->end_time_id,
       ]);
       $booking->save();
+      $this->registerUndoNewBooking($booking);
 
       // Show the table
       $this->showForm = false;
@@ -296,6 +318,54 @@ new class extends Component
       catch(\Throwable $e){
         session()->flash('failure',"There was a database error");
       }
+    }
+
+    public function undoNewBooking()
+    {
+      if (empty($this->undoBookingId)) {
+        session()->flash('error', 'No recent booking found to undo.');
+        return;
+      }
+
+      $booking = Booking::find($this->undoBookingId);
+      if (!$booking || (int) $booking->user_id !== (int) auth()->user()->id) {
+        $this->undoBookingId = null;
+        $this->undoBookingExpiresAt = null;
+        session()->flash('error', 'Undo window has expired or this booking is unavailable.');
+        return;
+      }
+
+      $cacheKey = $this->undoNewBookingCacheKey((int) auth()->user()->id, (int) $booking->id);
+      $undoAllowed = (bool) Cache::pull($cacheKey, false);
+      if (!$undoAllowed || $booking->status !== 'Booked') {
+        $this->undoBookingId = null;
+        $this->undoBookingExpiresAt = null;
+        session()->flash('error', 'Undo window has expired or this booking can no longer be undone.');
+        return;
+      }
+
+      $booking->status = 'Voided';
+      $booking->save();
+
+      $this->undoBookingId = null;
+      $this->undoBookingExpiresAt = null;
+      session()->flash('success', 'Booking undone successfully.');
+    }
+
+    private function registerUndoNewBooking(Booking $booking): void
+    {
+      $this->undoBookingId = (int) $booking->id;
+      $this->undoBookingExpiresAt = now()->addSeconds(self::UNDO_NEW_BOOKING_SECONDS)->timestamp;
+      Cache::put(
+        $this->undoNewBookingCacheKey((int) auth()->user()->id, (int) $booking->id),
+        true,
+        now()->addSeconds(self::UNDO_NEW_BOOKING_SECONDS)
+      );
+    }
+
+    private function undoNewBookingCacheKey(int $userId, int $bookingId): string
+    {
+      return 'bookings:undo-new:' . $userId . ':' . $bookingId;
     }
 
     /**
@@ -364,11 +434,32 @@ new class extends Component
       return $utilised;
     }
 
+    public function hasExactDuplicateBooking(): bool
+    {
+      return Booking::query()
+        ->where('user_id', auth()->id())
+        ->where('room_id', $this->room_id)
+        ->where('booking_date', $this->book_date)
+        ->where('start_time_id', $this->start_time_id)
+        ->where('end_time_id', $this->end_time_id)
+        ->where('status', 'Booked')
+        ->exists();
+    }
+
     /**
      * Function to get the vacancies
     */
     public function computeVacancies(){
       $this->vacancies = $this->room_capacity - $this->roomUtilisationUsingIds($this->start_time_id,$this->end_time_id,$this->room_id,$this->search_date);
+    }
+
+    private function violatesStudentReasonRule(): bool
+    {
+      $roleName = strtolower((string) optional(auth()->user()->role)->role_name);
+      $occupants = (int) $this->number_occupants;
+      $reason = strtolower(trim((string) $this->book_reason));
+
+      return $roleName === 'student' && $occupants < 2 && $reason !== 'individual study';
     }
 
     /**
@@ -390,6 +481,42 @@ new class extends Component
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    @endif
+
+    @if($undoBookingId && $undoBookingExpiresAt)
+      <div
+        x-data="{
+          expiry: {{ (int) $undoBookingExpiresAt }},
+          remaining: 0,
+          timer: null,
+          init() {
+            const tick = () => {
+              const nowTs = Math.floor(Date.now() / 1000);
+              this.remaining = Math.max(0, this.expiry - nowTs);
+              if (this.remaining <= 0 && this.timer) {
+                clearInterval(this.timer);
+              }
+            };
+            tick();
+            this.timer = setInterval(tick, 1000);
+          }
+        }"
+        class="alert alert-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2"
+        role="alert"
+      >
+        <span>
+          Booking created. Undo available for
+          <strong x-text="remaining"></strong>s.
+        </span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-dark"
+          wire:click="undoNewBooking"
+          x-bind:disabled="remaining <= 0"
+        >
+          Undo booking
+        </button>
       </div>
     @endif
 
@@ -509,7 +636,7 @@ new class extends Component
                       <option>--Select One--</option>
                       @if(auth()->user()->role->role_name=="Student")
                         <option value="Individual Study">Individual Study</option>
-                        <option value="Group Study">Group Study</option>
+                        <option value="Group Study" @disabled((int) $this->number_occupants < 2)>Group Study</option>
                       @else
                         <option value="CAT">CAT</option>
                         <option value="Examination">Examination</option>
@@ -524,6 +651,12 @@ new class extends Component
 
                   {{-- Lec Booked Error  --}}
                   @error('lecturer_booked')
+                      <div class="invalid-feedback col-md-12">
+                        {{ $message }}
+                      </div>
+                  @enderror
+
+                  @error('booking_duplicate')
                       <div class="invalid-feedback col-md-12">
                         {{ $message }}
                       </div>

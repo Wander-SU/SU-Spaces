@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BaseBookingController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BuildingController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,10 +36,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('/baseBookings',BaseBookingController::class);
     Route::resource('/userManagement',UserController::class);
     Route::resource('/bookings',BookingController::class);
+    Route::get('/reports/dashboard', [ReportsController::class, 'dashboard'])->name('reports.dashboard');
     // Previous bookings report page with date filters.
     Route::get('/previous-bookings', [BookingController::class, 'previousBookings'])->name('bookings.previous');
     // Cancel action from a confirmed booking card in the previous bookings page.
     Route::post('/previous-bookings/{booking}/cancel', [BookingController::class, 'cancelFromPrevious'])->name('bookings.previous.cancel');
+    // Edit action to change only building/room while preserving date/time.
+    Route::get('/previous-bookings/{booking}/edit', [BookingController::class, 'editFromPrevious'])->name('bookings.previous.edit');
+    Route::post('/previous-bookings/{booking}/update-room', [BookingController::class, 'updateRoomFromPrevious'])->name('bookings.previous.update-room');
+    // Undo cancellation for a short grace period.
+    Route::post('/previous-bookings/{booking}/undo-cancel', [BookingController::class, 'undoCancelFromPrevious'])->name('bookings.previous.undo-cancel');
     Route::resource('/buildingNavigation',BuildingController::class);
 
     // Update Timetable Route

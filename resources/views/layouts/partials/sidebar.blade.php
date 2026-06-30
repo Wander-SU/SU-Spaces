@@ -90,7 +90,7 @@
       
         {{-- Users --}}
         <li class="glass-hover">
-          <a href="#" class="nav-link">
+          <a href="{{ route('reports.dashboard') }}" class="nav-link">
             <i class="nav-icon bi bi-bar-chart-line"></i>
             <p>Reports</p>
           </a>
