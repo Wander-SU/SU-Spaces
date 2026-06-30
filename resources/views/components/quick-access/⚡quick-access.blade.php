@@ -42,6 +42,7 @@ new class extends Component
     public $end_time_id;
     public $room_id;
     public $orderField;
+    public $smallDevice=False;
     // public $showForm = false;
     public $lecBooked=0;
     public $isPrivilegedBook;
@@ -53,6 +54,9 @@ new class extends Component
 
     public function render()
     {
+      // Make the search date today
+      $this->search_date = Carbon::parse(now())->format('Y-m-d');
+
       // Get Room Details
       $rooms = Room::all();
 
@@ -213,6 +217,18 @@ new class extends Component
     }
 
     /**
+     * Show the form on small devices
+    */
+    public function showHidden(){
+      if($this->smallDevice==False){
+        $this->smallDevice = True;
+      }
+      else{
+        $this->smallDevice = False;
+      }
+    }
+
+    /**
      * Resetting the search
      */
     public function clearSearch(){
@@ -333,25 +349,25 @@ new class extends Component
     {{-- Table --}}
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">All Free Rooms Available</h3>
+        <h3 class="card-title">Available on {{date("l",strToTime($this->search_date))}}, {{Carbon::parse($this->search_date)->format('M d')}}</h3>
         <div class="card-tools">
-          <p class="d-inline-block me-2">Filters: </p>
+          <p class="d-none d-md-inline-block me-2">Filters: </p>
           {{-- Search Date form --}}
-          <form class="d-inline-block me-2">
-              <div class="input-group input-group-sm">
-                  {{--  show inline error messages --}}
-                  <input wire:model.live.debounce.100ms="search_date" type="date" name="search_date"
-                    class="form-control {{ $errors->has('search_date') ? 'is-invalid' : '' }}" value="{{ old('search_date') }}">
-                    @error('search_date')
-                      <div class="invalid-feedback">
-                        {{ $message }}
-                      </div>
-                    @enderror
-              </div>
-          </form>
+          {{-- <form class="d-inline-block me-2"> --}}
+              {{-- <div class="input-group input-group-sm"> --}}
+                   {{-- show inline error messages --}}
+                  {{-- <input wire:model.live.debounce.100ms="search_date" type="date" name="search_date" --}}
+                    {{-- class="form-control {{ $errors->has('search_date') ? 'is-invalid' : '' }}" value="{{ old('search_date') }}"> --}}
+                    {{-- @error('search_date') --}}
+                      {{-- <div class="invalid-feedback"> --}}
+                        {{-- {{ $message }} --}}
+                      {{-- </div> --}}
+                    {{-- @enderror --}}
+              {{-- </div> --}}
+          {{-- </form> --}}
 
           {{-- Building Drop Down form --}}
-          <form class="d-inline-block me-2">
+          <form class="d-none d-md-inline-block me-2">
               <div class="input-group input-group-sm">
                   {{--  show inline error messages --}}
                   <select wire:model.live.debounce.100ms="search_building" type="text" name="search_building"
@@ -369,7 +385,7 @@ new class extends Component
           </form>
 
           {{-- Search form --}}
-          <form class="d-inline-block me-2">
+          <form class="d-none d-md-inline-block me-2">
               <div class="input-group input-group-sm">
                   {{--  show inline error messages --}}
                   <input wire:model.live.debounce.700ms="search" type="text" name="search"
@@ -386,27 +402,83 @@ new class extends Component
           
           {{-- Link to reset --}}
           <a href="#"  wire:click="clearSearch"
-            class="btn btn-success" 
+            class="d-md-inline-block d-none btn btn-success" 
             title="Reset">
             <i class="bi bi-arrow-clockwise"></i>
           </a>
 
-          {{-- Search Prompt --}}
-          @if($this->search_date=='')
-            <small class="text-danger d-block">Select Date to Start Search</small>
-          @endif
-
-          {{-- Time Error --}}
-          @if(($endDifference = (Carbon::parse($this->now))->diffInDays(Carbon::parse($endTimeStamp = "$this->search_date" )))<0)
-            <small class="text-danger d-block">The date is in the past</small>
-          @endif
+          {{-- Link to show the filter icon--}}
+          <a href="#"  wire:click="showHidden"
+            class="d-md-none d-inline-block btn btn-dark" 
+            title="Show Hidden">            
+            <i class="bi bi-funnel-fill"></i>
+          </a>
         </div>
+
+        @if($this->smallDevice)
+            <div class="d-block ms-2 row">
+              {{-- Search form --}}
+              <div class="col-md-4 mt-4">
+                <div class="col-md-4 my-2 me-2">
+                  <form class="pt-4 me-2">
+                    <div class="input-group input-group-sm">
+                        {{--  show inline error messages --}}
+                        <input wire:model.live.debounce.700ms="search" type="text" name="search"
+                          class="form-control {{ $errors->has('search') ? 'is-invalid' : '' }}"
+                          placeholder="Search Rooms in Building">
+                          @error('search')
+                            <div class="invalid-feedback">
+                              {{ $message }}
+                            </div>
+                          @enderror
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {{-- Building Drop Down form --}}
+              <div class="col-md-4 mt-4">
+                <div class="col-md-4 my-2 me-2">
+                  <form class="me-2 mb-4">
+                      <div class="input-group input-group-sm">
+                          {{--  show inline error messages --}}
+                          <select wire:model.live.debounce.100ms="search_building" type="text" name="search_building"
+                            class="form-control {{ $errors->has('search_building') ? 'is-invalid' : '' }}" >
+                              @foreach ($buildings as $building)
+                                <option value="{{ $building->id}}">{{$building->building_name}}</option>
+                              @endforeach
+                          </select>
+                            @error('search_building')
+                              <div class="invalid-feedback">
+                                {{ $message }}
+                              </div>
+                            @enderror
+                      </div>
+                  </form>
+              </div>
+
+              {{-- Link to reset --}}
+              <div class="col-md-4 my-2 me-2">
+                <a href="#"  wire:click="clearSearch"
+                  class="btn btn-success btn-sm" 
+                  title="Reset">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Reset Search
+                </a>
+              </div>
+            
+            </div>
+        @endif
+
+
+
       </div>      
       <!-- /.card-header -->
       
       <div class="card-body">
         @if(count($roomsAvailable)!=0)
-          <table class="table table-bordered table-striped">
+          <div class="quick-access-table-wrap table-responsive">
+          <table class="table table-bordered table-striped mb-0">
             <thead>
               <tr>
                 <th style="width: 10px">Number</th>
@@ -503,6 +575,7 @@ new class extends Component
               @endforeach
             </tbody>
           </table>
+          </div>
         @else
           <tbody>
             <p class="text-danger">No Room or Building matches the search key</p>
@@ -512,7 +585,7 @@ new class extends Component
       <!-- /.card-body -->
       <div class="card-footer">
         {{-- Pagination --}}
-          <div class="mt-3">
+          <div class="mt-3" data-bs-theme="dark">
                 {{ $roomsAvailable->links('pagination::bootstrap-5') }}
           </div>
       </div>

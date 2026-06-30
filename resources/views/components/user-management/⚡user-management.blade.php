@@ -19,6 +19,7 @@ new class extends Component
     public $orderDirection1 = "asc";
     public $orderDirection2 = "asc";
     public $id;
+    public $smallDevice=False;
     public $name;
     public $email;
     public $email_verified_at;
@@ -110,6 +111,18 @@ new class extends Component
             $user->save();
             session()->flash('success','User Activated Successfully');
         }
+    }
+
+    /**
+     * Show the form on small devices
+    */
+    public function showHidden(){
+      if($this->smallDevice==False){
+        $this->smallDevice = True;
+      }
+      else{
+        $this->smallDevice = False;
+      }
     }
 
     /**
@@ -311,7 +324,7 @@ new class extends Component
         <div class="card-tools">
 
           {{-- Search form --}}
-          <form class="d-inline-block me-2">
+          <form class="d-none d-md-inline-block me-2">
               <div class="input-group input-group-sm">
                   {{--  show inline error messages --}}
                   <input wire:model.live.debounce.700ms="search" type="text" name="search"
@@ -328,16 +341,58 @@ new class extends Component
           
           {{-- Link to reset --}}
           <a href="#"  wire:click="clearSearch"
-            class="btn btn-success" 
+            class="d-md-inline-block d-none btn btn-success" 
             title="Reset">
             <i class="bi bi-arrow-clockwise"></i>
           </a>
+          
+          {{-- Link to show the filter icon--}}
+          <a href="#"  wire:click="showHidden"
+            class="d-md-none d-inline-block btn btn-dark" 
+            title="Show Hidden">            
+            <i class="bi bi-funnel-fill"></i>
+          </a>
         </div>
+
+        @if($this->smallDevice)
+            <div class="d-block ms-2 row">
+              {{-- Search form --}}
+              <div class="col-md-4 mt-4">
+                <div class="col-md-4 my-2 me-2">
+                  <form class="me-2 pt-4">
+                      <div class="input-group input-group-sm">
+                          {{--  show inline error messages --}}
+                          <input wire:model.live.debounce.700ms="search" type="text" name="search"
+                            class="form-control {{ $errors->has('search') ? 'is-invalid' : '' }}"
+                            placeholder="Search Base Bookings" >
+                            @error('search')
+                              <div class="invalid-feedback">
+                                {{ $message }}
+                              </div>
+                            @enderror
+                      </div>
+                  </form>
+                </div>
+                
+                {{-- Link to reset --}}
+                <div class="col-md-4 my-2 me-2">
+                  <a href="#"  wire:click="clearSearch"
+                    class="btn btn-success btn-sm" 
+                    title="Reset">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset Search
+                  </a>
+                </div>
+              </div>
+            </div>
+        @endif
+
       </div>      
       <!-- /.card-header -->
       
       <div class="card-body">
         @if(count($users)!=0)
+        <div class="quick-access-table-wrap table-responsive">
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
@@ -392,7 +447,7 @@ new class extends Component
                 <td>
                   <div class="btn-group" role="group">
                     <a href="#" wire:click="regulate({{$user->id}})"
-                      class="{{$user->active==1? 'btn btn-info btn-sm' : 'btn btn-success btn-sm'}}" 
+                      class="{{$user->active==1? 'btn btn-info btn-sm  inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto' : 'btn btn-success btn-sm'}}" 
                       title="Ban/Activate">
                         @if($user->active==1)
                             <i class="bi bi-ban"></i>
@@ -411,6 +466,7 @@ new class extends Component
               @endforeach
             </tbody>
           </table>
+        </div>
         @else
           <tbody>
             <p class="text-danger">No User, Role or Email matches the search key</p>
@@ -420,7 +476,7 @@ new class extends Component
       <!-- /.card-body -->
       <div class="card-footer">
         {{-- Pagination --}}
-          <div class="mt-3">
+          <div class="mt-3" data-bs-theme="dark">
                 {{ $users->links('pagination::bootstrap-5') }}
           </div>
       </div>

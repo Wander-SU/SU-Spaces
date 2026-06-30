@@ -51,3 +51,98 @@
 {
     fill:black !important;
 }
+
+html{
+    background-color:#222121 !important;
+}
+
+.glass-hover {
+  transition: all 0.3s ease;
+  margin-bottom:0.5rem;
+}
+
+.glass-hover:hover {
+  /* This creates the grey-ish glass effect */
+  background: rgba(128, 128, 128, 0.2) !important;
+  border-radius:0.5rem !important;
+  border-bottom:0 !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  /* border: 1px solid rgba(255, 255, 255, 0.3) !important; */
+}
+
+.glass-hover a:hover{
+    color:white !important;
+    text-decoration:none;
+}
+
+
+/* Root Colors */
+body{
+    --bg-color-nav-sidebar:#222121;
+    --bg-color-body:#f3e1cd;
+}
+
+.app-sidebar,
+.app-header{
+    background-color:var(--bg-color-nav-sidebar) !important;
+}
+
+.app-main{
+    background-color:var(--bg-color-body) !important;   
+}
+
+.card,.card-body{
+    background-color:var(--bg-color-nav-sidebar) !important;
+}
+
+.card-body .card-body,
+.card-header,
+.card-footer{
+    background:rgba(243,225,205,0.9) !important;
+    backdrop-filter:blur(10px);
+}
+
+th,td{
+    background: transparent!important;
+    backdrop-filter:none !important;
+}
+
+/* Quick Access table: prevent viewport overflow on tiny devices */
+.quick-access-table-wrap{
+    display:block;
+    width:100%;
+    max-width:100%;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+}
+
+.quick-access-table-wrap > .table{
+    width:max-content;
+    min-width:100%;
+}
+
+/* Mobile filter dropdown controls */
+.mobile-filter-toggle{
+    background-color: var(--bg-color-nav-sidebar) !important;
+    border-color: var(--bg-color-nav-sidebar) !important;
+    color: #fff !important;
+}
+
+.mobile-filter-toggle:hover,
+.mobile-filter-toggle:focus,
+.mobile-filter-toggle:active{
+    background-color: #000 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+.mobile-filter-panel{
+    background-color: var(--bg-color-nav-sidebar) !important;
+    border-radius: 0.5rem;
+    padding: 0.6rem;
+}
+
+/* Careful do not touch - Makes it such that the toggle from the filter does not get impacted each time you reload the DOM */
+[x-cloak] { display: none !important; }
