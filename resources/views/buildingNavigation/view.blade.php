@@ -12,6 +12,31 @@
   <li class="breadcrumb-item active" aria-current="page">View</li>
 @endsection
 
+@push('styles')
+<style>
+  .content-wrapper {
+    background-color: #F5F6F8;
+  }
+
+  .content-wrapper .card {
+    border: 1px solid #D9D9D9;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .content-wrapper .card-body {
+    border-radius: 14px;
+  }
+
+  @media (max-width: 767.98px) {
+    .content-wrapper .card-body {
+      padding: 0.9rem;
+    }
+  }
+</style>
+@endpush
+
 
 
 {{-- Main Content --}}

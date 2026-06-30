@@ -78,7 +78,8 @@ new class extends Component{
             id="g5"
             transform="matrix(8.804808,0,0,3.8114906,-84.555262,-31.467659)"
             class="room"
-            @click="Livewire.dispatch('roomSelected',{roomName:'aberdareLab',room_id:64})">      
+            @click="Livewire.dispatch('roomSelected',{roomName:'aberdareLab',room_id:64})"
+            >      
             <rect
                style="fill:{{ $this->roomColor('Aberdare Lab') }};stroke:#000000;stroke-width:1.565"
                id="rect2"

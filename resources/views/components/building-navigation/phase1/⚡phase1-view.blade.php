@@ -26,6 +26,103 @@ new class extends Component{
 }
 ?>
 
+<style>
+   .svg-scroll-container {
+      background: #F5F6F8;
+      border: 1px solid #D9D9D9 !important;
+      border-radius: 16px;
+      padding: 12px;
+   }
+
+   .svg-scroll-container > div[x-data] {
+      min-width: 980px;
+   }
+
+   #svg1 {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: transparent;
+   }
+
+   .phase1-land {
+      fill: #E9F7EE;
+   }
+
+   .phase1-path {
+      fill: #EBEEF2;
+   }
+
+   .phase1-tree {
+      fill: #BDE3C5;
+   }
+
+   .building-section {
+      cursor: pointer;
+      fill: #FFFFFF !important;
+      stroke: #D9D9D9 !important;
+      stroke-width: 2.4 !important;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+      transition: all .2s ease;
+      transform-box: fill-box;
+      transform-origin: center;
+   }
+
+   .building-section:hover {
+      stroke: #0D6EFD !important;
+      filter: drop-shadow(0 8px 18px rgba(13, 110, 253, 0.18));
+      transform: translateY(-4px);
+   }
+
+   .building-section:active {
+      stroke: #0D6EFD !important;
+      filter: drop-shadow(0 0 0 2px rgba(13, 110, 253, 0.2)) drop-shadow(0 10px 20px rgba(13, 110, 253, 0.2));
+   }
+
+   .phase1-label,
+   .phase1-icon,
+   .phase1-icon-mark {
+      pointer-events: none;
+   }
+
+   .phase1-label {
+      fill: #3D4956;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-anchor: middle;
+   }
+
+   .phase1-label-compact {
+      font-size: 17px;
+      letter-spacing: 0.2px;
+   }
+
+   .phase1-icon {
+      fill: #EAF2FF;
+      stroke: #0D6EFD;
+      stroke-width: 2;
+   }
+
+   .phase1-icon-mark {
+      fill: none;
+      stroke: #0D6EFD;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+   }
+
+   @media (max-width: 991.98px) {
+      .svg-scroll-container > div[x-data] {
+         min-width: 900px;
+      }
+
+      .phase1-label {
+         font-size: 24px;
+      }
+   }
+</style>
+
 <div>
    <div x-data>
       <svg
@@ -62,6 +159,14 @@ new class extends Component{
          showguides="false" />
       <defs
          id="defs1" />
+      <rect class="phase1-land" x="220" y="180" width="380" height="190" rx="48" />
+      <rect class="phase1-land" x="1240" y="170" width="320" height="220" rx="54" />
+      <rect class="phase1-land" x="640" y="760" width="560" height="170" rx="58" />
+      <rect class="phase1-path" x="640" y="300" width="90" height="540" rx="28" />
+      <rect class="phase1-path" x="730" y="470" width="540" height="62" rx="24" />
+      <circle class="phase1-tree" cx="312" cy="258" r="11" />
+      <circle class="phase1-tree" cx="1360" cy="252" r="10" />
+      <circle class="phase1-tree" cx="830" cy="828" r="10" />
       <g
          id="g4"
          transform="matrix(2.1023051,0,0,2.2403163,-350.82887,-381.37199)">
@@ -74,6 +179,9 @@ new class extends Component{
             height="133.20139"
             x="202.29834"
             y="482.95038" />
+         <circle class="phase1-icon" cx="493" cy="550" r="16" />
+         <path class="phase1-icon-mark" d="M 485 550 h 16 M 493 542 v 16" />
+         <text class="phase1-label" x="493" y="605">Central Part</text>
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:6.97274"
             id="rect2"
@@ -83,6 +191,12 @@ new class extends Component{
             height="273.71774"
             x="204.77379"
             y="207.71255" />
+         <circle class="phase1-icon" cx="272" cy="302" r="13" />
+         <path class="phase1-icon-mark" d="M 266 296 h 12 M 266 302 h 12 M 266 308 h 12" />
+         <text class="phase1-label phase1-label-compact" x="272" y="338">
+            <tspan x="272" dy="0">Left</tspan>
+            <tspan x="272" dy="22">Wing</tspan>
+         </text>
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:6.88202"
             id="rect2-8"
@@ -92,6 +206,12 @@ new class extends Component{
             height="266.46152"
             x="654.97906"
             y="211.06674" />
+         <circle class="phase1-icon" cx="722" cy="302" r="13" />
+         <path class="phase1-icon-mark" d="M 716 296 h 12 M 722 296 v 12 M 716 308 h 12" />
+         <text class="phase1-label phase1-label-compact" x="722" y="338">
+            <tspan x="722" dy="0">Right</tspan>
+            <tspan x="722" dy="22">Wing</tspan>
+         </text>
       </g>
       <g
          inkscape:label="Layer 1"
