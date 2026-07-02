@@ -192,11 +192,12 @@ new class extends Component
 
     <div class="card-info">
         <div class="card-header">
+            <div class="d-flex flex-column gap-3">
             {{-- Buttons to Cancel --}}
-            <div class="d-inline-block me-2 rounded-2">
+            <div class="d-flex flex-wrap gap-2 rounded-2">
                 @if($phaseName!=null)
                     <a href="#" wire:click="backToBirdView"
-                    class="btn btn-danger"
+                    class="btn btn-danger btn-sm"
                     >
                         Back to General View
                     </a>
@@ -204,7 +205,7 @@ new class extends Component
                 
                 @if($partName!=null || $buildingName!=null)
                     <a href="#" wire:click="backToPhaseView"
-                    class="btn btn-danger"
+                    class="btn btn-danger btn-sm"
                     >
                         Back to Phase View
                     </a>
@@ -212,21 +213,21 @@ new class extends Component
 
                 @if($stmbFloor!=null)
                     <a href="#" wire:click="backToStmbView"
-                    class="btn btn-danger"
+                    class="btn btn-danger btn-sm"
                     >
                         Back to STMB View
                     </a>
                 @endif
 
             </div>
-            <div class="card-tools">
+            <div class="d-flex flex-wrap gap-2 align-items-end">
                 {{-- Search Date form --}}
-                <form class="d-inline-block me-2">
-                    <div class="input-group input-group-sm">
+                <form class="w-100 w-md-auto">
+                    <div class="d-flex flex-column flex-sm-row gap-1 align-items-sm-center">
                         {{--  show inline error messages --}}
-                        <label for="search_date" class="me-2">Search Date:</label>
+                        <label for="search_date" class="me-sm-2 mb-0">Search Date:</label>
                         <input wire:model.live.debounce.100ms="search_date" type="date" name="search_date"
-                        class="form-control {{ $errors->has('search_date') ? 'is-invalid' : '' }}" value="{{ old('search_date') }}">
+                        class="form-control form-control-sm {{ $errors->has('search_date') ? 'is-invalid' : '' }}" value="{{ old('search_date') }}">
                         @error('search_date')
                             <div class="invalid-feedback">
                             {{ $message }}
@@ -235,12 +236,12 @@ new class extends Component
                     </div>
                 </form>
 
-                <form class="d-inline-block me-2">
-                    <div class="input-group input-group-sm">
+                <form class="w-100 w-md-auto">
+                    <div class="d-flex flex-column flex-sm-row gap-1 align-items-sm-center">
                         {{--  show inline error messages --}}
-                        <label for="start_time" class="me-2">Start:</label>
+                        <label for="start_time" class="me-sm-2 mb-0">Start:</label>
                         <select wire:model.live.debounce.100ms="start_time_id" type="time" name="start_time_id"
-                        class="form-control {{ $errors->has('start_time_id') ? 'is-invalid' : '' }}" value="{{ old('start_time_id') }}">
+                        class="form-control form-control-sm {{ $errors->has('start_time_id') ? 'is-invalid' : '' }}" value="{{ old('start_time_id') }}">
                             @foreach($timeSlots as $timeSlot)
                                 @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00")
                                     <option value="{{ $timeSlot->id }}">{{$timeSlot->start_time}}</option>
@@ -255,12 +256,12 @@ new class extends Component
                     </div>
                 </form>
 
-                <form class="d-inline-block me-2">
-                    <div class="input-group input-group-sm">
+                <form class="w-100 w-md-auto">
+                    <div class="d-flex flex-column flex-sm-row gap-1 align-items-sm-center">
                         {{--  show inline error messages --}}
-                        <label for="end _time" class="me-2">End:</label>
+                        <label for="end _time" class="me-sm-2 mb-0">End:</label>
                         <select wire:model.live.debounce.100ms="end_time_id" type="time" name="end_time_id"
-                        class="form-control {{ $errors->has('end_time_id') ? 'is-invalid' : '' }}" value="{{ old('end_time_id') }}">
+                        class="form-control form-control-sm {{ $errors->has('end_time_id') ? 'is-invalid' : '' }}" value="{{ old('end_time_id') }}">
                             @foreach($timeSlots as $timeSlot)
                                 @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && ($timeSlot->id-$start_time_id)>=0 && ($timeSlot->id-$start_time_id)<=12)
                                     <option value="{{ $timeSlot->id }}">{{$timeSlot->end_time}}</option>
@@ -275,11 +276,11 @@ new class extends Component
                     </div>
                 </form>
 
-
+            </div>
             </div>
         </div>
         <div class="card-body">
-            <div class="svg-scroll-container border overflow-auto" style="">
+            <div class="svg-scroll-container border overflow-auto">
                 @if($phaseName==null)
                     <livewire:building-navigation.bird-eye-view.bird-eye-view/>
                 @endif

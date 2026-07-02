@@ -1,12 +1,21 @@
 /* Self Specified CSS */
 /* CSS for the screen that contains the svgs. */
 .svg-scroll-container svg{
-  /* Force the svg to go to a particular size */
-  width: 100vw !important;
-  height: 70vh !important;
+    /* Keep maps responsive without forcing viewport overflow */
+    width: 100% !important;
+    min-width: 960px;
+    height: auto !important;
 
   /* Make sure it is crisp*/
   image-rendering: pixelated;
+}
+
+.svg-scroll-container{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* CSS for the phases */
@@ -121,6 +130,55 @@ th,td{
 .quick-access-table-wrap > .table{
     width:max-content;
     min-width:100%;
+}
+
+/* Generic responsive handling for table-heavy pages */
+.app-content .table-responsive,
+.app-content .quick-access-table-wrap{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.app-content .table-responsive table,
+.app-content .quick-access-table-wrap table{
+    min-width: 760px;
+}
+
+@media (max-width: 991.98px){
+    .app-content-header .row{
+        row-gap: 0.5rem;
+    }
+
+    .app-content-header .breadcrumb{
+        float: none !important;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin-top: 0.25rem;
+    }
+
+    .app-content .btn-group{
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 0.35rem;
+    }
+
+    .app-content .pagination{
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+}
+
+@media (max-width: 767.98px){
+    .svg-scroll-container svg{
+        min-width: 720px;
+    }
+
+    .app-content .table-responsive table,
+    .app-content .quick-access-table-wrap table{
+        min-width: 680px;
+    }
 }
 
 /* Mobile filter dropdown controls */
