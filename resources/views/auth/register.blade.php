@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/strathmore_emblem.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,7 +16,7 @@
         };
     </script>
 </head>
-<body class="min-h-screen bg-[#FDFDFC] font-['Instrument_Sans',sans-serif] dark:bg-[#0a0a0a]">
+<body class="min-h-screen bg-[#FDFDFC] font-['Inter',sans-serif] dark:bg-[#0a0a0a]">
     {{-- Full-page background image for the registration screen --}}
     <div class="relative min-h-screen overflow-hidden bg-center bg-cover" style="background-image: url('{{ asset('images/sign_up_background.jpeg') }}');">
         {{-- Frosted overlay to keep text readable on top of the image --}}

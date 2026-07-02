@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/strathmore_emblem.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @if (file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
@@ -20,7 +20,7 @@
         </script>
     @endif
 </head>
-<body class="min-h-screen bg-[#FDFDFC] font-[\'Instrument_Sans\',sans-serif] dark:bg-[#0a0a0a]">
+<body class="min-h-screen bg-[#FDFDFC] font-['Inter',sans-serif] dark:bg-[#0a0a0a]">
     {{-- Full-screen background image for the login experience --}}
     <div class="relative min-h-screen overflow-hidden bg-center bg-no-repeat" style="background-image: url('{{ asset('images/log_in_background.jpeg') }}'); background-size: 120vmin;">
         {{-- Frosted overlay layer to improve form readability over the background image --}}

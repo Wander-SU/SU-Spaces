@@ -528,18 +528,18 @@ new class extends Component
     @endif
     
     @if($showForm)
-    <div class="col-md-4 z-3 position-absolute top-0 end-0 rounded-3 card card-info card-outline mb-4">
-          <div class="card-header">
-              <div class="card-title">Book Room</div>
+    <div class="font-sans">
+          <div class="mb-4">
+          <div class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Book Room Details</div>
           </div>
           <form wire:submit="{{$this->isPrivilegedBook ? "bookPrivileged" : "book"}}">
               @csrf
-              <div class="card-body">
-                <div class="row">
+              <div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {{-- Building --}}
-                  <div class="col-md-12 mb-3">
-                    <label for="building_name" class="form-label">Building</label>
-                    <input wire:model="building_name" type="text" disabled name="building_name" class="form-control @error('building_name') is-invalid @enderror" value="{{old('building_name')}}">
+                  <div class="md:col-span-2">
+                    <label for="building_name" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Building</label>
+                    <input wire:model="building_name" type="text" disabled name="building_name" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('building_name') is-invalid @enderror" value="{{old('building_name')}}">
                     @error('building_name')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -548,9 +548,9 @@ new class extends Component
                   </div>
 
                   {{-- Room --}}
-                  <div class="col-md-6 mb-3">
-                    <label for="room_name" class="form-label">Room</label>
-                    <input wire:model="room_name" type="text" name="room_name" disabled class="form-control @error('room_name') is-invalid @enderror" value="{{old('room_name')}}">
+                  <div>
+                    <label for="room_name" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Room</label>
+                    <input wire:model="room_name" type="text" name="room_name" disabled class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('room_name') is-invalid @enderror" value="{{old('room_name')}}">
                     @error('room_name')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -559,9 +559,9 @@ new class extends Component
                   </div>
 
                   {{-- Date --}}
-                  <div class="col-md-6 mb-3">
-                      <label for="date" class="form-label">Book Date</label>
-                      <input required wire:model="book_date" type="date" disabled name="book_date" class="form-control @error('room_id') is-invalid @enderror" value="{{old('book_date')}}">
+                  <div>
+                      <label for="date" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Book Date</label>
+                      <input required wire:model="book_date" type="date" disabled name="book_date" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('room_id') is-invalid @enderror" value="{{old('book_date')}}">
                     @error('book_date')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -570,11 +570,11 @@ new class extends Component
                   </div>
 
                   {{-- Time --}}
-                  <div class="col-md-12">
+                  <div class="md:col-span-2">
                     {{-- Start Time --}}
-                    <div class="col-md-4 d-inline-block mb-3 me-3">
-                      <label for="start_time_id" class="form-label">Start Time</label>
-                      <select required wire:model.live.debounce.500ms="start_time_id" name="start_time_id" class="form-control @error('start_time_id') is-invalid @enderror" value="{{old('start_time_id')}}">
+                    <div class="inline-block mb-3 me-3 align-top w-full md:w-[31%]">
+                      <label for="start_time_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Start Time</label>
+                      <select required wire:model.live.debounce.500ms="start_time_id" name="start_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('start_time_id') is-invalid @enderror" value="{{old('start_time_id')}}">
                         @foreach ($timeSlots as $timeSlot)
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
                             <option value="{{ $timeSlot->id }}">
@@ -586,9 +586,9 @@ new class extends Component
                     </div>
 
                     {{-- End Time --}}
-                    <div class="col-md-4 d-inline-block mb-3 me-3">
-                      <label for="end_time_id" class="form-label">End Time</label>
-                      <select required wire:model.live.debounce.500ms="end_time_id" name="end_time_id" class="form-control @error('end_time_id') is-invalid @enderror" value="{{old('end_time_id')}}">
+                    <div class="inline-block mb-3 me-3 align-top w-full md:w-[31%]">
+                      <label for="end_time_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">End Time</label>
+                      <select required wire:model.live.debounce.500ms="end_time_id" name="end_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('end_time_id') is-invalid @enderror" value="{{old('end_time_id')}}">
                         @foreach ( $timeSlots as $timeSlot )
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
                             <option value="{{ $timeSlot->id }}">
@@ -600,9 +600,9 @@ new class extends Component
                     </div>
 
                     {{-- Vacancies Based on Time Slot --}}
-                    <div class="col-md-2 d-inline-block mb-3">
-                      <label for="vacancies" class="form-label">Vacancies</label>
-                      <input required disabled wire:model="vacancies" name="vacancies" class="form-control @error('vacancies') is-invalid @enderror" >
+                    <div class="inline-block mb-3 align-top w-full md:w-[31%]">
+                      <label for="vacancies" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Vacancies</label>
+                      <input required disabled wire:model="vacancies" name="vacancies" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('vacancies') is-invalid @enderror" >
                     </div>
                     @error('time')
                         <div class="invalid-feedback">
@@ -617,11 +617,11 @@ new class extends Component
                   </div>                  
 
                   {{-- Occupants --}}
-                  <div class="col-md-6 mb-3">
-                    <label for="number_occupants" class="form-label">Number of Occupants</label>
+                  <div>
+                    <label for="number_occupants" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Number of Occupants</label>
                     <input required wire:model.live.debounce.500ms="number_occupants"
                      @if(auth()->user()->role->role_name!="Student") disabled @endif
-                     type="number" min=1 name="number_occupants" max="30" class="form-control @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
+                     type="number" min=1 name="number_occupants" max="30" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
                     @error('number_occupants')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -630,9 +630,9 @@ new class extends Component
                   </div>
 
                   {{-- Reason For Booking --}}
-                  <div class="col-md-6 mb-3">
-                    <label for="book_reason" class="form-label">Reason For Booking</label>
-                    <select required wire:model="book_reason" type="text" name="book_reason" class="form-control @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
+                  <div>
+                    <label for="book_reason" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Reason For Booking</label>
+                    <select required wire:model="book_reason" type="text" name="book_reason" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
                       <option>--Select One--</option>
                       @if(auth()->user()->role->role_name=="Student")
                         <option value="Individual Study">Individual Study</option>
@@ -651,20 +651,20 @@ new class extends Component
 
                   {{-- Lec Booked Error  --}}
                   @error('lecturer_booked')
-                      <div class="invalid-feedback col-md-12">
+                      <div class="invalid-feedback md:col-span-2">
                         {{ $message }}
                       </div>
                   @enderror
 
                   @error('booking_duplicate')
-                      <div class="invalid-feedback col-md-12">
+                      <div class="invalid-feedback md:col-span-2">
                         {{ $message }}
                       </div>
                   @enderror
 
                   {{-- Edit if the error in number of occupants entered, number of vacancies etc --}}
                   @if ($this->vacancies <= 0 || $this->vacancies<$this->number_occupants)
-                    <div class="invalid-feedback col-md-12">
+                    <div class="invalid-feedback md:col-span-2">
                       <small>
                         <ul>Either:
                         <li>Vacancies less than 1</li> 
@@ -676,16 +676,16 @@ new class extends Component
 
                   </div>
                 </div>
-              <div class="card-footer">
-                  <a href=" #" wire:click="cancel" class="btn btn-danger">
+              <div class="mt-4 flex flex-wrap items-center gap-3">
+                  <a href=" #" wire:click="cancel" x-on:click="sidebarOpen = false" class="inline-flex items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     <i class="bi bi-arrow-left"></i> Back
                   </a>
                   @if(auth()->user()->role->role_name=="Student")
-                    <button type="submit" class="btn btn-primary" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-150 mt-6 cursor-pointer" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
                     </button>
                   @else
-                    <button type="submit" class="btn btn-warning">
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-150 mt-6 cursor-pointer">
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm High Priority Booking
                     </button>
                   @endif
