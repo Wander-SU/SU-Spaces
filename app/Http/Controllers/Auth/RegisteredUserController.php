@@ -16,6 +16,17 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    private const FACULTIES = ['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS'];
+
+    private const COURSES_BY_FACULTY = [
+        'SCES' => ['BICS', 'BCNS', 'BBIT', 'BSEEE'],
+        'SIMS' => ['BBS.FENG', 'BBS.FE', 'BBS.ACT', 'BSc.SDS'],
+        'SLS' => ['LLB'],
+        'SBS' => ['BFS', 'BSCM', 'BCOM'],
+        'STH' => ['BTM', 'BHM'],
+        'SHSS' => ['BDP', 'BAC', 'BIS'],
+    ];
+
     public function create(): View
     {
         return view('auth.register');
@@ -30,12 +41,28 @@ class RegisteredUserController extends Controller
             'gender' => ['required', Rule::in(['Male', 'Female'])],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
-            'faculty' => ['required', Rule::in(['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS', 'SI'])],
-            'course' => ['nullable', 'string', 'max:120', 'required_if:account_type,student'],
+            'faculty' => ['required', Rule::in(self::FACULTIES)],
+            'course' => [
+                'nullable',
+                'string',
+                'max:120',
+                'required_if:account_type,student',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                    if (($request->input('account_type') ?? '') !== 'student') {
+                        return;
+                    }
+
+                    $faculty = (string) $request->input('faculty');
+                    $allowedCourses = self::COURSES_BY_FACULTY[$faculty] ?? [];
+
+                    if (! in_array((string) $value, $allowedCourses, true)) {
+                        $fail('Select a valid course for the selected faculty.');
+                    }
+                },
+            ],
             'admission_number' => ['nullable', 'string', 'required_if:account_type,student', 'regex:/^\d{6}$/', 'unique:users,admission_number'],
             'year_of_study' => ['nullable', Rule::in(['1', '2', '3', '4', '5']), 'required_if:account_type,student'],
             'employee_id' => ['nullable', 'string', 'required_if:account_type,lecturer', 'regex:/^\d{5,6}$/', 'unique:users,employee_id'],
-            'office_location' => ['nullable', 'string', 'max:150', 'required_if:account_type,lecturer'],
             'registration_token' => ['required', 'string', 'size:6'],
         ], [
             'required' => 'This field is required.',
@@ -109,7 +136,6 @@ class RegisteredUserController extends Controller
             'employee_id' => $validated['account_type'] === 'lecturer' ? $validated['employee_id'] : null,
             'faculty' => $validated['faculty'],
             'year_of_study' => $validated['account_type'] === 'student' ? $validated['year_of_study'] : null,
-            'office_location' => $validated['account_type'] === 'lecturer' ? $validated['office_location'] : null,
             'username' => $generatedUsername,
             'course' => $validated['course'] ?? null,
         ]);
@@ -132,12 +158,28 @@ class RegisteredUserController extends Controller
             'gender' => ['required', Rule::in(['Male', 'Female'])],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
-            'faculty' => ['required', Rule::in(['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS', 'SI'])],
-            'course' => ['nullable', 'string', 'max:120', 'required_if:account_type,student'],
+            'faculty' => ['required', Rule::in(self::FACULTIES)],
+            'course' => [
+                'nullable',
+                'string',
+                'max:120',
+                'required_if:account_type,student',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                    if (($request->input('account_type') ?? '') !== 'student') {
+                        return;
+                    }
+
+                    $faculty = (string) $request->input('faculty');
+                    $allowedCourses = self::COURSES_BY_FACULTY[$faculty] ?? [];
+
+                    if (! in_array((string) $value, $allowedCourses, true)) {
+                        $fail('Select a valid course for the selected faculty.');
+                    }
+                },
+            ],
             'admission_number' => ['nullable', 'string', 'required_if:account_type,student', 'regex:/^\d{6}$/', 'unique:users,admission_number'],
             'year_of_study' => ['nullable', Rule::in(['1', '2', '3', '4', '5']), 'required_if:account_type,student'],
             'employee_id' => ['nullable', 'string', 'required_if:account_type,lecturer', 'regex:/^\d{5,6}$/', 'unique:users,employee_id'],
-            'office_location' => ['nullable', 'string', 'max:150', 'required_if:account_type,lecturer'],
         ], [
             'required' => 'This field is required.',
             'required_if' => 'This field is required.',

@@ -18,11 +18,19 @@
     <!--begin::Fonts-->
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
-      integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q="
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       crossorigin="anonymous"
     />
     <!--end::Fonts-->
+    <style>
+      :root {
+        --bs-body-font-family: 'Inter', sans-serif;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
     
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link

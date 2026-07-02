@@ -16,16 +16,8 @@
 
 {{-- Main Content --}}
 @section('content')
-<div class="row">
-  <div class="col-12">
-    <div class="card">      
-      <div class="card-body">
-          <livewire:quick-access.quick-access/>
-      </div>
-      <!-- /.card-body -->
-    </div>
-    <!-- /.card -->
-  </div>
+<div class="w-full px-2 sm:px-6">
+  <livewire:quick-access.quick-access/>
 </div>
 @endsection
 

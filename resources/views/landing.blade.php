@@ -8,10 +8,10 @@
     <link rel="icon" type="image/png" href="{{ asset('images/strathmore_emblem.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-[#FDFDFC] font-['Instrument_Sans',sans-serif]">
+<body class="min-h-screen bg-[#FDFDFC] font-['Inter',sans-serif]">
     {{-- Full-screen hero wrapper with the landing background image --}}
     <div class="relative min-h-screen overflow-hidden bg-center bg-cover" style="background-image: url('{{ asset('images/landing_page_background.png') }}');">
         {{-- Grey transparent overlay to mute the background while keeping it visible --}}

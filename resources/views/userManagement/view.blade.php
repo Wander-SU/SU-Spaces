@@ -16,16 +16,8 @@
 
 {{-- Main Content --}}
 @section('content')
-<div class="row">
-  <div class="col-12">
-    <div class="card">      
-      <div class="card-body">
-          <livewire:user-management.user-management/>
-      </div>
-      <!-- /.card-body -->
-    </div>
-    <!-- /.card -->
-  </div>
+<div class="w-full px-4 sm:px-8 max-w-none bg-transparent min-h-screen">
+  <livewire:user-management.user-management/>
 </div>
 @endsection
 

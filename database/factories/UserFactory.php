@@ -12,6 +12,15 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
+    private const COURSES_BY_FACULTY = [
+        'SCES' => ['BICS', 'BCNS', 'BBIT', 'BSEEE'],
+        'SIMS' => ['BBS.FENG', 'BBS.FE', 'BBS.ACT', 'BSc.SDS'],
+        'SLS' => ['LLB'],
+        'SBS' => ['BFS', 'BSCM', 'BCOM'],
+        'STH' => ['BTM', 'BHM'],
+        'SHSS' => ['BDP', 'BAC', 'BIS'],
+    ];
+
     /**
      * The current password being used by the factory.
      */
@@ -27,6 +36,7 @@ class UserFactory extends Factory
         $firstName = fake()->firstName();
         $lastName = fake()->lastName();
         $admissionNumber = str_pad((string) fake()->numberBetween(0, 999999), 6, '0', STR_PAD_LEFT);
+        $faculty = fake()->randomElement(array_keys(self::COURSES_BY_FACULTY));
 
         return [
             'name' => $firstName.' '.$lastName,
@@ -36,17 +46,11 @@ class UserFactory extends Factory
             'account_type' => 'student',
             'admission_number' => $admissionNumber,
             'employee_id' => null,
-            'faculty' => fake()->randomElement(['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS', 'SI']),
+            'faculty' => $faculty,
             'year_of_study' => (string) fake()->numberBetween(1, 5),
             'office_location' => null,
             'username' => $admissionNumber,
-            'course' => fake()->randomElement([
-                'BSc Computer Science',
-                'BSc Software Engineering',
-                'BSc Data Science',
-                'BSc Information Systems',
-                'BSc Information Technology',
-            ]),
+            'course' => fake()->randomElement(self::COURSES_BY_FACULTY[$faculty]),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -74,9 +78,10 @@ class UserFactory extends Factory
 
             return [
                 'role_id' => 1,
-                'account_type' => 'lecturer',
+                'account_type' => null,
                 'admission_number' => null,
                 'employee_id' => $employeeId,
+                'faculty' => null,
                 'year_of_study' => null,
                 'course' => null,
                 'office_location' => 'Admin Block',
@@ -89,12 +94,14 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes): array {
             $employeeId = str_pad((string) fake()->numberBetween(0, 999999), fake()->randomElement([5, 6]), '0', STR_PAD_LEFT);
+            $faculty = fake()->randomElement(array_keys(self::COURSES_BY_FACULTY));
 
             return [
                 'role_id' => 3,
                 'account_type' => 'lecturer',
                 'admission_number' => null,
                 'employee_id' => $employeeId,
+                'faculty' => $faculty,
                 'year_of_study' => null,
                 'course' => null,
                 'office_location' => fake()->randomElement(['MST Block', 'Madaraka Wing', 'SBS Block']),
@@ -110,9 +117,10 @@ class UserFactory extends Factory
 
             return [
                 'role_id' => 4,
-                'account_type' => 'lecturer',
+                'account_type' => null,
                 'admission_number' => null,
                 'employee_id' => $employeeId,
+                'faculty' => null,
                 'year_of_study' => null,
                 'course' => null,
                 'office_location' => 'ICT Helpdesk',

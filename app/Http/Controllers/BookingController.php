@@ -50,6 +50,7 @@ class BookingController extends Controller
         }
 
         $sortBy = $request->query('sort_by', 'newest');
+        $editBookingId = (int) $request->query('edit_booking', 0);
         $sortDirection = $sortBy === 'oldest' ? 'asc' : 'desc';
         $hasAnyBookings = Booking::query()->where('user_id', $userId)->exists();
 
@@ -125,7 +126,43 @@ class BookingController extends Controller
                 });
         }
 
-        return view('allBookings.view', compact('bookings', 'priorityAlerts', 'fromDate', 'toDate', 'today', 'hasAnyBookings'));
+        // Optional right-drawer edit context rendered on the previous bookings page.
+        $editBooking = null;
+        $buildings = collect();
+        $selectedBuildingId = null;
+        $availableRooms = collect();
+
+        if ($editBookingId > 0) {
+            $editBooking = Booking::query()
+                ->with(['room.building', 'startTimeSlot', 'endTimeSlot'])
+                ->where('user_id', $userId)
+                ->where('status', 'Booked')
+                ->find($editBookingId);
+
+            if ($editBooking) {
+                $buildings = Building::query()
+                    ->orderBy('building_name', 'asc')
+                    ->get(['id', 'building_name', 'building_abbrev']);
+
+                $defaultBuildingId = (int) (optional($editBooking->room)->building_id ?? 0);
+                $selectedBuildingId = (int) $request->query('building_id', $defaultBuildingId);
+                $availableRooms = $this->getAvailableRoomsForBookingSlot($editBooking, $selectedBuildingId > 0 ? $selectedBuildingId : null);
+            }
+        }
+
+        return view('allBookings.view', compact(
+            'bookings',
+            'priorityAlerts',
+            'fromDate',
+            'toDate',
+            'today',
+            'hasAnyBookings',
+            'sortBy',
+            'editBooking',
+            'buildings',
+            'selectedBuildingId',
+            'availableRooms'
+        ));
     }
 
     /**
@@ -211,28 +248,13 @@ class BookingController extends Controller
             return redirect()->route('bookings.previous')->with('error', 'Only active bookings can be edited.');
         }
 
-        $fromDate = $request->query('from_date');
-        $toDate = $request->query('to_date');
-        $sortBy = $request->query('sort_by', 'newest');
-
-        $buildings = Building::query()
-            ->orderBy('building_name', 'asc')
-            ->get(['id', 'building_name', 'building_abbrev']);
-
-        $defaultBuildingId = (int) (optional($booking->room)->building_id ?? 0);
-        $selectedBuildingId = (int) $request->query('building_id', $defaultBuildingId);
-
-        $availableRooms = $this->getAvailableRoomsForBookingSlot($booking, $selectedBuildingId > 0 ? $selectedBuildingId : null);
-
-        return view('allBookings.edit', compact(
-            'booking',
-            'buildings',
-            'selectedBuildingId',
-            'availableRooms',
-            'fromDate',
-            'toDate',
-            'sortBy'
-        ));
+        return redirect()->route('bookings.previous', [
+            'from_date' => $request->query('from_date'),
+            'to_date' => $request->query('to_date'),
+            'sort_by' => $request->query('sort_by', 'newest'),
+            'edit_booking' => $booking->id,
+            'building_id' => $request->query('building_id', (int) (optional($booking->room)->building_id ?? 0)),
+        ]);
     }
 
     /**
