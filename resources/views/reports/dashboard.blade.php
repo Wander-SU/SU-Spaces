@@ -94,40 +94,40 @@
         </form>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="flex items-center justify-between p-6 bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
+            <div class="flex items-center justify-between p-6 bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
                 <div class="flex flex-col">
                     <h3 class="text-2xl font-bold font-sans text-[#1b1b18] dark:text-[#EDEDEC]">{{ number_format($totalUsers ?? 0) }}</h3>
-                    <p class="text-sm font-sans text-[#706f6c] dark:text-[#A1A09A] mt-1">Registered Users</p>
+                    <p class="mt-2"><span class="inline-flex text-[#c99d3b] bg-[#c99d3b]/10 border border-[#c99d3b]/30 font-semibold font-mono text-sm px-2.5 py-1 rounded-md">Registered Users</span></p>
                 </div>
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800/50 text-xl">
                     <i class="bi bi-people text-blue-500"></i>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between p-6 bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
+            <div class="flex items-center justify-between p-6 bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
                 <div class="flex flex-col">
                     <h3 class="text-2xl font-bold font-sans text-[#1b1b18] dark:text-[#EDEDEC]">{{ number_format($activeBookings ?? 0) }}</h3>
-                    <p class="text-sm font-sans text-[#706f6c] dark:text-[#A1A09A] mt-1">Active Bookings</p>
+                    <p class="mt-2"><span class="inline-flex text-[#c99d3b] bg-[#c99d3b]/10 border border-[#c99d3b]/30 font-semibold font-mono text-sm px-2.5 py-1 rounded-md">Active Bookings</span></p>
                 </div>
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800/50 text-xl">
                     <i class="bi bi-calendar-check text-green-500"></i>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between p-6 bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
+            <div class="flex items-center justify-between p-6 bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
                 <div class="flex flex-col">
                     <h3 class="text-2xl font-bold font-sans text-[#1b1b18] dark:text-[#EDEDEC]">{{ number_format($systemOverrides ?? 0) }}</h3>
-                    <p class="text-sm font-sans text-[#706f6c] dark:text-[#A1A09A] mt-1">Priority Bookings (CATs/Exams)</p>
+                    <p class="mt-2"><span class="inline-flex text-[#c99d3b] bg-[#c99d3b]/10 border border-[#c99d3b]/30 font-semibold font-mono text-sm px-2.5 py-1 rounded-md">Priority Bookings (CATs/Exams)</span></p>
                 </div>
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800/50 text-xl">
                     <i class="bi bi-shield-exclamation text-amber-500"></i>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between p-6 bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
+            <div class="flex items-center justify-between p-6 bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs transition-all">
                 <div class="flex flex-col">
                     <h3 class="text-2xl font-bold font-sans text-[#1b1b18] dark:text-[#EDEDEC]">{{ number_format($cancelledBookings ?? 0) }}</h3>
-                    <p class="text-sm font-sans text-[#706f6c] dark:text-[#A1A09A] mt-1">Cancelled Slots</p>
+                    <p class="mt-2"><span class="inline-flex text-[#c99d3b] bg-[#c99d3b]/10 border border-[#c99d3b]/30 font-semibold font-mono text-sm px-2.5 py-1 rounded-md">Cancelled Slots</span></p>
                 </div>
                 <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800/50 text-xl">
                     <i class="bi bi-calendar-x text-red-500"></i>
@@ -136,33 +136,41 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
-                <h5 class="font-sans font-semibold text-base tracking-wide text-[#1b1b18] dark:text-[#EDEDEC] mb-4">
-                    {{ $buildingPieTitle ?? 'Percentage of Buildings booked' }}
-                </h5>
+            <div class="bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
+                <div class="mb-4">
+                    <h5 class="inline-flex items-center rounded-lg bg-[#941c1c] px-4 py-2 font-sans text-sm tracking-wide font-semibold text-white">
+                        {{ $buildingPieTitle ?? 'Percentage of Buildings booked' }}
+                    </h5>
+                </div>
                 <div id="building-pie-chart"></div>
             </div>
 
-            <div class="bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
-                <h5 class="font-sans font-semibold text-base tracking-wide text-[#1b1b18] dark:text-[#EDEDEC] mb-4">
-                    Trend of Room Bookings
-                </h5>
+            <div class="bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
+                <div class="mb-4">
+                    <h5 class="inline-flex items-center rounded-lg bg-[#941c1c] px-4 py-2 font-sans text-sm tracking-wide font-semibold text-white">
+                        Trend of Room Bookings
+                    </h5>
+                </div>
                 <div id="room-trend-line-chart"></div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
-                <h5 class="font-sans font-semibold text-base tracking-wide text-[#1b1b18] dark:text-[#EDEDEC] mb-4">
-                    Number of Bookings (by Room Capacity)
-                </h5>
+            <div class="bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
+                <div class="mb-4">
+                    <h5 class="inline-flex items-center rounded-lg bg-[#941c1c] px-4 py-2 font-sans text-sm tracking-wide font-semibold text-white">
+                        Number of Bookings (by Room Capacity)
+                    </h5>
+                </div>
                 <div id="capacity-bar-chart"></div>
             </div>
 
-            <div class="bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
-                <h5 class="font-sans font-semibold text-base tracking-wide text-[#1b1b18] dark:text-[#EDEDEC] mb-4">
-                    Peak Space Utilization Grid
-                </h5>
+            <div class="bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl shadow-xs p-6">
+                <div class="mb-4">
+                    <h5 class="inline-flex items-center rounded-lg bg-[#941c1c] px-4 py-2 font-sans text-sm tracking-wide font-semibold text-white">
+                        Peak Space Utilization Grid
+                    </h5>
+                </div>
                 <div id="peak-utilization-heatmap-chart"></div>
             </div>
         </div>

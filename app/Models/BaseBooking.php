@@ -21,6 +21,8 @@ class BaseBooking extends Model
         'course_number',
         'unit_name',
         'lesson_day',
+        'start_time_id',
+        'end_time_id',
         'start_time',
         'end_time',
         'room_id'

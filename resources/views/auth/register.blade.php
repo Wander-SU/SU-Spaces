@@ -131,8 +131,15 @@
                                 <label for="faculty" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Faculty</label>
                                 <select id="faculty" name="faculty" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15" required>
                                     <option value="" selected disabled>Select faculty</option>
-                                    @foreach (['SCES', 'SIMS', 'SLS', 'SBS', 'STH', 'SHSS', 'SI'] as $faculty)
-                                        <option value="{{ $faculty }}" {{ old('faculty') === $faculty ? 'selected' : '' }}>{{ $faculty }}</option>
+                                    @foreach ([
+                                        'SCES' => 'School of Computing and Engineering Science (SCES)',
+                                        'SIMS' => 'Strathmore Institute of Mathematical Sciences (SIMS)',
+                                        'SLS' => 'Strathmore Law School (SLS)',
+                                        'SBS' => 'Strathmore Business School (SBS)',
+                                        'STH' => 'School of Tourism and Hospitality (STH)',
+                                        'SHSS' => 'School of Humanities and Social Sciences (SHSS)',
+                                    ] as $facultyCode => $facultyLabel)
+                                        <option value="{{ $facultyCode }}" {{ old('faculty') === $facultyCode ? 'selected' : '' }}>{{ $facultyLabel }}</option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('faculty')" class="mt-2" />
@@ -146,6 +153,16 @@
                                 <x-input-error :messages="$errors->get('username')" class="mt-2" />
                             </div>
 
+                            <div>
+                                <label for="course" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Course</label>
+                                <select id="course" name="course" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 disabled:bg-white/35 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:disabled:bg-[#1c1c1a]/45 dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15" disabled>
+                                    <option value="">Select faculty first</option>
+                                </select>
+                                {{-- Helper text updates based on selected account type --}}
+                                <p id="courseHelp" class="mt-2 text-xs text-[#57534e] dark:text-[#b8b8b5]">Fill faculty to load course options.</p>
+                                <x-input-error :messages="$errors->get('course')" class="mt-2" />
+                            </div>
+
                             <div id="yearWrap">
                                 <label for="year_of_study" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Year of Study</label>
                                 <select id="year_of_study" name="year_of_study" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15">
@@ -155,22 +172,6 @@
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('year_of_study')" class="mt-2" />
-                            </div>
-
-                            <div id="officeWrap" class="hidden">
-                                <label for="office_location" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Office Location</label>
-                                <input id="office_location" type="text" name="office_location" value="{{ old('office_location') }}" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15">
-                                <x-input-error :messages="$errors->get('office_location')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <label for="course" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Course</label>
-                                <select id="course" name="course" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 disabled:bg-white/35 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:disabled:bg-[#1c1c1a]/45 dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15" disabled>
-                                    <option value="">Select faculty first</option>
-                                </select>
-                                {{-- Helper text updates based on selected account type --}}
-                                <p id="courseHelp" class="mt-2 text-xs text-[#57534e] dark:text-[#b8b8b5]">Fill faculty to load course options.</p>
-                                <x-input-error :messages="$errors->get('course')" class="mt-2" />
                             </div>
                         </div>
                     </section>
@@ -231,12 +232,10 @@
         const admissionWrap = document.getElementById('admissionWrap');
         const employeeWrap = document.getElementById('employeeWrap');
         const yearWrap = document.getElementById('yearWrap');
-        const officeWrap = document.getElementById('officeWrap');
         const admissionInput = document.getElementById('admission_number');
         const employeeInput = document.getElementById('employee_id');
         const usernameInput = document.getElementById('username');
         const yearSelect = document.getElementById('year_of_study');
-        const officeInput = document.getElementById('office_location');
         const facultySelect = document.getElementById('faculty');
         const courseSelect = document.getElementById('course');
         const courseHelp = document.getElementById('courseHelp');
@@ -249,13 +248,35 @@
 
         // Faculty-to-course lookup used to populate the course dropdown.
         const coursesByFaculty = {
-            SCES: ['BSc Computer Science', 'BSc Software Engineering', 'BSc Data Science'],
-            SIMS: ['BSc Information Systems', 'BSc Information Technology'],
-            SLS: ['Bachelor of Laws'],
-            SBS: ['BBA Accounting', 'BBA Finance', 'BBA Marketing'],
-            STH: ['BA Theology', 'BA Chaplaincy'],
-            SHSS: ['BA Sociology', 'BA Counseling Psychology'],
-            SI: ['Certificate in Innovation', 'Diploma in Entrepreneurship']
+            SCES: [
+                { value: 'BICS', label: 'Bachelor of Informatics and Computer Science (BICS)' },
+                { value: 'BCNS', label: 'Bachelor of Cyber Networks and Security (BCNS)' },
+                { value: 'BBIT', label: 'Bachelor of Business Information and Technology (BBIT)' },
+                { value: 'BSEEE', label: 'Bachelor of Science in Electrical and Electronics Engineering (BSEEE)' },
+            ],
+            SIMS: [
+                { value: 'BBS.FENG', label: 'Bachelor of Business Science in Financial Engineering (BBS.FENG)' },
+                { value: 'BBS.FE', label: 'Bachelor of Business Science in Financial Economics (BBS.FE)' },
+                { value: 'BBS.ACT', label: 'Bachelor of Business Science in Acturial Science (BBS.ACT)' },
+                { value: 'BSc.SDS', label: 'Bachelor of Science in Statistics and Data Science (BSc.SDS)' },
+            ],
+            SLS: [
+                { value: 'LLB', label: 'Bachelor of Laws (LLB)' },
+            ],
+            SBS: [
+                { value: 'BFS', label: 'Bachelor of Financial Services (BFS)' },
+                { value: 'BSCM', label: 'Bachelor of Supply Chain and Operations Management (BSCM)' },
+                { value: 'BCOM', label: 'Bachelor of Commerce (BCOM)' },
+            ],
+            STH: [
+                { value: 'BTM', label: 'Bachelor of Science in Tourism Management (BTM)' },
+                { value: 'BHM', label: 'Bachelor of Science in Hospitality Management (BHM)' },
+            ],
+            SHSS: [
+                { value: 'BDP', label: 'Bachelor of Development and Philosophy (BDP)' },
+                { value: 'BAC', label: 'Bachelor of Arts in Communication (BAC)' },
+                { value: 'BIS', label: 'Bachelor of International Studies (BIS)' },
+            ],
         };
 
         const oldCourse = @json(old('course'));
@@ -292,9 +313,9 @@
 
             courseSelect.disabled = false;
             courseSelect.append(new Option(isLecturer ? 'Select course (optional)' : 'Select course', ''));
-            courses.forEach((course) => courseSelect.append(new Option(course, course)));
+            courses.forEach((course) => courseSelect.append(new Option(course.label, course.value)));
 
-            if (oldCourse && courses.includes(oldCourse)) {
+            if (oldCourse && courses.some((course) => course.value === oldCourse)) {
                 courseSelect.value = oldCourse;
             }
 
@@ -311,12 +332,10 @@
             admissionWrap.classList.toggle('hidden', isLecturer);
             yearWrap.classList.toggle('hidden', isLecturer);
             employeeWrap.classList.toggle('hidden', !isLecturer);
-            officeWrap.classList.toggle('hidden', !isLecturer);
 
             admissionInput.required = !isLecturer;
             yearSelect.required = !isLecturer;
             employeeInput.required = isLecturer;
-            officeInput.required = isLecturer;
 
             renderCourses();
             updateUsername();
@@ -372,8 +391,7 @@
             }
 
             return Boolean(
-                employeeInput.value.trim() &&
-                officeInput.value.trim()
+                employeeInput.value.trim()
             );
         }
 
@@ -403,7 +421,6 @@
                 admission_number: admissionInput.value.trim(),
                 year_of_study: yearSelect.value,
                 employee_id: employeeInput.value.trim(),
-                office_location: officeInput.value.trim(),
             };
 
             try {
@@ -455,7 +472,6 @@
             admissionInput,
             yearSelect,
             employeeInput,
-            officeInput,
             courseSelect,
             facultySelect,
             passwordInput,

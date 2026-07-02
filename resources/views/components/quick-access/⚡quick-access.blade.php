@@ -53,11 +53,12 @@ new class extends Component
     public $initial_start_time_id;
     public $initial_end_time_id;
     public $now;
+    private const QUICK_ACCESS_TIMEZONE = 'Africa/Nairobi';
 
     public function render()
     {
       // Make the search date today
-      $this->search_date = Carbon::parse(now())->format('Y-m-d');
+      $this->search_date = Carbon::now(self::QUICK_ACCESS_TIMEZONE)->format('Y-m-d');
 
       // Get Room Details
       $rooms = Room::all();
@@ -72,7 +73,7 @@ new class extends Component
       $dayOfWeek = $this->getDayOfWeek($this->search_date);
 
       // Get the date and time rn
-      $this->now = time();
+      $this->now = Carbon::now(self::QUICK_ACCESS_TIMEZONE)->timestamp;
       
       // Get Rooms Available;
       $items = Room::query()
@@ -391,7 +392,7 @@ new class extends Component
       $roomsByBuilding = $visibleRooms->groupBy('building_name');
     @endphp
 
-    <div class="w-full px-2 sm:px-6 font-sans">
+    <div class="w-full px-4 sm:px-8 max-w-none bg-[#F2E6D9] dark:bg-[#0a0a0a] min-h-screen font-sans">
       <div class="w-full">
         <div class="bg-white dark:bg-transparent border border-[#1d2d54]/20 dark:border-[#1d2d54]/30 rounded-xl p-4 mb-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-2">
@@ -468,7 +469,7 @@ new class extends Component
               title="Reset"
             >
               <i class="bi bi-arrow-clockwise"></i>
-              <span class="ms-2">Reset</span>
+              <span class="ms-2"></span>
             </a>
 
             <a
@@ -545,11 +546,11 @@ new class extends Component
                 {{ $buildingName }}
               </h2>
 
-              <div class="w-full border border-[#1d2d54]/20 dark:border-[#1d2d54]/30 rounded-xl overflow-hidden bg-transparent">
+              <div class="w-full bg-transparent border border-[#1d2d54]/10 rounded-xl overflow-hidden shadow-xs mt-4">
                 <div class="w-full overflow-x-auto">
-                <table class="w-full min-w-[880px] text-sm">
+                <table class="w-full min-w-[880px] text-sm font-sans border-collapse">
                   <thead>
-                    <tr class="bg-[#941c1c] text-left">
+                    <tr class="bg-[#941c1c] text-white font-sans text-sm tracking-wide font-semibold text-left">
                       <th class="px-4 py-3 font-semibold text-white">Room</th>
                       <th class="px-4 py-3 font-semibold text-white">Day</th>
                       <th class="px-4 py-3 font-semibold text-white">Available Window</th>
@@ -557,9 +558,9 @@ new class extends Component
                       <th class="px-4 py-3 font-semibold text-white text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md">
                     @foreach($rooms as $roomAvailable)
-                      <tr class="border-t border-[#1d2d54]/20 dark:border-[#1d2d54]/30">
+                      <tr class="border-b border-[#1d2d54]/5 hover:bg-white/30 transition-colors">
                         <td class="px-4 py-3 align-middle">
                           <span class="text-[#c99d3b] bg-[#c99d3b]/10 border border-[#c99d3b]/30 font-semibold font-mono text-sm px-2.5 py-1 rounded-md">
                             {{ $roomAvailable->room_name }}
@@ -582,7 +583,7 @@ new class extends Component
                               '{{ $roomAvailable->end_time }}',
                               {{ $roomAvailable->capacity }})"
                               x-on:click="sidebarOpen = true; selectedRoom = '{{ $roomAvailable->room_name }}'"
-                              class="bg-[#941c1c] text-white hover:bg-[#7a1717] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
+                              class="bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
                               title="Book">
                               Book Room
                             </a>
@@ -593,7 +594,7 @@ new class extends Component
                               '{{ $roomAvailable->end_time }}',
                               {{ $roomAvailable->capacity }})"
                               x-on:click="sidebarOpen = true; selectedRoom = '{{ $roomAvailable->room_name }}'"
-                              class="bg-[#941c1c] text-white hover:bg-[#7a1717] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
+                              class="bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
                               title="Book">
                               Priority Book
                             </a>

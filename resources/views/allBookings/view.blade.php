@@ -95,6 +95,10 @@
         $sortBy = old('sort_by', request('sort_by', 'newest'));
         $bookings = collect($bookings ?? []);
         $priorityAlerts = collect($priorityAlerts ?? []);
+        $buildings = collect($buildings ?? []);
+        $availableRooms = collect($availableRooms ?? []);
+        $editBooking = $editBooking ?? null;
+        $selectedBuildingId = (int) ($selectedBuildingId ?? 0);
         $hasAnyBookings = (bool) ($hasAnyBookings ?? false);
         $hasDateFilter = !empty($fromDate) || !empty($toDate);
 
@@ -109,9 +113,88 @@
         }
     @endphp
 
-    <div class="all-bookings-page rounded-xl border border-[#e3e3e0] bg-white p-4 md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
+    <div class="all-bookings-page w-full px-4 sm:px-8 max-w-none bg-[#F2E6D9] dark:bg-[#0a0a0a] min-h-screen font-sans py-4 md:py-6">
+        @if($editBooking)
+            <div class="fixed inset-0 bg-black/30 backdrop-blur-[1px] z-40"></div>
+        @endif
+
+        <div class="fixed top-0 right-0 h-full w-full max-w-xl z-50 transform transition-transform duration-300 {{ $editBooking ? 'translate-x-0' : 'translate-x-full' }}">
+            <div class="h-full bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border-l border-[#02338D] p-6 overflow-y-auto">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div>
+                        <p class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Booking Edit</p>
+                        <h3 class="text-xl font-bold font-sans text-white mt-3">Change Building and Room</h3>
+                    </div>
+                    <a
+                        href="{{ route('bookings.previous', ['from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}"
+                        class="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+                        aria-label="Close"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+
+                @if($editBooking)
+                    <div class="mb-5 rounded-lg border border-white/25 bg-[#c99d3b]/10 p-4 text-sm text-white/95">
+                        <p><strong>Current room:</strong> {{ optional($editBooking->room)->room_name ?? 'Room not available' }}</p>
+                        <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($editBooking->booking_date)->format('jS F Y') }}</p>
+                        <p><strong>Time:</strong> {{ optional($editBooking->startTimeSlot)->start_time ?? 'TBA' }} - {{ optional($editBooking->endTimeSlot)->end_time ?? 'TBA' }}</p>
+                        <p><strong>Occupants:</strong> {{ (int) $editBooking->attendee_count }}</p>
+                        <p><strong>Reason:</strong> {{ (string) $editBooking->purpose }}</p>
+                    </div>
+
+                    <form method="GET" action="{{ route('bookings.previous') }}" class="mb-4">
+                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                        <input type="hidden" name="edit_booking" value="{{ $editBooking->id }}">
+
+                        <label for="building_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Building</label>
+                        <select id="building_id" name="building_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b]" onchange="this.form.submit()">
+                            @foreach($buildings as $building)
+                                <option value="{{ $building->id }}" class="text-black" @selected((int) $selectedBuildingId === (int) $building->id)>
+                                    {{ $building->building_name }}{{ !empty($building->building_abbrev) ? ' (' . $building->building_abbrev . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+
+                    <form method="POST" action="{{ route('bookings.previous.update-room', $editBooking->id) }}">
+                        @csrf
+                        <input type="hidden" name="from_date" value="{{ $fromDate }}">
+                        <input type="hidden" name="to_date" value="{{ $toDate }}">
+                        <input type="hidden" name="sort_by" value="{{ $sortBy }}">
+                        <input type="hidden" name="building_id" value="{{ $selectedBuildingId }}">
+
+                        <label for="room_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Available rooms for same day and time</label>
+                        <select id="room_id" name="room_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b]" @disabled($availableRooms->isEmpty())>
+                            @forelse($availableRooms as $room)
+                                <option value="{{ $room->id }}" class="text-black" @selected((int) $room->id === (int) $editBooking->room_id)>
+                                    {{ $room->room_name }} (Capacity: {{ (int) $room->capacity }})
+                                </option>
+                            @empty
+                                <option value="" class="text-black">No available rooms found for this time slot</option>
+                            @endforelse
+                        </select>
+                        @error('room_id')
+                            <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                        @enderror
+
+                        <div class="mt-4 flex flex-wrap items-center gap-3">
+                            <a href="{{ route('bookings.previous', ['from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="inline-flex items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white" @disabled($availableRooms->isEmpty())>
+                                <i class="bi-icons bi-save"></i> Save changes
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        </div>
+
         @if(session('undo_booking_id') && session('undo_expires_at'))
-            <div id="undo-cancel-banner" data-expiry-ts="{{ (int) session('undo_expires_at') }}" class="mb-4 rounded-lg border border-[#f5c2c7] bg-[#fff3f5] p-3 text-sm text-[#7a1e1e]">
+            <div id="undo-cancel-banner" data-expiry-ts="{{ (int) session('undo_expires_at') }}" class="mb-6 rounded-lg border border-[#f5c2c7] bg-[#fff3f5] p-3 text-sm text-[#7a1e1e]">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p>
                         Booking cancelled.
@@ -131,8 +214,8 @@
         @endif
 
         {{-- Top filter bar: drives server-side query and re-renders list/alerts --}}
-        <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="w-full bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl px-4 py-3 mb-6 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-end gap-3">
                 <div>
                     <label for="from_date" class="mb-1 block text-sm text-[#1b1b18] dark:text-[#EDEDEC]">From...</label>
                     <input
@@ -158,7 +241,7 @@
                 </div>
             </div>
 
-            <div class="md:ml-auto">
+            <div class="ml-auto min-w-[180px]">
                 <label for="sort_by" class="mb-1 block text-sm text-[#1b1b18] dark:text-[#EDEDEC]">Sort By...</label>
                 <select
                     id="sort_by"
@@ -193,12 +276,12 @@
                     </div>
                 </div>
             @else
-                <div class="space-y-3">
+                <div class="space-y-4 w-full bg-white/40 dark:bg-[#161615]/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-xl p-6 shadow-xs">
                     @foreach($bookings as $booking)
                         {{-- Confirmed booking card with status badge and cancel action. --}}
-                        <article class="booking-card flex flex-col gap-3 rounded-lg border border-[#e3e3e0] bg-white p-4 md:flex-row md:items-center md:justify-between dark:border-[#3E3E3A] dark:bg-[#161615]">
+                        <article class="flex flex-col gap-3 rounded-lg border border-[#1d2d54]/10 bg-transparent backdrop-blur-md p-4 md:flex-row md:items-center md:justify-between dark:border-[#3E3E3A]/60 dark:bg-transparent">
                             <div class="md:w-1/4">
-                                <span class="room-name inline-flex rounded-md bg-[#1b1b18] px-3 py-2 text-sm font-semibold tracking-wide text-white dark:bg-[#eeeeec] dark:text-black">
+                                <span class="inline-flex font-mono font-bold text-sm bg-[#c99d3b]/10 text-[#c99d3b] border border-[#c99d3b]/30 px-3 py-1.5 rounded-lg tracking-wide uppercase shadow-xs">
                                     {{ $booking['room_name'] ?? data_get($booking, 'room_name', 'ROOM') }}
                                 </span>
                             </div>
@@ -217,7 +300,7 @@
                                 </span>
 
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('bookings.previous.edit', ['booking' => data_get($booking, 'id'), 'from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="status-edit inline-flex items-center text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-blue-100">
+                                    <a href="{{ route('bookings.previous', ['edit_booking' => data_get($booking, 'id'), 'from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-[#941c1c]/10 text-[#941c1c] border border-[#941c1c]/20 rounded-md hover:bg-[#941c1c] hover:text-white transition-all">
                                         Edit
                                     </a>
 
@@ -227,7 +310,7 @@
                                         <input type="hidden" name="from_date" value="{{ $fromDate }}">
                                         <input type="hidden" name="to_date" value="{{ $toDate }}">
                                         <input type="hidden" name="sort_by" value="{{ $sortBy }}">
-                                        <button type="submit" class="status-cancel inline-flex items-center text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full text-sm font-medium hover:bg-gray-200">
+                                        <button type="submit" class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-gray-100 text-gray-600 border border-gray-200 rounded-md hover:bg-gray-200 transition-all">
                                             Cancel
                                         </button>
                                     </form>

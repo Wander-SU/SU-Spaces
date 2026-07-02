@@ -577,7 +577,7 @@ new class extends Component
                       <select required wire:model.live.debounce.500ms="start_time_id" name="start_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('start_time_id') is-invalid @enderror" value="{{old('start_time_id')}}">
                         @foreach ($timeSlots as $timeSlot)
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
-                            <option value="{{ $timeSlot->id }}">
+                            <option value="{{ $timeSlot->id }}" class="text-black">
                               {{ $timeSlot->start_time }}
                             </option>
                           @endif
@@ -591,7 +591,7 @@ new class extends Component
                       <select required wire:model.live.debounce.500ms="end_time_id" name="end_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('end_time_id') is-invalid @enderror" value="{{old('end_time_id')}}">
                         @foreach ( $timeSlots as $timeSlot )
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
-                            <option value="{{ $timeSlot->id }}">
+                            <option value="{{ $timeSlot->id }}" class="text-black">
                               {{ $timeSlot->end_time }}
                             </option>
                           @endif
@@ -633,13 +633,13 @@ new class extends Component
                   <div>
                     <label for="book_reason" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Reason For Booking</label>
                     <select required wire:model="book_reason" type="text" name="book_reason" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
-                      <option>--Select One--</option>
+                      <option class="text-black">--Select One--</option>
                       @if(auth()->user()->role->role_name=="Student")
-                        <option value="Individual Study">Individual Study</option>
-                        <option value="Group Study" @disabled((int) $this->number_occupants < 2)>Group Study</option>
+                        <option value="Individual Study" class="text-black">Individual Study</option>
+                        <option value="Group Study" class="text-black" @disabled((int) $this->number_occupants < 2)>Group Study</option>
                       @else
-                        <option value="CAT">CAT</option>
-                        <option value="Examination">Examination</option>
+                        <option value="CAT" class="text-black">CAT</option>
+                        <option value="Examination" class="text-black">Examination</option>
                       @endif
                     </select>
                     @error('book_reason')
@@ -681,11 +681,11 @@ new class extends Component
                     <i class="bi bi-arrow-left"></i> Back
                   </a>
                   @if(auth()->user()->role->role_name=="Student")
-                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-150 mt-6 cursor-pointer" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
                     </button>
                   @else
-                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-150 mt-6 cursor-pointer">
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white">
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm High Priority Booking
                     </button>
                   @endif
