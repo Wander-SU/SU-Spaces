@@ -647,9 +647,9 @@ new class extends Component
           </form>
 
           {{-- Add a base booking --}}
-          <a href="#" wire:click="add" class="d-none d-md-inline-block bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-sm font-medium py-2 px-4 rounded-lg">
-            <i class="bi bi-plus-circle"></i> Add  Base Booking
-          </a>
+          {{-- <a href="#" wire:click="add" class="d-none d-md-inline-block bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-sm font-medium py-2 px-4 rounded-lg"> --}}
+            {{-- <i class="bi bi-plus-circle"></i> Add  Base Booking --}}
+          {{-- </a> --}}
 
           {{-- Search form --}}
           <form class="d-none d-md-inline-block me-2">
@@ -695,10 +695,10 @@ new class extends Component
 
               {{-- Add a base booking --}}
               <div class="col-md-4 my-2 me-2">
-                  <a href="#" wire:click="add" class="btn btn-primary btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto">
-                    <i class="bi bi-plus-circle"></i>  Add  Base Booking
-                  </a>
-              </div>
+                  {{-- <a href="#" wire:click="add" class="btn btn-primary btn-sm inline-flex w-full items-center justify-center rounded-lg border border-[#1b1b18]/20 bg-[#d4d4d4]/90 text-base font-semibold text-[#1b1b18] transition hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] sm:w-auto"> --}}
+                    {{-- <i class="bi bi-plus-circle"></i>  Add  Base Booking --}}
+                  {{-- </a> --}}
+              {{-- </div> --}}
 
               {{-- Search form --}}
               <div class="col-md-4 my-2 me-2">
