@@ -233,12 +233,12 @@ new class extends Component
     /**
      * Void a booking
     */
-    public function void($id){
+    public function void($id,$reason){
       try{
         $bookingToBeVoided = Booking::findOrFail($id);
         $bookingToBeVoided->status = "Voided";
         $bookingToBeVoided->save();
-        Mail::to($bookingToBeVoided->user->email)->send(new BookingVoided($bookingToBeVoided));
+        Mail::to($bookingToBeVoided->user->email)->send(new BookingVoided($bookingToBeVoided,$reason));
       }catch(Throwable $e){
         session()->flash('failure',"Could not void the bookings of other students".$e->getMessage());
       }
@@ -290,7 +290,7 @@ new class extends Component
             }
           }
           forEach($toVoid as $voidable){
-            $this->void($voidable["id"]);
+            $this->void($voidable["id"],$this->book_reason);
           }
         }
 
