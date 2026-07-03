@@ -15,10 +15,18 @@ class BookingVoided extends Mailable
 {
     use Queueable, SerializesModels;
 
+    // /**
+    //  * Create a new message instance.
+    //  */
+    // public function __construct(public Booking $booking)
+    // {
+    //     //
+    // }
+
     /**
-     * Create a new message instance.
+     * Second Constructor to carry the book reason as well.
      */
-    public function __construct(public Booking $booking)
+    public function __construct(public Booking $booking,public String $reason)
     {
         //
     }

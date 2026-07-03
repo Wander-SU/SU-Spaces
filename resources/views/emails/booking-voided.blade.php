@@ -23,7 +23,7 @@
         </tr>
         <tr>
             <th>Reason</th>
-            <td>{{ $booking->void_reason ?? 'Not specified' }}</td>
+            <td>{{ $reason}} scheduled to take place during the time of your booking</td>
         </tr>
     </table>
 
