@@ -69,6 +69,7 @@ new class extends Component
         $this->end_time_id = $data['end_time_id'];
         $this->initial_end_time_id = $data['initial_end_time_id'];
         $this->search_date = $data['search_date'];
+        $this->syncOccupantsWithCapacity();
         $this->computeVacancies(); // Used to compute vacancies of specified room immediately
     }
 
@@ -92,6 +93,7 @@ new class extends Component
         $this->initial_start_time_id=$this->start_time_id;
         $this->initial_end_time_id=$this->end_time_id;
         $this->search_date = $data['search_date'];
+        $this->syncOccupantsWithCapacity();
         $this->computeVacancies(); // Used to compute vacancies of specified room immediately
     }
 
@@ -101,11 +103,31 @@ new class extends Component
     */
     public function rules(){
       return [
-        "number_occupants"=>["required"],
+        "number_occupants"=>["required","integer","min:1","max:" . (int) ($this->room_capacity ?? 0)],
         "book_reason"=>["required"],
         "book_date"=>["required",new DateGreaterThanToday()],
         "end_time_id"=>["required"]
       ];
+    }
+
+    private function syncOccupantsWithCapacity(): void
+    {
+      $capacity = (int) ($this->room_capacity ?? 0);
+      if ($capacity <= 0) {
+        return;
+      }
+
+      if ($this->isPrivilegedBook) {
+        $this->number_occupants = $capacity;
+        return;
+      }
+
+      $occupants = (int) ($this->number_occupants ?? 1);
+      if ($occupants < 1) {
+        $occupants = 1;
+      }
+
+      $this->number_occupants = min($occupants, $capacity);
     }
 
     /**
@@ -162,6 +184,11 @@ new class extends Component
       // Validate the data before sending it to the database
       $this->validate();
       $status = "Booked";
+
+      if (!$this->isPrivilegedBook && (int) ($this->number_occupants ?? 0) > (int) ($this->vacancies ?? 0)) {
+        $this->addError('number_occupants', 'The number of occupants exceeds the available slots');
+        return;
+      }
 
       if ($this->violatesStudentReasonRule()) {
         $this->addError('book_reason', 'For fewer than 2 occupants, reason must be Individual Study.');
@@ -248,6 +275,8 @@ new class extends Component
      * Privileged Booking to the database
     */
     public function bookPrivileged(){
+      $this->syncOccupantsWithCapacity();
+
       // Validate the data before sending it to the database
       $this->validate();
       $status = "Booked";
@@ -472,6 +501,10 @@ new class extends Component
     public function updatedEndTimeId(){
       $this->computeVacancies();
     }
+
+    public function updatedNumberOccupants(){
+      $this->syncOccupantsWithCapacity();
+    }
 };
 ?>
 
@@ -526,9 +559,14 @@ new class extends Component
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     @endif
+
+    @php
+      $drawerLabelClass = 'text-xs font-sans font-semibold text-gray-300 uppercase tracking-wider mb-1.5 block';
+      $drawerInputClass = 'w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-[#c99d3b] focus:ring-1 focus:ring-[#c99d3b] transition-all font-sans';
+    @endphp
     
     @if($showForm)
-    <div class="font-sans">
+    <div class="font-sans text-white bg-[#02338D]">
           <div class="mb-4">
           <div class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Book Room Details</div>
           </div>
@@ -538,8 +576,8 @@ new class extends Component
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {{-- Building --}}
                   <div class="md:col-span-2">
-                    <label for="building_name" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Building</label>
-                    <input wire:model="building_name" type="text" disabled name="building_name" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('building_name') is-invalid @enderror" value="{{old('building_name')}}">
+                    <label for="building_name" class="{{ $drawerLabelClass }}">Building</label>
+                    <input wire:model="building_name" type="text" disabled name="building_name" class="{{ $drawerInputClass }} @error('building_name') is-invalid @enderror" value="{{old('building_name')}}">
                     @error('building_name')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -549,8 +587,8 @@ new class extends Component
 
                   {{-- Room --}}
                   <div>
-                    <label for="room_name" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Room</label>
-                    <input wire:model="room_name" type="text" name="room_name" disabled class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('room_name') is-invalid @enderror" value="{{old('room_name')}}">
+                    <label for="room_name" class="{{ $drawerLabelClass }}">Room</label>
+                    <input wire:model="room_name" type="text" name="room_name" disabled class="{{ $drawerInputClass }} @error('room_name') is-invalid @enderror" value="{{old('room_name')}}">
                     @error('room_name')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -560,8 +598,8 @@ new class extends Component
 
                   {{-- Date --}}
                   <div>
-                      <label for="date" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Book Date</label>
-                      <input required wire:model="book_date" type="date" disabled name="book_date" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('room_id') is-invalid @enderror" value="{{old('book_date')}}">
+                      <label for="date" class="{{ $drawerLabelClass }}">Book Date</label>
+                      <input required wire:model="book_date" type="date" disabled name="book_date" class="{{ $drawerInputClass }} @error('room_id') is-invalid @enderror" value="{{old('book_date')}}">
                     @error('book_date')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -573,8 +611,8 @@ new class extends Component
                   <div class="md:col-span-2">
                     {{-- Start Time --}}
                     <div class="inline-block mb-3 me-3 align-top w-full md:w-[31%]">
-                      <label for="start_time_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Start Time</label>
-                      <select required wire:model.live.debounce.500ms="start_time_id" name="start_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('start_time_id') is-invalid @enderror" value="{{old('start_time_id')}}">
+                      <label for="start_time_id" class="{{ $drawerLabelClass }}">Start Time</label>
+                      <select required wire:model.live.debounce.500ms="start_time_id" name="start_time_id" class="{{ $drawerInputClass }} @error('start_time_id') is-invalid @enderror" value="{{old('start_time_id')}}">
                         @foreach ($timeSlots as $timeSlot)
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
                             <option value="{{ $timeSlot->id }}" class="text-black">
@@ -587,8 +625,8 @@ new class extends Component
 
                     {{-- End Time --}}
                     <div class="inline-block mb-3 me-3 align-top w-full md:w-[31%]">
-                      <label for="end_time_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">End Time</label>
-                      <select required wire:model.live.debounce.500ms="end_time_id" name="end_time_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('end_time_id') is-invalid @enderror" value="{{old('end_time_id')}}">
+                      <label for="end_time_id" class="{{ $drawerLabelClass }}">End Time</label>
+                      <select required wire:model.live.debounce.500ms="end_time_id" name="end_time_id" class="{{ $drawerInputClass }} @error('end_time_id') is-invalid @enderror" value="{{old('end_time_id')}}">
                         @foreach ( $timeSlots as $timeSlot )
                           @if($timeSlot->start_time>="07:00:00" && $timeSlot->end_time<="21:00:00" && $timeSlot->end_time!="00:00:00" && $timeSlot->id>=$this->initial_start_time_id && $timeSlot->id<=$this->initial_end_time_id)
                             <option value="{{ $timeSlot->id }}" class="text-black">
@@ -601,8 +639,8 @@ new class extends Component
 
                     {{-- Vacancies Based on Time Slot --}}
                     <div class="inline-block mb-3 align-top w-full md:w-[31%]">
-                      <label for="vacancies" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Vacancies</label>
-                      <input required disabled wire:model="vacancies" name="vacancies" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('vacancies') is-invalid @enderror" >
+                      <label for="vacancies" class="{{ $drawerLabelClass }}">Vacancies</label>
+                      <input required disabled wire:model="vacancies" name="vacancies" class="{{ $drawerInputClass }} @error('vacancies') is-invalid @enderror" >
                     </div>
                     @error('time')
                         <div class="invalid-feedback">
@@ -618,10 +656,10 @@ new class extends Component
 
                   {{-- Occupants --}}
                   <div>
-                    <label for="number_occupants" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Number of Occupants</label>
+                    <label for="number_occupants" class="{{ $drawerLabelClass }}">Number of Occupants</label>
                     <input required wire:model.live.debounce.500ms="number_occupants"
                      @if(auth()->user()->role->role_name!="Student") disabled @endif
-                     type="number" min=1 name="number_occupants" max="30" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
+                     type="number" min="1" name="number_occupants" max="{{ (int) ($room_capacity ?? 1) }}" class="{{ $drawerInputClass }} @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
                     @error('number_occupants')
                       <div class="invalid-feedback">
                         {{ $message }}
@@ -631,13 +669,15 @@ new class extends Component
 
                   {{-- Reason For Booking --}}
                   <div>
-                    <label for="book_reason" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Reason For Booking</label>
-                    <select required wire:model="book_reason" type="text" name="book_reason" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b] @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
+                    <label for="book_reason" class="{{ $drawerLabelClass }}">Reason For Booking</label>
+                    <select required wire:model="book_reason" type="text" name="book_reason" class="{{ $drawerInputClass }} @error('book_reason') is-invalid @enderror" value="{{old('book_reason')}}">
                       <option class="text-black">--Select One--</option>
                       @if(auth()->user()->role->role_name=="Student")
                         <option value="Individual Study" class="text-black">Individual Study</option>
                         <option value="Group Study" class="text-black" @disabled((int) $this->number_occupants < 2)>Group Study</option>
                       @else
+                        <option value="Individual Study" class="text-black">Individual Study</option>
+                        <option value="Group Study" class="text-black">Group Study</option>
                         <option value="CAT" class="text-black">CAT</option>
                         <option value="Examination" class="text-black">Examination</option>
                       @endif
@@ -663,29 +703,24 @@ new class extends Component
                   @enderror
 
                   {{-- Edit if the error in number of occupants entered, number of vacancies etc --}}
-                  @if ($this->vacancies <= 0 || $this->vacancies<$this->number_occupants)
+                  @if (auth()->user()->role->role_name=="Student" && ((int) $this->vacancies <= 0 || (int) $this->vacancies < (int) $this->number_occupants))
                     <div class="invalid-feedback md:col-span-2">
-                      <small>
-                        <ul>Either:
-                        <li>Vacancies less than 1</li> 
-                        <li>number of occupants > number of vacancies</lli>
-                        </ul>
-                      </small>
+                      The number of occupants exceeds the available slots.
                     </div>
                   @endif
 
                   </div>
                 </div>
               <div class="mt-4 flex flex-wrap items-center gap-3">
-                  <a href=" #" wire:click="cancel" x-on:click="sidebarOpen = false" class="inline-flex items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                  <button type="button" wire:click="cancel" @click="formOpen = false" class="inline-flex items-center justify-center border border-white/20 hover:bg-white/5 text-gray-300 text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors">
                     <i class="bi bi-arrow-left"></i> Back
-                  </a>
+                  </button>
                   @if(auth()->user()->role->role_name=="Student")
-                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
+                    <button type="submit" class="w-full bg-white text-[#1d2d54] text-sm font-bold py-3.5 px-6 rounded-xl shadow-md transition-all duration-200 hover:bg-[#c99d3b] hover:text-[#1d2d54] cursor-pointer text-center" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
                     </button>
                   @else
-                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white">
+                    <button type="submit" class="w-full bg-white text-[#1d2d54] text-sm font-bold py-3.5 px-6 rounded-xl shadow-md transition-all duration-200 hover:bg-[#c99d3b] hover:text-[#1d2d54] cursor-pointer text-center">
                         <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm High Priority Booking
                     </button>
                   @endif

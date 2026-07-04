@@ -58,7 +58,32 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('bookings.index'));
+        $targetRoute = $this->resolvePostLoginRoute($request->user());
+
+        return redirect()->intended(route($targetRoute));
+    }
+
+    private function resolvePostLoginRoute(?User $user): string
+    {
+        $roleName = (string) optional(optional($user)->role)->role_name;
+        $normalized = Str::of($roleName)
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]+/', '')
+            ->toString();
+
+        if ($normalized === 'admin') {
+            return 'reports.dashboard';
+        }
+
+        if ($normalized === 'academicregistrar') {
+            return 'baseBookings.index';
+        }
+
+        if ($normalized === 'student' || $normalized === 'lecturer') {
+            return 'bookings.index';
+        }
+
+        return 'bookings.index';
     }
 
     public function destroy(Request $request): RedirectResponse

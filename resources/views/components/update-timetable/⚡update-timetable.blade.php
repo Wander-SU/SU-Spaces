@@ -437,15 +437,13 @@ new class extends Component
     @endif
 
     {{-- Right drawer form --}}
-    <div class="fixed top-0 right-0 h-full w-full max-w-xl z-50 transform transition-transform duration-300 bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border-l border-[#02338D] {{ $showForm ? 'translate-x-0' : 'translate-x-full' }}">
+    @if($showForm)
+    <div class="fixed right-2 sm:right-4 top-[4.5rem] bottom-[3.75rem] w-[calc(100vw-1rem)] sm:w-full sm:max-w-xl z-50 bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border border-[#02338D] rounded-xl sm:rounded-2xl">
       <div class="h-full overflow-y-auto">
-        <div class="px-5 py-4 border-b border-white/20 flex items-center justify-between">
+        <div class="px-5 py-4 border-b border-white/20">
           <div>
             <p class="text-xs font-sans text-gray-300 tracking-wider uppercase">Timetable Form</p>
           </div>
-          <button type="button" wire:click="cancel" class="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors" title="Close">
-            <i class="bi bi-x-lg"></i>
-          </button>
         </div>
 
         <form wire:submit="{{$isEditing ? "update($id)" : "store"}}">
@@ -630,6 +628,7 @@ new class extends Component
         </form>
       </div>
     </div>
+    @endif
 
     {{-- Table --}}
     <div>
@@ -815,7 +814,7 @@ new class extends Component
         @endif
       </div>
       <!-- /.card-body -->
-      <div class="mt-4 px-1" data-bs-theme="dark">
+      <div class="mt-4 px-1" data-bs-theme="light">
         {{ $baseBookings->links('pagination::bootstrap-5') }}
       </div>
     </div>

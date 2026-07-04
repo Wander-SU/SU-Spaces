@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth antialiased text-rendering-optimizeLegibility font-sans">
   <!--begin::Head-->
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no" />
     <title>@yield('title', 'SU-Spaces | Dashboard')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/strathmore_emblem.png') }}" />
     
     <!--begin::Accessibility Meta Tags-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
@@ -68,6 +68,29 @@
     
     {{-- Page-specific styles --}}
     @stack('styles')
+
+    <style>
+      /* Force global root document scaling definitions */
+      html {
+        /* Adjusts the base root em calculation (1rem) globally */
+        font-size: 14px !important;
+      }
+
+      /* Windows OS display scaling overrides */
+      @media screen and (-webkit-min-device-pixel-ratio: 1.25), screen and (min-resolution: 120dpi) {
+        html {
+          font-size: 13px !important; /* Deflates the root tracking layout on scaled Windows machines */
+        }
+      }
+
+      /* Mobile viewports text inflation prevention */
+      @media (max-width: 768px) {
+        html {
+          -webkit-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+        }
+      }
+    </style>
   </head>
   <!--end::Head-->
   
@@ -90,13 +113,8 @@
           <div class="container-fluid">
             <!--begin::Row-->
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-12">
                 <h3 class="mb-0">@yield('page-title', 'Dashboard')</h3>
-              </div>
-              <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-end">
-                  @yield('breadcrumb')
-                </ol>
               </div>
             </div>
             <!--end::Row-->

@@ -60,6 +60,7 @@ new class extends Component{
                 height="150.02034"
                 x="23.030836"
                 y="899.60199" />
+            <text x="635" y="975" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Basement</text>
             </g>
             <g
             id="g4"
@@ -73,6 +74,7 @@ new class extends Component{
                 height="142.28323"
                 x="23.080904"
                 y="757.17859" />
+            <text x="635" y="828" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Ground Floor</text>
             </g>
             <g
             id="g5"
@@ -86,6 +88,7 @@ new class extends Component{
                 height="150.02034"
                 x="23.144657"
                 y="607.07599" />
+            <text x="635" y="682" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Floor 1</text>
             </g>
             <g
             id="g6"
@@ -99,6 +102,7 @@ new class extends Component{
                 height="142.28323"
                 x="23.164696"
                 y="464.79272" />
+            <text x="635" y="536" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Floor 2</text>
             </g>
             <g
             id="g7"
@@ -112,6 +116,7 @@ new class extends Component{
                 height="150.02034"
                 x="23.255665"
                 y="314.7428" />
+            <text x="635" y="390" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Floor 3</text>
             </g>
             <g
             id="g8"
@@ -125,6 +130,7 @@ new class extends Component{
                 height="142.28323"
                 x="23.245691"
                 y="172.20734" />
+            <text x="635" y="243" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Floor 4</text>
             </g>
             <g
             id="g9"
@@ -138,6 +144,7 @@ new class extends Component{
                 height="142.28323"
                 x="23.247816"
                 y="29.839909" />
+            <text x="635" y="101" text-anchor="middle" style="font: 700 42px Inter, sans-serif; fill:#1d2d54; pointer-events:none;">Floor 5</text>
             </g>
         </g>
         </svg>

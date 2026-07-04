@@ -34,6 +34,15 @@ class RegisteredUserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $normalizedEmail = Str::lower(trim((string) $request->input('email')));
+        $request->merge(['email' => $normalizedEmail]);
+
+        if ($normalizedEmail !== '' && User::query()->whereRaw('LOWER(email) = ?', [$normalizedEmail], 'and')->exists()) {
+            return back()
+                ->withErrors(['email' => 'This email is already registered.'])
+                ->withInput();
+        }
+
         $validated = $request->validate([
             'account_type' => ['required', Rule::in(['student', 'lecturer'])],
             'first_name' => ['required', 'string', 'max:100'],
@@ -67,9 +76,9 @@ class RegisteredUserController extends Controller
         ], [
             'required' => 'This field is required.',
             'required_if' => 'This field is required.',
-            'email.unique' => 'An account with this email address already exists.',
-            'admission_number.unique' => 'An account with this admission number already exists.',
-            'employee_id.unique' => 'An account with this employee ID already exists.',
+            'email.unique' => 'This email is already registered.',
+            'admission_number.unique' => 'This admission number has already been registered.',
+            'employee_id.unique' => 'This employee ID has already been registered.',
             'admission_number.regex' => 'Admission number must be exactly 6 digits.',
             'employee_id.regex' => 'Employee ID must be 5 or 6 digits.',
             'password.confirmed' => 'Passwords do not match.',
@@ -79,7 +88,6 @@ class RegisteredUserController extends Controller
         $sourceIdentifier = $validated['account_type'] === 'lecturer'
             ? ($validated['employee_id'] ?? '')
             : ($validated['admission_number'] ?? '');
-
         $generatedUsername = (string) Str::of((string) $sourceIdentifier)
             ->replaceMatches('/\s+/', '')
             ->lower();
@@ -150,6 +158,15 @@ class RegisteredUserController extends Controller
 
     public function sendToken(Request $request): JsonResponse
     {
+        $normalizedEmail = Str::lower(trim((string) $request->input('email')));
+        $request->merge(['email' => $normalizedEmail]);
+
+        if ($normalizedEmail !== '' && User::query()->whereRaw('LOWER(email) = ?', [$normalizedEmail], 'and')->exists()) {
+            return response()->json([
+                'message' => 'This email is already registered.',
+            ], 422);
+        }
+
         // Validate all registration fields before sending a verification token.
         $validated = $request->validate([
             'account_type' => ['required', Rule::in(['student', 'lecturer'])],
@@ -183,9 +200,9 @@ class RegisteredUserController extends Controller
         ], [
             'required' => 'This field is required.',
             'required_if' => 'This field is required.',
-            'email.unique' => 'An account with this email address already exists.',
-            'admission_number.unique' => 'An account with this admission number already exists.',
-            'employee_id.unique' => 'An account with this employee ID already exists.',
+            'email.unique' => 'This email is already registered.',
+            'admission_number.unique' => 'This admission number has already been registered.',
+            'employee_id.unique' => 'This employee ID has already been registered.',
             'admission_number.regex' => 'Admission number must be exactly 6 digits.',
             'employee_id.regex' => 'Employee ID must be 5 or 6 digits.',
             'password.confirmed' => 'Passwords do not match.',
@@ -206,8 +223,12 @@ class RegisteredUserController extends Controller
         }
 
         if (User::query()->where('username', '=', $generatedUsername)->exists()) {
+            $duplicateIdentifierMessage = ($validated['account_type'] ?? 'student') === 'lecturer'
+                ? 'This employee ID has already been registered.'
+                : 'This admission number has already been registered.';
+
             return response()->json([
-                'message' => 'An account already exists for this Admission Number or Employee ID.',
+                'message' => $duplicateIdentifierMessage,
             ], 422);
         }
 
