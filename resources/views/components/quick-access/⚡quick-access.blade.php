@@ -78,12 +78,12 @@ new class extends Component
       // Get Rooms Available;
       $items = Room::query()
       ->join('buildings','buildings.id','=','rooms.building_id')
-      ->crossjoin(DB::raw('(SELECT "Monday" as lesson_day union all
-        select "Tuesday" union all
-        select "Wednesday" union all
-        select "Thursday" union all
-        select "Friday" union all
-        select "Saturday")as d'))
+      ->crossjoin(DB::raw("(select 'Monday' as lesson_day union all 
+      select 'Tuesday' union all 
+      select 'Wednesday' union all 
+      select 'Thursday' union all 
+      select 'Friday' union all 
+      select 'Saturday') as d"))
       ->crossjoin('time_slots as ts')
       ->leftjoin('base_bookings as b',function($join){
         $join->whereRaw('ts.id between b.start_time_id and b.end_time_id')
@@ -110,7 +110,7 @@ new class extends Component
       ])
       ->orderBy('buildings.building_name',$this->orderDirection1)
       ->orderBy('rooms.room_name',$this->orderDirection2)
-      ->orderByRaw("FIELD(d.lesson_day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')")
+      ->orderByRaw("array_position(ARRAY['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], d.lesson_day)")
       ->orderBy('ts.start_time',$this->orderDirectionTime)
       ->get();
       

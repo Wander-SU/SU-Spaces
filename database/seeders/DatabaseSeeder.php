@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
             TimeSlotSeeder::class
         ]);
         
-        User::factory(60)->create();
-        User::factory(10)->unverified()->create();
-        User::factory(20)->lecturer()->create();
-        User::factory(6)->itSupport()->create();
-        User::factory(4)->admin()->create();
-        Booking::factory(100)->create();
+        // User::factory(60)->create();
+        // User::factory(10)->unverified()->create();
+        // User::factory(20)->lecturer()->create();
+        // User::factory(6)->itSupport()->create();
+        // User::factory(4)->admin()->create();
+        // Booking::factory(100)->create();
 
         // Enable the foreign key constraints at the end
         Schema::enableForeignKeyConstraints();
