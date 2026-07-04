@@ -26,7 +26,7 @@ class BookingFactory extends Factory
             'status' => fake()->randomElement(["Booked","Passed","Voided"]),
             'attendee_count' => rand(1,5),
             'purpose' => fake()->sentence(),
-            'room_id'=> rand(1,77),
+            'room_id'=> rand(1,76),
             'user_id'=> rand(1,60), // By default student
         ];
     }
