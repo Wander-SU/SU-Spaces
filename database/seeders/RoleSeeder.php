@@ -35,8 +35,8 @@ class RoleSeeder extends Seeder
 
         // IT Support
         $managers =  new Role();
-        $managers->role_name = 'IT Support';
-        $managers->role_abbrev = 'ITSupport';
+        $managers->role_name = 'Academic Registrar';
+        $managers->role_abbrev = 'Registrar';
         $managers->save();
     }
 }
