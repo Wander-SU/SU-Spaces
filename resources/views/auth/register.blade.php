@@ -434,10 +434,23 @@
                     body: JSON.stringify(payload),
                 });
 
-                const data = await response.json();
+                const contentType = response.headers.get('content-type') || '';
+                const rawBody = await response.text();
+                let data = {};
+                if (contentType.includes('application/json') && rawBody) {
+                    try {
+                        data = JSON.parse(rawBody);
+                    } catch (_error) {
+                        data = {};
+                    }
+                }
 
                 if (!response.ok) {
-                    const message = data.message || Object.values(data.errors || {}).flat()[0] || 'Unable to send token. Please try again.';
+                    const firstFieldError = Object.values(data.errors || {}).flat()[0];
+                    const fallbackMessage = response.status === 422
+                        ? 'This email is already registered.'
+                        : 'Unable to send token. Please try again.';
+                    const message = firstFieldError || data.message || fallbackMessage;
                     tokenStatusMessage.textContent = message;
                     tokenStatusMessage.classList.add('text-red-600', 'dark:text-red-400');
                     return;

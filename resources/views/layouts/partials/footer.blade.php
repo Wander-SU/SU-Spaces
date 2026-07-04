@@ -1,17 +1,9 @@
 <!--begin::Footer-->
-<footer class="app-footer bg-success-subtle">
-  <!--begin::To the end-->
-  <div class="float-end d-none d-sm-inline">
-    Version 0.0.1
-  </div>
-  <!--end::To the end-->
-  
-  <!--begin::Copyright-->
-  <strong>
-    Copyright &copy; {{ date('Y') }}&nbsp;
-    <a href="{{ URL::to('/') }}" class="text-decoration-none">{{ env('APP_NAME') }}</a>.
-  </strong>
-  All rights reserved.
-  <!--end::Copyright-->
+<footer class="app-footer w-full bg-white border-t border-gray-200/60 py-4 px-6 flex flex-col sm:flex-row justify-center items-center text-center gap-2">
+  <p class="text-xs font-sans font-medium text-gray-400 tracking-wide mb-0">
+    Copyright &copy; {{ date('Y') }}
+    <a href="{{ URL::to('/') }}" class="text-gray-400 no-underline">{{ env('APP_NAME') }}</a>.
+    All rights reserved.
+  </p>
 </footer>
 <!--end::Footer--> 

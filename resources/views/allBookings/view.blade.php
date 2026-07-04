@@ -270,7 +270,7 @@
                         {{ $hasDateFilter ? 'No confirmed bookings found for the selected date range.' : 'No confirmed bookings found yet. Let\'s find you a room!' }}
                     </p>
                     <div class="mt-5">
-                        <a href="{{ route('bookings.index') }}" class="inline-flex items-center rounded-md bg-gradient-to-r from-[#0048AD] to-[#FF383C] px-6 py-2 font-medium text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#0048AD]/30">
+                        <a href="{{ route('buildingNavigation.index') }}" class="inline-flex items-center rounded-md bg-gradient-to-r from-[#0048AD] to-[#FF383C] px-6 py-2 font-medium text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#0048AD]/30">
                             Find a room now
                         </a>
                     </div>
@@ -322,14 +322,18 @@
             @endif
         </section>
 
-        @if($priorityAlerts->isNotEmpty())
-            <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
+        <div class="mb-6 border-t border-[#e3e3e0] dark:border-[#3E3E3A]"></div>
 
-            <section>
-                <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
+        <section>
+            <h2 class="section-title mb-3 text-[#1b1b18] dark:text-[#EDEDEC] text-base font-semibold">Priority Alerts</h2>
 
+            @if($priorityAlerts->isEmpty())
+                <div class="rounded-lg border border-dashed border-[#e3e3e0] p-4 text-sm text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                    No priority alerts found for the selected period.
+                </div>
+            @else
                 @foreach($priorityAlerts as $alert)
-                    {{-- Alerts are derived from voided bookings returned by the backend mapper. --}}
+                    {{-- Alerts are shown only when a user's booking is overridden by a non-student priority booking. --}}
                     <article class="priority-alert rounded-lg p-4 mb-6">
                         <div class="flex items-start justify-between gap-3">
                             <p class="cancelled-text text-sm font-semibold text-[#7a1e1e]">
@@ -340,10 +344,13 @@
                         <p class="mt-2 text-sm text-[#7a1e1e] italic">
                             {{ $alert['note'] ?? data_get($alert, 'note') }}
                         </p>
+                        <p class="mt-2 text-xs font-medium text-[#7a1e1e] uppercase tracking-wide">
+                            Faculty: {{ $alert['faculty'] ?? data_get($alert, 'faculty', 'Not specified') }}
+                        </p>
                     </article>
                 @endforeach
-            </section>
-        @endif
+            @endif
+        </section>
     </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {

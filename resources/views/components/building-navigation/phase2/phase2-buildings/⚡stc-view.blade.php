@@ -19,9 +19,9 @@ new class extends Component{
     public function roomColor(string $roomName): string
     {
         return match($this->roomStatuses[$roomName] ?? 'available'){
-            'base_booking' => '#ef4444',
-            'at_capacity' => '#f97316',
-            default => '#22bf34ff'
+            'base_booking' => '#ffe4e6cc',
+            'at_capacity' => '#ffe4e6cc',
+            default => '#dcfce7cc'
         };
     }
 
@@ -114,7 +114,7 @@ new class extends Component{
        @click="Livewire.dispatch('roomSelected',{roomName:'chelaLab',room_id:38})"
             >
         <rect
-            style="fill:{{ $this->roomColor('Chela Lab') }};stroke:#000000;stroke-width:1.565"
+            style="fill:{{ $this->roomColor('Chela Lab') }};stroke:{{ in_array($this->roomStatuses['Chela Lab'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.565"
             id="rect2"
             width="337.67953"
             height="126.75971"
@@ -127,7 +127,7 @@ new class extends Component{
        @click="Livewire.dispatch('roomSelected',{roomName:'stcSeminar',room_id:39})"
             >
         <rect
-            style="fill:{{ $this->roomColor('Seminar Room (STC)') }};stroke:#000000;stroke-width:1.565"
+            style="fill:{{ $this->roomColor('Seminar Room (STC)') }};stroke:{{ in_array($this->roomStatuses['Seminar Room (STC)'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.565"
             id="rect3"
             width="433.26886"
             height="134.03281"
@@ -140,7 +140,7 @@ new class extends Component{
        @click="Livewire.dispatch('roomSelected',{roomName:'iLabKifaru',room_id:40})"
             >
         <rect
-            style="fill:{{ $this->roomColor('iLab Kifaru') }};stroke:#000000;stroke-width:1.565"
+            style="fill:{{ $this->roomColor('iLab Kifaru') }};stroke:{{ in_array($this->roomStatuses['iLab Kifaru'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.565"
             id="rect4"
             width="345.99167"
             height="123.64267"

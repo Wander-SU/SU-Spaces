@@ -8,6 +8,7 @@ use App\Models\BaseBooking;
 use App\Models\Booking;
 use App\Models\Building;
 use App\Models\Room;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -90,40 +91,74 @@ class BookingController extends Controller
                 ];
             });
 
-        $userRoleName = strtolower((string) optional($request->user()->role)->role_name);
+        $priorityAlertsQuery = Booking::query()
+            ->with('room')
+            ->where('user_id', $userId)
+            ->where('status', 'Voided');
+
+        if (!empty($fromDate)) {
+            $priorityAlertsQuery->whereDate('booking_date', '>=', $fromDate);
+        }
+
+        if (!empty($toDate)) {
+            $priorityAlertsQuery->whereDate('booking_date', '<=', $toDate);
+        }
+
+        $voidedBookings = $priorityAlertsQuery
+            ->latest('updated_at')
+            ->take(20)
+            ->get();
 
         $priorityAlerts = collect();
-        if ($userRoleName === 'student') {
-            $priorityAlertsQuery = Booking::query()
-                ->with('room')
-                ->where('user_id', $userId)
-                ->where('status', 'Voided')
-                ->where(function ($query) {
-                    $query->whereRaw('LOWER(purpose) LIKE ?', ['%cat%'])
-                        ->orWhereRaw('LOWER(purpose) LIKE ?', ['%exam%'])
-                        ->orWhereRaw('LOWER(purpose) LIKE ?', ['%examination%']);
-                });
+        if ($voidedBookings->isNotEmpty()) {
+            $roomIds = $voidedBookings->pluck('room_id')->filter()->unique()->values();
+            $bookingDates = $voidedBookings->pluck('booking_date')->filter()->unique()->values();
 
-            if (!empty($fromDate)) {
-                $priorityAlertsQuery->whereDate('booking_date', '>=', $fromDate);
-            }
+            $overridingCandidates = Booking::query()
+                ->with(['user.role'])
+                ->where('status', 'Booked')
+                ->where('user_id', '!=', $userId)
+                ->whereIn('room_id', $roomIds)
+                ->whereIn('booking_date', $bookingDates)
+                ->get();
 
-            if (!empty($toDate)) {
-                $priorityAlertsQuery->whereDate('booking_date', '<=', $toDate);
-            }
+            $priorityAlerts = $voidedBookings
+                ->map(function (Booking $voidedBooking) use ($overridingCandidates) {
+                    $override = $overridingCandidates->first(function (Booking $candidate) use ($voidedBooking) {
+                        if ((int) $candidate->room_id !== (int) $voidedBooking->room_id) {
+                            return false;
+                        }
 
-            $priorityAlerts = $priorityAlertsQuery
-                ->latest('updated_at')
-                ->take(5)
-                ->get()
-                // Map voided bookings into a simplified alert payload for the Priority Alerts section.
-                ->map(function (Booking $booking) {
+                        if ((string) $candidate->booking_date !== (string) $voidedBooking->booking_date) {
+                            return false;
+                        }
+
+                        $roleName = strtolower((string) optional(optional($candidate->user)->role)->role_name);
+                        if ($roleName === 'student' || $roleName === '') {
+                            return false;
+                        }
+
+                        return (int) $candidate->start_time_id <= (int) $voidedBooking->end_time_id
+                            && (int) $candidate->end_time_id >= (int) $voidedBooking->start_time_id;
+                    });
+
+                    if (!$override) {
+                        return null;
+                    }
+
+                    $faculty = trim((string) optional($override->user)->faculty);
+                    $facultyLabel = $faculty !== '' ? $faculty : 'Not specified';
+
                     return [
-                        'room_name' => optional($booking->room)->room_name ?? 'ROOM',
+                        'room_name' => optional($voidedBooking->room)->room_name ?? 'ROOM',
                         'status' => 'Reassigned',
-                        'note' => 'Note: Room has been reassigned to Faculty for a CAT. Your booking has been cancelled.',
+                        'note' => 'Note: Your booking was overridden by a faculty priority booking.',
+                        'faculty' => $facultyLabel,
                     ];
-                });
+                })
+                ->filter()
+                ->take(5)
+                ->values();
         }
 
         // Optional right-drawer edit context rendered on the previous bookings page.
@@ -331,7 +366,6 @@ class BookingController extends Controller
         $roomsQuery = Room::query()
             ->with('building')
             ->whereNotIn('id', array_unique(array_merge($blockedByBaseBookingRoomIds, $blockedByBookingRoomIds)))
-            ->where('capacity', '>=', (int) $booking->attendee_count)
             ->orderBy('room_name', 'asc');
 
         if (!empty($buildingId)) {

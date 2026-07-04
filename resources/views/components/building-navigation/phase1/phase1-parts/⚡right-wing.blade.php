@@ -19,9 +19,9 @@ new class extends Component{
     public function roomColor(string $roomName): string
     {
         return match($this->roomStatuses[$roomName] ?? 'available'){
-            'base_booking' => '#ef4444',
-            'at_capacity' => '#f97316',
-            default => '#22bf34ff'
+            'base_booking' => '#ffe4e6cc',
+            'at_capacity' => '#ffe4e6cc',
+            default => '#dcfce7cc'
         };
     }
 }
@@ -86,7 +86,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room4',room_id:52})"
             >
             <rect
-                style="fill:{{ $this->roomColor('RM 4') }};stroke:#000000;stroke-width:1.24905"
+                style="fill:{{ $this->roomColor('RM 4') }};stroke:{{ in_array($this->roomStatuses['RM 4'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.24905"
                 id="rect5-8"
                 width="203.9731"
                 height="213.67099"
@@ -99,7 +99,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room5',room_id:53})"
             >
             <rect
-                style="fill:{{ $this->roomColor('RM 5') }};stroke:#000000;stroke-width:1.18336"
+                style="fill:{{ $this->roomColor('RM 5') }};stroke:{{ in_array($this->roomStatuses['RM 5'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.18336"
                 id="rect5-3"
                 width="183.02655"
                 height="213.73668"
@@ -112,7 +112,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room6',room_id:54})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 6') }};stroke:#000000;stroke-width:1.69687"
+                style="fill:{{ $this->roomColor('RM 6') }};stroke:{{ in_array($this->roomStatuses['RM 6'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.69687"
                 id="rect6-4"
                 width="376.47217"
                 height="211.6069"
@@ -132,7 +132,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room7',room_id:55})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 7') }};stroke:#000000;stroke-width:1.23917"
+                style="fill:{{ $this->roomColor('RM 7') }};stroke:{{ in_array($this->roomStatuses['RM 7'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.23917"
                 id="rect5-61"
                 width="200.75034"
                 height="213.68088"
@@ -157,7 +157,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room8',room_id:56})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 8') }};stroke:#000000;stroke-width:1.09147"
+                style="fill:{{ $this->roomColor('RM 8') }};stroke:{{ in_array($this->roomStatuses['RM 8'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.09147"
                 id="rect5-6"
                 width="155.64088"
                 height="213.82857"
@@ -170,7 +170,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room9',room_id:57})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 9') }};stroke:#000000;stroke-width:1.56732"
+                style="fill:{{ $this->roomColor('RM 9') }};stroke:{{ in_array($this->roomStatuses['RM 9'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.56732"
                 id="rect5-86"
                 width="321.64667"
                 height="213.35272"
@@ -183,7 +183,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room10',room_id:58})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 10') }};stroke:#000000;stroke-width:1.47453"
+                style="fill:{{ $this->roomColor('RM 10') }};stroke:{{ in_array($this->roomStatuses['RM 10'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.47453"
                 id="rect5-7"
                 width="284.56396"
                 height="213.44551"
@@ -203,7 +203,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'languageLab',room_id:65})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('Language Lab') }};stroke:#000000;stroke-width:1.17816"
+                style="fill:{{ $this->roomColor('Language Lab') }};stroke:{{ in_array($this->roomStatuses['Language Lab'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.17816"
                 id="rect5-35"
                 width="181.41544"
                 height="213.7419"
@@ -216,7 +216,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'kindarumaLab',room_id:62})"
             transform="matrix(0.92205308,0,0,1.0003383,100.05284,-6.5270993)">
             <rect
-                style="fill:{{ $this->roomColor('Kindaruma Lab') }};stroke:#000000;stroke-width:1.82064"
+                style="fill:{{ $this->roomColor('Kindaruma Lab') }};stroke:{{ in_array($this->roomStatuses['Kindaruma Lab'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.82064"
                 id="rect5-78"
                 width="434.53619"
                 height="213.09941"
@@ -230,7 +230,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'suswaLab',room_id:59})"
             >
             <rect
-                style="fill:{{ $this->roomColor('Suswa Lab') }};stroke:#000000;stroke-width:1.6733"
+                style="fill:{{ $this->roomColor('Suswa Lab') }};stroke:{{ in_array($this->roomStatuses['Suswa Lab'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.6733"
                 id="rect5-618"
                 width="366.79782"
                 height="213.24675"
@@ -243,7 +243,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room1',room_id:49})"
             >>
             <rect
-                style="fill:{{ $this->roomColor('RM 1') }};stroke:#000000;stroke-width:1.61905"
+                style="fill:{{ $this->roomColor('RM 1') }};stroke:{{ in_array($this->roomStatuses['RM 1'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.61905"
                 id="rect4"
                 width="342.60718"
                 height="213.30104"
@@ -256,7 +256,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room2',room_id:50})"
             >
             <rect
-                style="fill:{{ $this->roomColor('RM 2') }};stroke:#000000;stroke-width:1.56732"
+                style="fill:{{ $this->roomColor('RM 2') }};stroke:{{ in_array($this->roomStatuses['RM 2'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.56732"
                 id="rect5"
                 width="321.64667"
                 height="213.35272"
@@ -269,7 +269,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'room3',room_id:51})"
             >
             <rect
-                style="fill:{{ $this->roomColor('RM 3') }};stroke:#000000;stroke-width:1.69687"
+                style="fill:{{ $this->roomColor('RM 3') }};stroke:{{ in_array($this->roomStatuses['RM 3'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.69687"
                 id="rect6"
                 width="376.47217"
                 height="211.6069"
@@ -282,7 +282,7 @@ new class extends Component{
             @click="Livewire.dispatch('roomSelected',{roomName:'masingaLab',room_id:60})"
             transform="matrix(0.87328698,0,0,1.000548,13.174423,-0.09919053)">
             <rect
-                style="fill:{{ $this->roomColor('Masinga Lab') }};stroke:#000000;stroke-width:1.7901"
+                style="fill:{{ $this->roomColor('Masinga Lab') }};stroke:{{ in_array($this->roomStatuses['Masinga Lab'] ?? 'available', ['base_booking','at_capacity'], true) ? '#fecdd3' : '#a7f3d0' }};stroke-width:1.7901"
                 id="rect5-4"
                 width="420.01981"
                 height="213.12994"

@@ -368,9 +368,9 @@ new class extends Component
 }
 ?>
 
-<div x-data="{ sidebarOpen: false, selectedRoom: '' }">
+<div x-data="{ sidebarOpen: false, selectedRoom: '' }" x-init="sidebarOpen = false; selectedRoom = ''">
     {{-- Show the messages --}}
-    @if (session()->has('success'))
+    @if (session()->has('success') && stripos((string) session('success'), 'registration successful') === false)
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -554,7 +554,6 @@ new class extends Component
                       <th class="px-4 py-3 font-semibold text-white">Room</th>
                       <th class="px-4 py-3 font-semibold text-white">Day</th>
                       <th class="px-4 py-3 font-semibold text-white">Available Window</th>
-                      <th class="px-4 py-3 font-semibold text-white">Capacity</th>
                       <th class="px-4 py-3 font-semibold text-white text-right">Action</th>
                     </tr>
                   </thead>
@@ -571,9 +570,6 @@ new class extends Component
                         </td>
                         <td class="px-4 py-3 text-sm text-[#706f6c] dark:text-[#A1A09A] align-middle">
                           {{ $roomAvailable->start_time }} - {{ $roomAvailable->end_time }}
-                        </td>
-                        <td class="px-4 py-3 text-sm text-[#706f6c] dark:text-[#A1A09A] align-middle">
-                          {{ $roomAvailable->capacity }}
                         </td>
                         <td class="px-4 py-3 text-right align-middle">
                           @if(auth()->user()->role->role_name=="Student")
@@ -612,7 +608,7 @@ new class extends Component
           <p class="text-sm text-red-600">No Room or Building matches the search key</p>
         @endif
 
-        <div class="mt-3" data-bs-theme="dark">
+        <div class="mt-3" data-bs-theme="light">
           {{ $roomsAvailable->links('pagination::bootstrap-5') }}
         </div>
       </div>
@@ -620,10 +616,12 @@ new class extends Component
     </div>
 
     <div
-      class="fixed top-0 right-0 h-full w-80 sm:w-96 z-50 transform transition-transform duration-300"
+      class="fixed right-2 sm:right-4 top-[4.5rem] bottom-[3.75rem] w-[calc(100vw-1rem)] sm:w-96 z-50 transform transition-transform duration-300 translate-x-full"
+      x-show="sidebarOpen"
       :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
+      style="display: none;"
     >
-      <div class="h-full bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border-l border-[#02338D] p-6 overflow-y-auto">
+      <div class="h-full bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border border-[#02338D] rounded-xl sm:rounded-2xl p-6 overflow-y-auto">
         <div class="flex items-center justify-between">
           <p class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Booking Action</p>
           <button

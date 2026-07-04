@@ -634,13 +634,14 @@ new class extends Component
         </tbody>
       @endif
 
-      <div class="mt-4 px-1" data-bs-theme="dark">
+      <div class="mt-4 px-1" data-bs-theme="light">
         {{ $users->links('pagination::bootstrap-5') }}
       </div>
     </div>
 
-    <div class="fixed top-0 right-0 h-full w-80 sm:w-96 z-50 transform transition-transform duration-300 bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl p-6 border-l border-[#02338D]"
-      :class="drawerOpen ? 'translate-x-0' : 'translate-x-full'">
+    <div class="fixed top-0 right-0 h-full w-80 sm:w-96 z-50 bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl p-6 border-l border-[#02338D]"
+      x-show="drawerOpen"
+      style="display: none;">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-xs font-sans text-gray-300 tracking-wider uppercase">User Profile Details</p>

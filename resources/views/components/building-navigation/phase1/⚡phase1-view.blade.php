@@ -59,24 +59,25 @@ new class extends Component{
 
    .building-section {
       cursor: pointer;
-      fill: #FFFFFF !important;
-      stroke: #D9D9D9 !important;
+      fill: rgba(255, 255, 255, 0.5) !important;
+      stroke: rgba(255, 255, 255, 0.6) !important;
       stroke-width: 2.4 !important;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
-      transition: all .2s ease;
+      filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.08));
+      transition: all .3s ease;
       transform-box: fill-box;
       transform-origin: center;
    }
 
    .building-section:hover {
-      stroke: #0D6EFD !important;
-      filter: drop-shadow(0 8px 18px rgba(13, 110, 253, 0.18));
-      transform: translateY(-4px);
+      stroke: #c99d3b !important;
+      fill: rgba(255, 255, 255, 0.8) !important;
+      filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.12));
+      transform: scale(1.015);
    }
 
    .building-section:active {
-      stroke: #0D6EFD !important;
-      filter: drop-shadow(0 0 0 2px rgba(13, 110, 253, 0.2)) drop-shadow(0 10px 20px rgba(13, 110, 253, 0.2));
+      stroke: #c99d3b !important;
+      filter: drop-shadow(0 0 0 1px rgba(201, 157, 59, 0.35)) drop-shadow(0 10px 20px rgba(15, 23, 42, 0.12));
    }
 
    .phase1-label,
@@ -86,10 +87,11 @@ new class extends Component{
    }
 
    .phase1-label {
-      fill: #3D4956;
+      fill: #1d2d54;
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 0.6px;
+      font-family: "Inter", sans-serif;
       text-anchor: middle;
    }
 
@@ -102,6 +104,7 @@ new class extends Component{
       fill: #EAF2FF;
       stroke: #0D6EFD;
       stroke-width: 2;
+      transition: fill .2s ease, stroke .2s ease;
    }
 
    .phase1-icon-mark {
@@ -110,6 +113,16 @@ new class extends Component{
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
+      transition: stroke .2s ease;
+   }
+
+   .building-section:hover + .phase1-icon {
+      fill: #fef3c7;
+      stroke: #c99d3b;
+   }
+
+   .building-section:hover + .phase1-icon + .phase1-icon-mark {
+      stroke: #c99d3b;
    }
 
    @media (max-width: 991.98px) {
@@ -180,7 +193,7 @@ new class extends Component{
             x="202.29834"
             y="482.95038" />
          <circle class="phase1-icon" cx="493" cy="550" r="16" />
-         <path class="phase1-icon-mark" d="M 485 550 h 16 M 493 542 v 16" />
+         <path class="phase1-icon-mark" d="M 487 556 v-12 h12 v12 z M 491 556 v-4 M 495 556 v-4 M 489 550 h8" />
          <text class="phase1-label" x="493" y="605">Central Part</text>
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:6.97274"
@@ -192,7 +205,7 @@ new class extends Component{
             x="204.77379"
             y="207.71255" />
          <circle class="phase1-icon" cx="272" cy="302" r="13" />
-         <path class="phase1-icon-mark" d="M 266 296 h 12 M 266 302 h 12 M 266 308 h 12" />
+         <path class="phase1-icon-mark" d="M 266 307 v-10 h12 v10 z M 270 307 v-4 M 274 307 v-4 M 268 302 h8" />
          <text class="phase1-label phase1-label-compact" x="272" y="338">
             <tspan x="272" dy="0">Left</tspan>
             <tspan x="272" dy="22">Wing</tspan>
@@ -207,7 +220,7 @@ new class extends Component{
             x="654.97906"
             y="211.06674" />
          <circle class="phase1-icon" cx="722" cy="302" r="13" />
-         <path class="phase1-icon-mark" d="M 716 296 h 12 M 722 296 v 12 M 716 308 h 12" />
+         <path class="phase1-icon-mark" d="M 716 307 v-10 h12 v10 z M 720 307 v-4 M 724 307 v-4 M 718 302 h8" />
          <text class="phase1-label phase1-label-compact" x="722" y="338">
             <tspan x="722" dy="0">Right</tspan>
             <tspan x="722" dy="22">Wing</tspan>

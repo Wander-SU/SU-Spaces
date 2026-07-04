@@ -52,24 +52,27 @@ new class extends Component{
 
    .building rect,
    .building path {
-      fill: #FFFFFF !important;
-      stroke: #D9D9D9 !important;
+      fill: rgba(255, 255, 255, 0.5) !important;
+      stroke: rgba(255, 255, 255, 0.6) !important;
       stroke-width: 2.4 !important;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
-      transition: all .2s ease;
+      filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.08));
+      transition: all .3s ease;
+      transform-origin: center;
+      transform-box: fill-box;
    }
 
    .building:hover rect,
    .building:hover path {
-      stroke: #0D6EFD !important;
-      filter: drop-shadow(0 8px 18px rgba(13, 110, 253, 0.18));
-      translate: 0 -4px;
+      stroke: #c99d3b !important;
+      fill: rgba(255, 255, 255, 0.8) !important;
+      filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.12));
+      transform: scale(1.015);
    }
 
    .building:active rect,
    .building:active path {
-      stroke: #0D6EFD !important;
-      filter: drop-shadow(0 0 0 2px rgba(13, 110, 253, 0.2)) drop-shadow(0 10px 20px rgba(13, 110, 253, 0.2));
+      stroke: #c99d3b !important;
+      filter: drop-shadow(0 0 0 1px rgba(201, 157, 59, 0.35)) drop-shadow(0 10px 20px rgba(15, 23, 42, 0.12));
    }
 
    .building-banned {
@@ -78,19 +81,18 @@ new class extends Component{
 
    .building-banned rect,
    .building-banned path {
-      fill: #FFFFFF !important;
-      stroke: #BDBDBD !important;
+      fill: rgba(229, 231, 235, 0.3) !important;
+      stroke: rgba(209, 213, 219, 0.2) !important;
       stroke-width: 2.4 !important;
-      opacity: .45;
+      opacity: .6;
       transition: all .2s ease;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+      filter: none;
    }
 
    .building-banned:hover rect,
    .building-banned:hover path {
-      stroke: #BDBDBD !important;
-      translate: 0 0;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+      stroke: rgba(209, 213, 219, 0.2) !important;
+      filter: none;
    }
 
    .building-label,
@@ -103,11 +105,24 @@ new class extends Component{
    }
 
    .building-label {
-      fill: #3D4956;
-      font-size: 20px;
+      fill: #1d2d54;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: .5px;
+      letter-spacing: .6px;
+      font-family: "Inter", sans-serif;
       text-anchor: middle;
+   }
+
+   .building-meta {
+      fill: #9ca3af;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: "Inter", sans-serif;
+      transition: fill .2s ease;
+   }
+
+   .building:hover .building-meta {
+      fill: #c99d3b;
    }
 
    .building-icon {

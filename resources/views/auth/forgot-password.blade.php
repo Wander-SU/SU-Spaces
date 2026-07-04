@@ -27,7 +27,7 @@
         </div>
 
         <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-4 sm:p-6">
-            <div class="w-full max-w-xl rounded-2xl border border-white/45 bg-white/30 p-7 shadow-sm backdrop-blur-2xl dark:border-white/15 dark:bg-[#111110]/40 sm:p-10">
+            <div class="w-full max-w-md mx-auto my-auto p-5 sm:p-6 bg-white/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-2xl shadow-xs flex flex-col justify-between max-h-[85vh] overflow-y-auto dark:border-white/15 dark:bg-[#111110]/40">
                 <div class="mb-4 flex justify-start md:hidden">
                     <img src="{{ asset('images/strathmore_logo.png') }}" alt="Strathmore University Logo" class="h-12 w-auto bg-transparent p-0">
                 </div>
@@ -43,16 +43,16 @@
                 @endif
 
                 {{-- Submits to PasswordResetLinkController@store, which triggers reset-link email sending. --}}
-                <form action="{{ route('password.email') }}" method="POST" class="mt-8 space-y-7" novalidate>
+                <form action="{{ route('password.email') }}" method="POST" class="mt-5 space-y-3" novalidate>
                     @csrf
 
                     <div>
                         <label for="email" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Email Address</label>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15" required autofocus>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" class="w-full rounded-lg border border-white/55 bg-white/58 px-3.5 py-2 text-sm text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15" required autofocus>
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                     </div>
 
-                    <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-[#F11D22] to-[#FFCC00] px-4 py-3.5 text-base font-semibold text-[#1b1b18] transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#F11D22]/30">
+                    <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-[#F11D22] to-[#FFCC00] px-4 py-2.5 text-sm font-semibold text-[#1b1b18] transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#F11D22]/30">
                         Send Reset Link
                     </button>
 

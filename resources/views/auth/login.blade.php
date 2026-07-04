@@ -37,7 +37,7 @@
 
         {{-- Centered login card container --}}
         <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-4 sm:p-6">
-            <div class="w-full max-w-xl rounded-2xl border border-white/45 bg-white/30 p-7 shadow-sm backdrop-blur-2xl dark:border-white/15 dark:bg-[#111110]/40 sm:p-10">
+            <div class="w-full max-w-md mx-auto my-auto p-5 sm:p-6 bg-white/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-2xl shadow-xs flex flex-col justify-between max-h-[85vh] overflow-y-auto dark:border-white/15 dark:bg-[#111110]/40">
                 {{-- Compact mobile logo shown inside the card --}}
                 <div class="mb-4 flex justify-start md:hidden">
                     <img
@@ -63,19 +63,19 @@
                 @endif
 
                 {{-- Login form submits to the authentication endpoint --}}
-                <form action="{{ route('login.attempt') }}" method="POST" class="mt-8 space-y-7" novalidate>
+                <form action="{{ route('login.attempt') }}" method="POST" class="mt-5 space-y-3" novalidate>
                     @csrf
 
                     {{-- Identifier input accepts username, admission number, or employee ID --}}
                     <div>
-                        <label for="username" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Username / Admission Number / Employee ID</label>
+                        <label for="username" class="mb-2 block text-base font-medium text-[#1b1b18] dark:text-[#EDEDEC]">Username</label>
                         <input
                             id="username"
                             type="text"
                             name="username"
                             value="{{ old('username') }}"
-                            class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15"
-                            placeholder="Enter username, admission number, or employee ID"
+                            class="w-full rounded-lg border border-white/55 bg-white/58 px-3.5 py-2 text-sm text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15"
+                            placeholder="Enter Admission No. or Employee ID"
                             required
                             autofocus
                         >
@@ -89,7 +89,7 @@
                             id="password"
                             type="password"
                             name="password"
-                            class="w-full rounded-lg border border-white/55 bg-white/58 px-3 py-3 text-base text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15"
+                            class="w-full rounded-lg border border-white/55 bg-white/58 px-3.5 py-2 text-sm text-[#1b1b18] outline-none transition focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/15 dark:border-white/20 dark:bg-[#171716]/70 dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/15"
                             required
                         >
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -97,7 +97,7 @@
                     </div>
 
                     {{-- Primary action button --}}
-                    <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-[#F11D22] to-[#FFCC00] px-4 py-3.5 text-base font-semibold text-[#1b1b18] transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#F11D22]/30">
+                    <button type="submit" class="w-full rounded-lg bg-gradient-to-r from-[#F11D22] to-[#FFCC00] px-4 py-2.5 text-sm font-semibold text-[#1b1b18] transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#F11D22]/30">
                         Login
                     </button>
 
