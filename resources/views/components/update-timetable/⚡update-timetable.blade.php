@@ -59,7 +59,7 @@ new class extends Component
       ->select('base_bookings.*','rooms.room_name','buildings.building_name')
       ->orderBy('buildings.building_name',$this->orderDirection1)
       ->orderBy('rooms.room_name',$this->orderDirection2)
-      ->orderByRaw("FIELD(base_bookings.lesson_day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')")
+      ->orderByRaw("array_position(ARRAY['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], base_bookings.lesson_day)")
       ->orderBy('base_bookings.start_time_id',$this->orderDirectionTime)
       ->paginate(env('PAGINATION_COUNT',50));
     
