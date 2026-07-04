@@ -21,13 +21,13 @@ class DatabaseSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
 
         $this->call([
-            RoleSeeder::class,
-            PhaseSeeder::class,
-            BuildingSeeder::class,
-            RoomSeeder::class,
-            UserSeeder::class,
-            BookingSeeder::class,
-            TimeSlotSeeder::class
+            // RoleSeeder::class,
+            // PhaseSeeder::class,
+            // BuildingSeeder::class,
+            // RoomSeeder::class,
+            // UserSeeder::class,
+            // BookingSeeder::class,
+            // TimeSlotSeeder::class
         ]);
         
         // User::factory(60)->create();

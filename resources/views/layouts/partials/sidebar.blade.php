@@ -63,6 +63,7 @@
           </a>
         </li>
 
+        @if(auth()->user()->role->role_name!="Student" && auth()->user()->role->role_name!="Lecturer" )
         {{-- Timetable Management Section --}}
         <li class="nav-header">Timetable Management</li>
       
@@ -73,7 +74,9 @@
             <p>Timetable</p>
           </a>
         </li>
-        
+        @endif
+
+        @if(auth()->user()->role->role_name=="System Admin" )
         {{-- User Management Section --}}
         <li class="nav-header">User Management</li>
       
@@ -95,6 +98,7 @@
             <p>Reports</p>
           </a>
         </li>
+        @endif
         
       </ul>
       <!--end::Sidebar Menu-->
