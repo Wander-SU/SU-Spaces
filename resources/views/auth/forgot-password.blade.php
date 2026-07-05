@@ -23,13 +23,13 @@
         <div class="absolute inset-0 bg-white/35 dark:bg-black/55 backdrop-blur-[3px]"></div>
 
         <div class="pointer-events-none absolute left-4 top-4 z-20 hidden md:block md:left-6 md:top-6">
-            <img src="{{ asset('images/strathmore_logo.png') }}" alt="Strathmore University Logo" class="h-28 w-auto rounded-md border border-white/50 bg-white/55 p-1 shadow-sm backdrop-blur-md dark:border-white/20 dark:bg-black/35 lg:h-48">
+            <img src="{{ asset('images/strathmore_logo.png') }}" alt="Strathmore University Logo" class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0 drop-shadow-md">
         </div>
 
-        <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-4 sm:p-6">
-            <div class="w-full max-w-md mx-auto my-auto p-5 sm:p-6 bg-white/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-2xl shadow-xs flex flex-col justify-between max-h-[85vh] overflow-y-auto dark:border-white/15 dark:bg-[#111110]/40">
+        <div class="relative z-10 mx-auto flex min-h-screen w-full items-center justify-center p-4 sm:p-6 md:p-8">
+            <div class="w-full max-w-xl mx-auto my-auto p-5 sm:p-6 bg-white/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-2xl shadow-xs flex flex-col justify-between max-h-[85vh] overflow-y-auto dark:border-white/15 dark:bg-[#111110]/40">
                 <div class="mb-4 flex justify-start md:hidden">
-                    <img src="{{ asset('images/strathmore_logo.png') }}" alt="Strathmore University Logo" class="h-12 w-auto bg-transparent p-0">
+                    <img src="{{ asset('images/strathmore_logo.png') }}" alt="Strathmore University Logo" class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0">
                 </div>
 
                 <h1 class="text-center text-2xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC] sm:text-3xl">Forgot Password</h1>

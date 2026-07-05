@@ -214,9 +214,9 @@
         @endif
 
         {{-- Top filter bar: drives server-side query and re-renders list/alerts --}}
-        <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="w-full bg-white dark:bg-[#161615] border border-[#e3e3e0] dark:border-[#3E3E3A] rounded-xl px-4 py-3 mb-6 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-end gap-3">
-                <div>
+        <form id="bookings-filters" method="GET" action="{{ route('bookings.previous') }}" class="w-full bg-white/60 backdrop-blur-md border border-gray-200/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex flex-row items-center gap-3 w-full sm:w-auto">
+                <div class="w-1/2 sm:w-36">
                     <label for="from_date" class="mb-1 block text-sm text-[#1b1b18] dark:text-[#EDEDEC]">From...</label>
                     <input
                         id="from_date"
@@ -224,11 +224,11 @@
                         type="date"
                         value="{{ $fromDate }}"
                         max="{{ $today }}"
-                        class="w-full border border-[#e3e3e0] rounded-md px-2 py-1 text-sm text-[#1b1b18] bg-white dark:border-[#3E3E3A] dark:bg-white dark:text-[#1b1b18]"
+                        class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none"
                     >
                 </div>
 
-                <div>
+                <div class="w-1/2 sm:w-36">
                     <label for="to_date" class="mb-1 block text-sm text-[#1b1b18] dark:text-[#EDEDEC]">To...</label>
                     <input
                         id="to_date"
@@ -236,17 +236,17 @@
                         type="date"
                         value="{{ $toDate }}"
                         max="{{ $today }}"
-                        class="w-full border border-[#e3e3e0] rounded-md px-2 py-1 text-sm text-[#1b1b18] bg-white dark:border-[#3E3E3A] dark:bg-white dark:text-[#1b1b18]"
+                        class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none"
                     >
                 </div>
             </div>
 
-            <div class="ml-auto min-w-[180px]">
+            <div class="w-full sm:w-48 flex flex-col">
                 <label for="sort_by" class="mb-1 block text-sm text-[#1b1b18] dark:text-[#EDEDEC]">Sort By...</label>
                 <select
                     id="sort_by"
                     name="sort_by"
-                    class="w-full border border-[#e3e3e0] rounded-md px-2 py-1 text-sm text-[#1b1b18] bg-white dark:border-[#3E3E3A] dark:bg-white dark:text-[#1b1b18]"
+                    class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none truncate"
                 >
                     <option value="newest" @selected($sortBy === 'newest')>Newest</option>
                     <option value="oldest" @selected($sortBy === 'oldest')>Oldest</option>

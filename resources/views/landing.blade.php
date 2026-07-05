@@ -18,19 +18,19 @@
         <div class="absolute inset-0 bg-gray-500/35"></div>
 
         {{-- University logo pinned to the top-left corner --}}
-        <div class="absolute left-4 top-4 z-20 md:left-6 md:top-6">
+        <div class="pointer-events-none absolute left-4 top-4 z-20 hidden md:block md:left-6 md:top-6">
             <img
                 src="{{ asset('images/strathmore_logo.png') }}"
                 alt="Strathmore University Logo"
-                class="h-32 w-auto bg-transparent md:h-48 lg:h-56"
+                class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0 drop-shadow-md"
             >
         </div>
 
         {{-- Main centered content area (frosted glass card + call-to-actions) --}}
         <main class="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 py-10 sm:px-6">
             {{-- Frosted glass panel that holds headline and auth entry buttons --}}
-            <section class="w-full max-w-4xl rounded-2xl border border-white/50 bg-white/38 p-12 text-center shadow-lg backdrop-blur-md sm:p-20">
-                <h1 class="text-3xl font-semibold leading-tight text-[#1b1b18] sm:text-4xl">Welcome to SU-Spaces. Let's find you a room</h1>
+            <section class="w-full max-w-xl rounded-2xl border border-white/50 bg-white/38 p-12 text-center shadow-lg backdrop-blur-md sm:p-20">
+                <h1 class="text-2xl font-semibold leading-tight text-[#1b1b18] sm:text-3xl">Welcome to SU-Spaces. Let's find you a room</h1>
 
                 {{-- Responsive button group: stacked on mobile, inline on larger screens --}}
                 <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">

@@ -27,6 +27,17 @@
         --bs-body-font-family: 'Inter', sans-serif;
       }
 
+      /* Global system dashboard typography optimization overrides */
+      html:not(.auth-page) {
+          /* Bumps the base 1rem text vector scale up cleanly across all platforms */
+          font-size: 16px !important;
+      }
+
+      html:not(.auth-page) body {
+          font-size: 1rem;
+          line-height: 1.6;
+      }
+
       body {
         font-family: 'Inter', sans-serif;
       }
@@ -91,6 +102,20 @@
         }
       }
     </style>
+
+    <style>
+      html, body {
+          /* Prevents default browser font inflation routines */
+          -webkit-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+      }
+      @media screen and (min-width: 1024px) {
+          .auth-root-shell {
+              /* Forces the base em grid down strictly for widescreen scaling display layouts */
+              font-size: 14px !important;
+          }
+      }
+    </style>
   </head>
   <!--end::Head-->
   
@@ -114,7 +139,14 @@
             <!--begin::Row-->
             <div class="row">
               <div class="col-sm-12">
-                <h3 class="mb-0">@yield('page-title', 'Dashboard')</h3>
+                @php
+                  $pageTitle = trim($__env->yieldContent('page-title')) ?: 'Dashboard';
+                @endphp
+                <div class="w-full mb-6 mt-4 border-l-4 border-[#941c1c] pl-4 transition-all duration-300">
+                  <h1 class="text-xl sm:text-2xl font-sans font-extrabold text-[#1d2d54] uppercase tracking-wide leading-none">
+                    {{ $pageTitle ?? 'Dashboard' }}
+                  </h1>
+                </div>
               </div>
             </div>
             <!--end::Row-->

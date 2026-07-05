@@ -31,19 +31,19 @@
             <img
                 src="{{ asset('images/strathmore_logo.png') }}"
                 alt="Strathmore University Logo"
-                class="h-28 w-auto rounded-md border border-white/50 bg-white/55 p-1 shadow-sm backdrop-blur-md dark:border-white/20 dark:bg-black/35 lg:h-48"
+                class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0 drop-shadow-md"
             >
         </div>
 
         {{-- Centered login card container --}}
-        <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-4 sm:p-6">
-            <div class="w-full max-w-md mx-auto my-auto p-5 sm:p-6 bg-white/40 backdrop-blur-md border border-[#1d2d54]/10 rounded-2xl shadow-xs flex flex-col justify-between max-h-[85vh] overflow-y-auto dark:border-white/15 dark:bg-[#111110]/40">
+        <div class="auth-root-shell w-full min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-cover bg-center relative z-10">
+            <div class="w-full max-w-xl bg-white/40 backdrop-blur-md border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl h-auto overflow-y-visible dark:border-white/15 dark:bg-[#111110]/40">
                 {{-- Compact mobile logo shown inside the card --}}
                 <div class="mb-4 flex justify-start md:hidden">
                     <img
                         src="{{ asset('images/strathmore_logo.png') }}"
                         alt="Strathmore University Logo"
-                        class="h-12 w-auto bg-transparent p-0"
+                        class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0"
                     >
                 </div>
                 <h1 class="text-center text-2xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC] sm:text-3xl">Welcome Back</h1>

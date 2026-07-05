@@ -60,7 +60,8 @@ class AuthenticatedSessionController extends Controller
 
         $targetRoute = $this->resolvePostLoginRoute($request->user());
 
-        return redirect()->intended(route($targetRoute));
+        // Always use role-based landing pages after login.
+        return redirect()->route($targetRoute);
     }
 
     private function resolvePostLoginRoute(?User $user): string
@@ -71,7 +72,7 @@ class AuthenticatedSessionController extends Controller
             ->replaceMatches('/[^a-z0-9]+/', '')
             ->toString();
 
-        if ($normalized === 'admin') {
+        if (in_array($normalized, ['admin', 'systemadmin', 'administrator'], true)) {
             return 'reports.dashboard';
         }
 
