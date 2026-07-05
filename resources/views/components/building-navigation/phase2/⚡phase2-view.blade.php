@@ -55,8 +55,7 @@ new class extends Component{
       fill: rgba(255, 255, 255, 0.5) !important;
       stroke: rgba(255, 255, 255, 0.6) !important;
       stroke-width: 2.4 !important;
-      filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.08));
-      transition: all .3s ease;
+      transition: fill .25s ease, stroke .25s ease, stroke-width .25s ease;
       transform-origin: center;
       transform-box: fill-box;
    }
@@ -64,15 +63,14 @@ new class extends Component{
    .building:hover rect,
    .building:hover path {
       stroke: #c99d3b !important;
-      fill: rgba(255, 255, 255, 0.8) !important;
-      filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.12));
-      transform: scale(1.015);
+      fill: #fef3c7 !important;
+      stroke-width: 2.6 !important;
    }
 
    .building:active rect,
    .building:active path {
       stroke: #c99d3b !important;
-      filter: drop-shadow(0 0 0 1px rgba(201, 157, 59, 0.35)) drop-shadow(0 10px 20px rgba(15, 23, 42, 0.12));
+      fill: #fde68a !important;
    }
 
    .building-banned {

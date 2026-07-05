@@ -14,6 +14,29 @@ new class extends Component{
 }
 ?>
 
+<style>
+   .phase {
+      cursor: pointer;
+   }
+
+   .phase rect,
+   .phase path {
+      transition: fill .25s ease, stroke .25s ease, stroke-width .25s ease;
+   }
+
+   .phase:hover rect,
+   .phase:hover path {
+      fill: #fef3c7 !important;
+      stroke: #c99d3b !important;
+   }
+
+   .phase:active rect,
+   .phase:active path {
+      fill: #fde68a !important;
+      stroke: #c99d3b !important;
+   }
+</style>
+
 <div x-data>
    <svg
       width="1920"
@@ -54,13 +77,11 @@ new class extends Component{
       id="layer1">
       <g
          id="g5" class="phase"
-         wire:click="selectPhase('Phase1')"
          onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
          @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})">
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:5.39882"
             id="rect3"
-            wire:click="selectPhase('Phase1')"
             onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
             @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase1'})"
             width="719.04675"
@@ -94,13 +115,11 @@ new class extends Component{
       </g>
       <g
          id="g21" class="phase"
-         wire:click="selectPhase('Phase2')"
          onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
          @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})">
          <rect
             style="fill:#fcfcfc;stroke:#000000;stroke-width:5.91496"
             id="rect5"
-            wire:click="selectPhase('Phase2')"
             onclick="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
             @click="Livewire.dispatch('phaseSelected',{phaseName:'Phase2'})"
             width="956.57141"

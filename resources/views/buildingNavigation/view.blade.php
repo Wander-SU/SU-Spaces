@@ -19,14 +19,17 @@
   }
 
   .content-wrapper .card {
-    border: 1px solid #D9D9D9;
-    border-radius: 14px;
-    background: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid rgba(29, 45, 84, 0.14);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
   }
 
   .content-wrapper .card-body {
-    border-radius: 14px;
+    border-radius: 16px;
+    background: transparent;
   }
 
   @media (max-width: 767.98px) {

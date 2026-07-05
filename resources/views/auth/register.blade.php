@@ -27,19 +27,19 @@
             <img
                 src="{{ asset('images/strathmore_logo.png') }}"
                 alt="Strathmore University Logo"
-                class="h-28 w-auto bg-transparent p-0 drop-shadow-md lg:h-48"
+                class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0 drop-shadow-md"
             >
         </div>
 
         {{-- Main centered registration card --}}
-        <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center p-3 sm:p-6">
-            <div class="w-full max-w-5xl rounded-xl border border-white/45 bg-white/30 p-4 shadow-sm backdrop-blur-2xl dark:border-white/15 dark:bg-[#111110]/40 sm:rounded-2xl sm:p-8">
+        <div class="auth-root-shell w-full min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-cover bg-center relative z-10">
+            <div class="w-full max-w-4xl bg-white/40 backdrop-blur-md border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl h-auto overflow-y-visible dark:border-white/15 dark:bg-[#111110]/40">
                 {{-- Mobile-only compact logo inside the card --}}
                 <div class="mb-4 flex justify-start md:hidden">
                     <img
                         src="{{ asset('images/strathmore_logo.png') }}"
                         alt="Strathmore University Logo"
-                        class="h-12 w-auto bg-transparent p-0"
+                        class="w-full max-w-[200px] sm:max-w-[240px] h-auto object-contain block mx-auto mb-4 bg-transparent p-0"
                     >
                 </div>
                 <div class="mb-7 text-center sm:mb-8">

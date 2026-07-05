@@ -228,8 +228,8 @@ new class extends Component
         <livewire:book-forms.book-form/>
     </div>
 
-    <div class="card-info">
-        <div class="card-header">
+    <div class="card-info rounded-2xl border border-[#1d2d54]/10 bg-white/45 backdrop-blur-md shadow-xl overflow-hidden">
+        <div class="card-header border-0 bg-transparent pb-0">
             <div class="d-flex flex-column gap-3">
             {{-- Buttons to Cancel --}}
             <div class="d-flex flex-wrap gap-2 rounded-2">
@@ -317,8 +317,8 @@ new class extends Component
             </div>
             </div>
         </div>
-        <div class="card-body">
-            <div class="svg-scroll-container border overflow-auto">
+        <div class="card-body pt-3">
+            <div class="svg-scroll-container overflow-auto rounded-xl border border-[#1d2d54]/15 bg-white/55 backdrop-blur-sm p-2 sm:p-3 shadow-inner">
                 @if($phaseName==null)
                     <livewire:building-navigation.bird-eye-view.bird-eye-view/>
                 @endif
@@ -399,6 +399,19 @@ new class extends Component
 </div>
 
 @once
+<style>
+    .svg-scroll-container g.room rect {
+        transition: fill .18s ease, stroke .18s ease, stroke-width .18s ease;
+        transform: none !important;
+    }
+
+    .svg-scroll-container g.room:hover rect,
+    .svg-scroll-container g.room:focus-within rect {
+        fill: var(--room-hover-fill, var(--room-base-fill, #f0fdf4)) !important;
+        stroke: var(--room-hover-stroke, var(--room-base-stroke, #86efac)) !important;
+        stroke-width: 2 !important;
+    }
+</style>
 <script>
 function roomOverlayState(roomLookup, statuses) {
     return {
@@ -504,15 +517,25 @@ function roomOverlayState(roomLookup, statuses) {
                 const statusKey = roomColorExpr ? roomColorExpr[1] : dispatchRoomName;
                 const mapContext = this.getMapContext(group);
 
-                const rawStatus = this.statuses[statusKey] ?? (roomId ? 'available' : 'unavailable');
+                const rawStatus = this.resolveRoomStatus({
+                    statusKey,
+                    dispatchRoomName,
+                    roomId,
+                    dbRoomName: dbRoom?.room_name,
+                });
                 const state = this.normalizeState(rawStatus);
                 const colors = this.stateColors(state);
                 const surface = this.stateSurface(state);
+                const hoverSurface = this.stateHoverSurface(state);
 
                 // Keep room vector palette consistent with the blueprint tokens.
                 rect.style.fill = surface.fill;
                 rect.style.stroke = surface.stroke;
                 rect.style.strokeWidth = '1.5';
+                group.style.setProperty('--room-base-fill', surface.fill);
+                group.style.setProperty('--room-base-stroke', surface.stroke);
+                group.style.setProperty('--room-hover-fill', hoverSurface.fill);
+                group.style.setProperty('--room-hover-stroke', hoverSurface.stroke);
 
                 const roomName = this.resolveRoomName({ group, dispatchRoomName, roomId, dbRoomName: dbRoom?.room_name });
                 const capacity = dbRoom?.capacity || 'N/A';
@@ -624,13 +647,13 @@ function roomOverlayState(roomLookup, statuses) {
 
         computeLabelSizing(width, height, mapContext = { isRightWing: false, isLeftWing: false, isCentralPart: false, isForge: false }, roomName = '') {
             const minSide = Math.max(16, Math.min(width, height));
-            let roomNameSize = Math.max(10, Math.min(13, Math.round(minSide * 0.18)));
+            let roomNameSize = Math.max(12, Math.min(15, Math.round(minSide * 0.19)));
             let detailSize = Math.max(8, Math.min(10, Math.round(minSide * 0.13)));
             const insetX = Math.max(2, Math.min(8, Math.round(width * 0.06)));
             const insetY = Math.max(2, Math.min(8, Math.round(height * 0.07)));
 
             if (mapContext.isLeftWing && /^LT\s*[1-6]$/i.test(String(roomName))) {
-                roomNameSize = 11;
+                roomNameSize = 13;
                 detailSize = 9;
             }
 
@@ -649,20 +672,12 @@ function roomOverlayState(roomLookup, statuses) {
 
         getLabelOffset(roomName, roomId, width, height, mapContext = { isRightWing: false, isLeftWing: false, isCentralPart: false, isForge: false }) {
             const normalizedName = String(roomName || '').replace(/\s+/g, ' ').trim().toUpperCase();
-            const isLt3 = normalizedName === 'LT 3' || String(roomId || '') === '45';
-            const isLt5 = normalizedName === 'LT 5' || String(roomId || '') === '47';
+            const isMsb11 = normalizedName === 'MSB 11';
 
-            if (isLt3) {
+            if (isMsb11) {
                 return {
-                    x: -Math.round(width * 0.22),
-                    y: Math.round(height * 0.18),
-                };
-            }
-
-            if (isLt5) {
-                return {
-                    x: -Math.round(width * 0.22),
-                    y: Math.round(height * 0.18),
+                    x: -Math.max(4, Math.round(width * 0.08)),
+                    y: 0,
                 };
             }
 
@@ -670,6 +685,10 @@ function roomOverlayState(roomLookup, statuses) {
         },
 
         normalizeState(rawStatus) {
+            if (!rawStatus) {
+                return 'unavailable';
+            }
+
             if (rawStatus === 'base_booking' || rawStatus === 'at_capacity' || rawStatus === 'booked') {
                 return 'occupied';
             }
@@ -679,24 +698,72 @@ function roomOverlayState(roomLookup, statuses) {
             return 'unavailable';
         },
 
+        normalizeRoomKey(value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '');
+        },
+
+        resolveRoomStatus({ statusKey, dispatchRoomName, roomId, dbRoomName }) {
+            const directKeyCandidates = [statusKey, dispatchRoomName, dbRoomName, roomId]
+                .filter(Boolean)
+                .map((value) => String(value));
+
+            for (const key of directKeyCandidates) {
+                if (Object.prototype.hasOwnProperty.call(this.statuses, key)) {
+                    return this.statuses[key];
+                }
+            }
+
+            const normalizedCandidates = new Set(
+                directKeyCandidates
+                    .map((value) => this.normalizeRoomKey(value))
+                    .filter(Boolean)
+            );
+
+            if (normalizedCandidates.size === 0) {
+                return 'available';
+            }
+
+            for (const [key, status] of Object.entries(this.statuses || {})) {
+                if (normalizedCandidates.has(this.normalizeRoomKey(key))) {
+                    return status;
+                }
+            }
+
+            // Backend only publishes occupied/unavailable rooms; missing entries are available.
+            return 'available';
+        },
+
         stateColors(state) {
             if (state === 'occupied') {
-                return { primary: '#881337', secondary: '#9f1239' };
+                return { primary: '#9a3412', secondary: '#c2410c' };
             }
             if (state === 'available') {
                 return { primary: '#14532d', secondary: '#166534' };
             }
-            return { primary: '#374151', secondary: '#4b5563' };
+            return { primary: '#881337', secondary: '#9f1239' };
         },
 
         stateSurface(state) {
             if (state === 'occupied') {
-                return { fill: '#fff1f2', stroke: '#fecdd3' };
+                return { fill: '#fff7ed', stroke: '#fdba74' };
             }
             if (state === 'available') {
                 return { fill: '#f0fdf4', stroke: '#a7f3d0' };
             }
-            return { fill: '#f3f4f6', stroke: '#d1d5db' };
+            return { fill: '#fff1f2', stroke: '#fecdd3' };
+        },
+
+        stateHoverSurface(state) {
+            if (state === 'occupied') {
+                return { fill: '#ffedd5', stroke: '#fb923c' };
+            }
+            if (state === 'available') {
+                return { fill: '#dcfce7', stroke: '#86efac' };
+            }
+            return { fill: '#ffe4e6', stroke: '#fda4af' };
         },
 
         fitText(text, width, fontSize, coverage = 0.85) {
@@ -756,7 +823,7 @@ function roomOverlayState(roomLookup, statuses) {
             roomNameEl.style.whiteSpace = 'nowrap';
             roomNameEl.style.overflow = 'hidden';
             roomNameEl.style.textOverflow = 'ellipsis';
-            roomNameEl.style.color = state === 'occupied' ? '#881337' : '#1d2d54';
+            roomNameEl.style.color = state === 'occupied' ? '#9a3412' : state === 'unavailable' ? '#881337' : '#1d2d54';
             roomNameEl.textContent = roomName;
 
             const capacityEl = document.createElementNS(xhtmlNs, 'span');
