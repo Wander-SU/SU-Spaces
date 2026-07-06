@@ -135,6 +135,7 @@ new class extends Component
     */
     public function cancel(){
         $this->resetExcept(["search_date","search_building","room_name","building_name"]);
+        $this->dispatch('initiatedHideForm');
         $this->showForm = false;
     }
 
@@ -250,6 +251,8 @@ new class extends Component
       $this->showForm = false;
       $this->resetExcept(["search_date","search_building","room_name","building_name","number_occupants"]);
 
+      $this->dispatch('initiatedHideForm');
+      $this->dispatch('bookingMessage', type: 'success', message: "Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       }
       catch(\Throwable $e){
@@ -342,6 +345,8 @@ new class extends Component
       $this->showForm = false;
       $this->resetExcept(["search_date","search_building","room_name","building_name"]);
 
+      $this->dispatch('initiatedHideForm');
+      $this->dispatch('bookingMessage', type: 'success', message: "Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       session()->flash("success","Room $this->room_name @ $this->building_name successfully booked for $this->number_occupants occupants");
       }
       catch(\Throwable $e){
@@ -712,7 +717,7 @@ new class extends Component
                   </div>
                 </div>
               <div class="mt-4 flex flex-wrap items-center gap-3">
-                  <button type="button" wire:click="cancel" @click="formOpen = false" class="inline-flex items-center justify-center border border-white/20 hover:bg-white/5 text-gray-300 text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors">
+                  <button type="button" wire:click="cancel" class="inline-flex items-center justify-center border border-white/20 hover:bg-white/5 text-gray-300 text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors">
                     <i class="bi bi-arrow-left"></i> Back
                   </button>
                   @if(auth()->user()->role->role_name=="Student")

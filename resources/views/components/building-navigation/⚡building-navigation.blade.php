@@ -45,6 +45,16 @@ new class extends Component
         $this->computeStatuses();
     }
 
+    public $flashType = null;
+    public $flashMessage = null;
+
+    #[On('bookingMessage')]
+    public function bookingMessage($type, $message)
+    {
+        $this->flashType = $type;
+        $this->flashMessage = $message;
+    }
+
     public function render(){
         $timeSlots = TimeSlot::query()
             ->select('id', 'start_time', 'end_time')
@@ -198,19 +208,11 @@ new class extends Component
     x-data="roomOverlayState(@js($roomLookup), @js($roomStatuses))"
     x-init="init()"
 >
-    {{-- Show the messages --}}
-    @if (session()->has('success'))
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    @endif
-
-    @if (session()->has('error'))
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+    @if ($flashMessage)
+        <div class="alert alert-{{ $flashType === 'success' ? 'success' : 'danger' }} alert-dismissible fade show" role="alert">
+            {{ $flashMessage }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" wire:click="$set('flashMessage', null)"></button>
+        </div>
     @endif
 
     {{-- Form for Booking in right-side drawer --}}
