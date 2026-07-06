@@ -19,9 +19,9 @@ new class extends Component{
     public function roomColor(string $roomName): string
     {
         return match($this->roomStatuses[$roomName] ?? 'available'){
-            'base_booking' => '#ffe4e6cc',
-            'at_capacity' => '#ffe4e6cc',
-            default => '#dcfce7cc'
+            'base_booking' => '#ff5560cc',
+            'at_capacity' => '#f27b48cc',
+            default => '#1dfa6add'
         };
     }
 
@@ -298,8 +298,8 @@ new class extends Component{
                 id="rect1-4-9-9-2-7"
                 width="480.04895"
                 height="295.78775"
-                x="659.75531"
-                y="698.83942" />
+                x="490.4856"
+                y="728.83942" />
             </g>
         </g>
         </svg>

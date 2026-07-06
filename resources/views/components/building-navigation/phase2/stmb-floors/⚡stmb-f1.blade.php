@@ -19,8 +19,8 @@ new class extends Component{
     public function roomColor(string $roomName): string
     {
         return match($this->roomStatuses[$roomName] ?? 'available'){
-            'base_booking' => '#ffe4e6cc',
-            'at_capacity' => '#ffe4e6cc',
+            'base_booking' => '#fc5f6acc',
+            'at_capacity' => '#fe9d6ccc',
             default => '#dcfce7cc'
         };
     }

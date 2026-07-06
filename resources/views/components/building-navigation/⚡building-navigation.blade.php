@@ -653,18 +653,23 @@ function roomOverlayState(roomLookup, statuses) {
             const insetY = Math.max(2, Math.min(8, Math.round(height * 0.07)));
 
             if (mapContext.isLeftWing && /^LT\s*[1-6]$/i.test(String(roomName))) {
-                roomNameSize = 13;
-                detailSize = 9;
+                roomNameSize = 25;
+                detailSize = 20;
             }
 
             if (mapContext.isRightWing) {
-                roomNameSize = roomNameSize * 0.5;
-                detailSize = detailSize * 0.5;
+                roomNameSize = 25;
+                detailSize = 20;
             }
 
             if (mapContext.isCentralPart) {
-                roomNameSize = roomNameSize * 0.5;
-                detailSize = detailSize * 0.5;
+                roomNameSize = roomNameSize * 0.4;
+                detailSize = detailSize * 0.4;
+            }
+
+            else{
+                roomNameSize =30;
+                detailSize = 20;
             }
 
             return { roomNameSize, detailSize, insetX, insetY };
@@ -748,20 +753,20 @@ function roomOverlayState(roomLookup, statuses) {
 
         stateSurface(state) {
             if (state === 'occupied') {
-                return { fill: '#fff7ed', stroke: '#fdba74' };
+                return { fill: '#ff5560cc', stroke: '#fdba74' };
             }
             if (state === 'available') {
-                return { fill: '#f0fdf4', stroke: '#a7f3d0' };
+                return { fill: '#76ff9f', stroke: '#a7f3d0' };
             }
             return { fill: '#fff1f2', stroke: '#fecdd3' };
         },
 
         stateHoverSurface(state) {
             if (state === 'occupied') {
-                return { fill: '#ffedd5', stroke: '#fb923c' };
+                return { fill: '#f73643cc', stroke: '#fb923c' };
             }
             if (state === 'available') {
-                return { fill: '#dcfce7', stroke: '#86efac' };
+                return { fill: 'rgb(45, 247, 116)', stroke: '#86efac' };
             }
             return { fill: '#ffe4e6', stroke: '#fda4af' };
         },
