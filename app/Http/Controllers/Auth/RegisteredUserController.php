@@ -247,13 +247,10 @@ class RegisteredUserController extends Controller
 
         // Send email asynchronously after response for better perceived speed.
         dispatch(function () use ($validated, $token): void {
-            Mail::raw(
-                "Your SU-Spaces registration token is: {$token}. This token expires in 15 minutes.",
-                function ($message) use ($validated): void {
-                    $message->to($validated['email'])
-                        ->subject('SU-Spaces Registration Token');
-                }
-            );
+            Mail::send('emails.registration-token', ['token' => $token], function ($message) use ($validated): void {
+                $message->to($validated['email'])
+                    ->subject('SU-Spaces Registration Token');
+            });
         })->afterResponse();
 
         return response()->json([

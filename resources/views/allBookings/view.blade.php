@@ -123,7 +123,7 @@
                 <div class="flex items-start justify-between gap-3 mb-4">
                     <div>
                         <p class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Booking Edit</p>
-                        <h3 class="text-xl font-bold font-sans text-white mt-3">Change Building and Room</h3>
+                        <h3 class="text-xl font-bold font-sans text-white mt-3">Edit Booking</h3>
                     </div>
                     <a
                         href="{{ route('bookings.previous', ['from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}"
@@ -165,11 +165,17 @@
                         <input type="hidden" name="to_date" value="{{ $toDate }}">
                         <input type="hidden" name="sort_by" value="{{ $sortBy }}">
                         <input type="hidden" name="building_id" value="{{ $selectedBuildingId }}">
+                        @php
+                            $editRoleName = strtolower((string) optional(optional(auth()->user())->role)->role_name);
+                            $isStudentEditor = $editRoleName === 'student';
+                            $editPurpose = old('purpose', (string) $editBooking->purpose);
+                            $editOccupants = (int) old('attendee_count', (int) $editBooking->attendee_count);
+                        @endphp
 
                         <label for="room_id" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Available rooms for same day and time</label>
                         <select id="room_id" name="room_id" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b]" @disabled($availableRooms->isEmpty())>
                             @forelse($availableRooms as $room)
-                                <option value="{{ $room->id }}" class="text-black" @selected((int) $room->id === (int) $editBooking->room_id)>
+                                <option value="{{ $room->id }}" data-capacity="{{ (int) $room->capacity }}" class="text-black" @selected((int) $room->id === (int) $editBooking->room_id)>
                                     {{ $room->room_name }} (Capacity: {{ (int) $room->capacity }})
                                 </option>
                             @empty
@@ -180,6 +186,37 @@
                             <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
                         @enderror
 
+                        @if(!$isStudentEditor)
+                            <div class="mt-4">
+                                <label for="purpose" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Reason for Booking</label>
+                                <select id="purpose" name="purpose" class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b]">
+                                    <option value="Individual Study" class="text-black" @selected($editPurpose === 'Individual Study')>Individual Study</option>
+                                    <option value="Group Study" class="text-black" @selected($editPurpose === 'Group Study')>Group Study</option>
+                                    <option value="CAT" class="text-black" @selected($editPurpose === 'CAT')>CAT</option>
+                                    <option value="Examination" class="text-black" @selected($editPurpose === 'Examination')>Examination</option>
+                                </select>
+                                @error('purpose')
+                                    <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mt-4">
+                                <label for="attendee_count" class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Number of Occupants</label>
+                                <input
+                                    id="attendee_count"
+                                    name="attendee_count_visible"
+                                    type="number"
+                                    min="1"
+                                    value="{{ max(1, $editOccupants) }}"
+                                    class="w-full bg-[#c99d3b]/20 border border-[#c99d3b]/40 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-400 focus:ring-0 focus:border-[#c99d3b]"
+                                >
+                                <input id="attendee_count_hidden" type="hidden" name="attendee_count" value="{{ max(1, $editOccupants) }}">
+                                @error('attendee_count')
+                                    <p class="mt-1 text-sm text-red-300">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+
                         <div class="mt-4 flex flex-wrap items-center gap-3">
                             <a href="{{ route('bookings.previous', ['from_date' => $fromDate, 'to_date' => $toDate, 'sort_by' => $sortBy]) }}" class="inline-flex items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                                 <i class="bi bi-arrow-left"></i> Back
@@ -189,6 +226,63 @@
                             </button>
                         </div>
                     </form>
+
+                    @if(!$isStudentEditor)
+                        <script>
+                            (() => {
+                                const roomSelect = document.getElementById('room_id');
+                                const reasonSelect = document.getElementById('purpose');
+                                const occupantsInput = document.getElementById('attendee_count');
+                                const occupantsHidden = document.getElementById('attendee_count_hidden');
+
+                                if (!roomSelect || !reasonSelect || !occupantsInput || !occupantsHidden) {
+                                    return;
+                                }
+
+                                const isHighPriorityReason = (reason) => {
+                                    const normalized = String(reason || '').trim().toLowerCase();
+                                    return normalized === 'cat' || normalized === 'examination' || normalized === 'exam';
+                                };
+
+                                const selectedRoomCapacity = () => {
+                                    const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+                                    const capacity = Number(selectedOption?.dataset?.capacity || 1);
+                                    return Number.isFinite(capacity) && capacity > 0 ? capacity : 1;
+                                };
+
+                                const syncOccupantsWithReason = () => {
+                                    if (isHighPriorityReason(reasonSelect.value)) {
+                                        occupantsInput.value = String(selectedRoomCapacity());
+                                        occupantsHidden.value = occupantsInput.value;
+                                        occupantsInput.setAttribute('disabled', 'disabled');
+                                    } else {
+                                        occupantsInput.removeAttribute('disabled');
+                                        const current = Number(occupantsInput.value || 1);
+                                        if (!Number.isFinite(current) || current < 1) {
+                                            occupantsInput.value = '1';
+                                        }
+                                        occupantsHidden.value = occupantsInput.value;
+                                    }
+                                };
+
+                                const syncHiddenFromVisible = () => {
+                                    occupantsHidden.value = occupantsInput.value || '1';
+                                };
+
+                                reasonSelect.addEventListener('change', syncOccupantsWithReason);
+                                roomSelect.addEventListener('change', syncOccupantsWithReason);
+                                occupantsInput.addEventListener('input', syncHiddenFromVisible);
+                                syncOccupantsWithReason();
+
+                                const editForm = roomSelect.closest('form');
+                                if (editForm) {
+                                    editForm.addEventListener('submit', () => {
+                                        syncHiddenFromVisible();
+                                    });
+                                }
+                            })();
+                        </script>
+                    @endif
                 @endif
             </div>
         </div>

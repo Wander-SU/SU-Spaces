@@ -25,24 +25,24 @@ width: 100% !important;
 </style>
 {!! $head ?? '' !!}
 </head>
-<body style="margin: 0; background-color: #f8fafc; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+<body style="margin: 0; padding: 40px 20px; background-color: #fbf7f0; background-color: rgba(247, 235, 217, 0.3); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
+<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: transparent;">
 <tr>
 <td align="center">
 <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
 <!-- Email Body -->
 <tr>
 <td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="580" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+<table class="inner-body" align="center" width="540" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6;">
 <tr>
-<td style="background-color: #1d2d54; padding: 24px; text-align: center; border-bottom: 4px solid #c99d3b;">
-<img src="{{ asset('images/strathmore_logo.png') }}" alt="{{ config('app.name') }}" style="display: block; margin: 0 auto; max-width: 180px; height: auto;">
+<td style="background-color: #941c1c; padding: 24px; text-align: left;">
+<h2 style="color: #ffffff; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 0;">Password Recovery</h2>
 </td>
 </tr>
 <!-- Body content -->
 <tr>
-<td class="content-cell" style="padding: 28px 24px;">
+<td class="content-cell" style="padding: 32px; color: #1d2d54; font-size: 14px; font-weight: 500; line-height: 1.625;">
 {!! Illuminate\Mail\Markdown::parse($slot) !!}
 
 {!! $subcopy ?? '' !!}
