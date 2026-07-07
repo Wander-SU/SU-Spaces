@@ -100,12 +100,7 @@ new class extends Component
 
     public function showBookForm()
     {
-        if(auth()->user()->role->role_name!="Student"){
-            $privilegedBook=True;
-        }
-        else{
-            $privilegedBook = False;
-        }
+        $privilegedBook = False;
         $room = Room::findOrFail($this->room_id);
         $building = Building::findOrFail($room->building_id);
         $this->building_id = $building->id;
@@ -113,12 +108,7 @@ new class extends Component
         $this->room_capacity = $room->capacity;
         $this->room_id = $room->id;
         $this->room_name = $room->room_name;
-        if(auth()->user()->role->role_name!="Student"){
-            $this->number_occupants = $room->capacity;
-        }
-        else{
-            $this->number_occupants = 1;
-        }
+        $this->number_occupants = 1;
         $this->book_date = $this->search_date;
         $this->dispatch('initiateShowFormFromNav',[
             'showForm' => True,

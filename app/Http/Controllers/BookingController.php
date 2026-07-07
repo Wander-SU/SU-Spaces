@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingVoided;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Models\BaseBooking;
@@ -13,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -181,7 +183,13 @@ class BookingController extends Controller
 
                 $defaultBuildingId = (int) (optional($editBooking->room)->building_id ?? 0);
                 $selectedBuildingId = (int) $request->query('building_id', $defaultBuildingId);
-                $availableRooms = $this->getAvailableRoomsForBookingSlot($editBooking, $selectedBuildingId > 0 ? $selectedBuildingId : null);
+                $editorRoleName = strtolower((string) optional(optional($request->user())->role)->role_name);
+                $allowPriorityOverrideSelection = $editorRoleName !== 'student';
+                $availableRooms = $this->getAvailableRoomsForBookingSlot(
+                    $editBooking,
+                    $selectedBuildingId > 0 ? $selectedBuildingId : null,
+                    $allowPriorityOverrideSelection
+                );
             }
         }
 
@@ -308,6 +316,8 @@ class BookingController extends Controller
         $validated = $request->validate([
             'building_id' => ['required', 'integer', 'exists:buildings,id'],
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
+            'purpose' => ['nullable', 'string', 'max:255'],
+            'attendee_count' => ['nullable', 'integer', 'min:1'],
             'from_date' => ['nullable', 'date'],
             'to_date' => ['nullable', 'date'],
             'sort_by' => ['nullable', 'in:newest,oldest'],
@@ -315,9 +325,96 @@ class BookingController extends Controller
 
         $selectedBuildingId = (int) $validated['building_id'];
         $newRoomId = (int) $validated['room_id'];
+        $roleName = strtolower((string) optional(optional($request->user())->role)->role_name);
+        $isStudent = $roleName === 'student';
 
-        $availableRooms = $this->getAvailableRoomsForBookingSlot($booking, $selectedBuildingId);
+        $availableRooms = $this->getAvailableRoomsForBookingSlot($booking, $selectedBuildingId, !$isStudent);
         if (!$availableRooms->contains('id', $newRoomId)) {
+            return back()
+                ->withInput()
+                ->with('error', 'Selected room is not available for that day and time.');
+        }
+
+        $selectedRoom = $availableRooms->firstWhere('id', $newRoomId);
+        $roomCapacity = (int) (optional($selectedRoom)->capacity ?? 0);
+        $requestedPurpose = trim((string) ($validated['purpose'] ?? (string) $booking->purpose));
+        $isHighPriorityReason = in_array(strtolower($requestedPurpose), ['cat', 'examination', 'exam'], true);
+
+        $bookingDate = Carbon::parse($booking->booking_date)->toDateString();
+        $startTimeId = (int) $booking->start_time_id;
+        $endTimeId = (int) $booking->end_time_id;
+
+        $hasBaseTimeConflict = BaseBooking::query()
+            ->where('room_id', $newRoomId)
+            ->where('lesson_day', Carbon::parse($bookingDate)->format('l'))
+            ->where('start_time_id', '<', $endTimeId)
+            ->where('end_time_id', '>', $startTimeId)
+            ->exists();
+
+        if ($hasBaseTimeConflict) {
+            return back()
+                ->withInput()
+                ->with('error', 'Selected room has a base timetable conflict for that time.');
+        }
+
+        $overlappingBookings = Booking::query()
+            ->with(['user.role', 'startTimeSlot', 'endTimeSlot'])
+            ->whereDate('booking_date', $bookingDate)
+            ->where('status', 'Booked')
+            ->where('room_id', $newRoomId)
+            ->whereKeyNot($booking->id)
+            ->where('start_time_id', '<', $endTimeId)
+            ->where('end_time_id', '>', $startTimeId)
+            ->get();
+
+        if (!$isStudent) {
+            if (!in_array($requestedPurpose, ['Individual Study', 'Group Study', 'CAT', 'Examination'], true)) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['purpose' => 'Please choose a valid booking reason.']);
+            }
+
+            if (!$isHighPriorityReason && $overlappingBookings->isNotEmpty()) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Selected room is not available for that day and time.');
+            }
+
+            if ($isHighPriorityReason && $overlappingBookings->isNotEmpty()) {
+                foreach ($overlappingBookings as $conflictingBooking) {
+                    if (!$this->canOverrideByRole($request->user(), $conflictingBooking->user, $conflictingBooking)) {
+                        $blockedByRole = (string) optional(optional($conflictingBooking->user)->role)->role_name;
+                        $blockedByName = (string) optional($conflictingBooking->user)->name;
+                        return back()
+                            ->withInput()
+                            ->with('error', 'Cannot apply high priority override. '.$blockedByName.' ('.$blockedByRole.') has a protected booking in that slot.');
+                    }
+                }
+
+                foreach ($overlappingBookings as $conflictingBooking) {
+                    $conflictingBooking->status = 'Voided';
+                    $conflictingBooking->save();
+                    $recipientEmail = (string) optional($conflictingBooking->user)->email;
+                    if ($recipientEmail !== '') {
+                        try {
+                            Mail::to($recipientEmail)->send(new BookingVoided($conflictingBooking, $requestedPurpose));
+                        } catch (\Throwable $mailException) {
+                            report($mailException);
+                        }
+                    }
+                }
+            }
+
+            $updatedAttendeeCount = (int) ($validated['attendee_count'] ?? 1);
+            if ($isHighPriorityReason) {
+                $updatedAttendeeCount = max(1, $roomCapacity);
+            } else {
+                $updatedAttendeeCount = max(1, min($updatedAttendeeCount, max(1, $roomCapacity)));
+            }
+
+            $booking->purpose = $requestedPurpose;
+            $booking->attendee_count = $updatedAttendeeCount;
+        } elseif ($overlappingBookings->isNotEmpty()) {
             return back()
                 ->withInput()
                 ->with('error', 'Selected room is not available for that day and time.');
@@ -340,7 +437,7 @@ class BookingController extends Controller
         return 'bookings:undo:' . $userId . ':' . $bookingId;
     }
 
-    private function getAvailableRoomsForBookingSlot(Booking $booking, ?int $buildingId = null): Collection
+    private function getAvailableRoomsForBookingSlot(Booking $booking, ?int $buildingId = null, bool $includeBookedForPriorityEditors = false): Collection
     {
         $bookingDate = Carbon::parse($booking->booking_date)->toDateString();
         $lessonDay = Carbon::parse($bookingDate)->format('l');
@@ -363,9 +460,13 @@ class BookingController extends Controller
             ->pluck('room_id')
             ->all();
 
+        $blockedRoomIds = $includeBookedForPriorityEditors
+            ? $blockedByBaseBookingRoomIds
+            : array_unique(array_merge($blockedByBaseBookingRoomIds, $blockedByBookingRoomIds));
+
         $roomsQuery = Room::query()
             ->with('building')
-            ->whereNotIn('id', array_unique(array_merge($blockedByBaseBookingRoomIds, $blockedByBookingRoomIds)))
+            ->whereNotIn('id', $blockedRoomIds)
             ->orderBy('room_name', 'asc');
 
         if (!empty($buildingId)) {
@@ -373,6 +474,65 @@ class BookingController extends Controller
         }
 
         return $roomsQuery->get();
+    }
+
+    private function normalizeOverrideRole(?string $roleName): string
+    {
+        $normalized = strtolower(trim((string) $roleName));
+
+        if (str_contains($normalized, 'admin')) {
+            return 'admin';
+        }
+
+        if (str_contains($normalized, 'registrar')) {
+            return 'registrar';
+        }
+
+        if (str_contains($normalized, 'lecturer')) {
+            return 'lecturer';
+        }
+
+        if (str_contains($normalized, 'student')) {
+            return 'student';
+        }
+
+        return 'other';
+    }
+
+    private function isHighPriorityPurpose(?string $purpose): bool
+    {
+        $normalized = strtolower(trim((string) $purpose));
+
+        return in_array($normalized, ['cat', 'exam', 'examination'], true);
+    }
+
+    private function canOverrideByRole(User $actor, User $target, Booking $targetBooking): bool
+    {
+        $actorRole = $this->normalizeOverrideRole((string) optional($actor->role)->role_name);
+        $targetRole = $this->normalizeOverrideRole((string) optional($target->role)->role_name);
+        $targetIsHighPriority = $this->isHighPriorityPurpose((string) $targetBooking->purpose);
+
+        // Any regular booking is overridable by lecturer/registrar/admin.
+        if (!$targetIsHighPriority) {
+            return in_array($actorRole, ['lecturer', 'registrar', 'admin'], true);
+        }
+
+        if ($actorRole === 'admin') {
+            // Admin cannot override another admin's CAT/Examination booking.
+            return $targetRole !== 'admin';
+        }
+
+        if ($actorRole === 'registrar') {
+            // Registrar cannot override admin/registrar CAT/Examination bookings.
+            return in_array($targetRole, ['student', 'lecturer', 'other'], true);
+        }
+
+        if ($actorRole === 'lecturer') {
+            // Lecturer cannot override admin/registrar/lecturer CAT/Examination bookings.
+            return in_array($targetRole, ['student', 'other'], true);
+        }
+
+        return false;
     }
 
     /**

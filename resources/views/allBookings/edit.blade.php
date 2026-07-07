@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="rounded-xl border border-[#e3e3e0] bg-white p-4 md:p-6 dark:border-[#3E3E3A] dark:bg-[#161615]">
-        <h2 class="mb-4 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]">Change Building and Room</h2>
+        <h2 class="mb-4 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]">Edit Booking</h2>
 
         <div class="mb-5 rounded-lg border border-[#e3e3e0] p-4 text-sm text-[#1b1b18] dark:border-[#3E3E3A] dark:text-[#EDEDEC]">
             <p><strong>Current room:</strong> {{ optional($booking->room)->room_name ?? 'Room not available' }}</p>

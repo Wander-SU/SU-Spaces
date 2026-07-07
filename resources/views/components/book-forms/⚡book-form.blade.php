@@ -56,7 +56,7 @@ new class extends Component
     public function initiatedShowForm($data)
     {
         $this->showForm = $data['showForm'];
-        $this->isPrivilegedBook = $data['isPrivilegedBook'];
+      $this->isPrivilegedBook = (bool) ($data['isPrivilegedBook'] ?? false);
         $this->building_id = $data['building_id'];
         $this->building_name = $data['building_name'];
         $this->room_capacity = $data['room_capacity'];
@@ -69,6 +69,7 @@ new class extends Component
         $this->end_time_id = $data['end_time_id'];
         $this->initial_end_time_id = $data['initial_end_time_id'];
         $this->search_date = $data['search_date'];
+        $this->book_reason = '';
         $this->syncOccupantsWithCapacity();
         $this->computeVacancies(); // Used to compute vacancies of specified room immediately
     }
@@ -80,7 +81,7 @@ new class extends Component
     public function initiateShowFormFromNav($data)
     {
         $this->showForm = $data['showForm'];
-        $this->isPrivilegedBook = $data['isPrivilegedBook'];
+      $this->isPrivilegedBook = (bool) ($data['isPrivilegedBook'] ?? false);
         $this->building_id = $data['building_id'];
         $this->building_name = $data['building_name'];
         $this->room_capacity = $data['room_capacity'];
@@ -93,6 +94,7 @@ new class extends Component
         $this->initial_start_time_id=$this->start_time_id;
         $this->initial_end_time_id=$this->end_time_id;
         $this->search_date = $data['search_date'];
+        $this->book_reason = '';
         $this->syncOccupantsWithCapacity();
         $this->computeVacancies(); // Used to compute vacancies of specified room immediately
     }
@@ -117,7 +119,7 @@ new class extends Component
         return;
       }
 
-      if ($this->isPrivilegedBook) {
+      if ($this->shouldUsePriorityBooking()) {
         $this->number_occupants = $capacity;
         return;
       }
@@ -185,8 +187,9 @@ new class extends Component
       // Validate the data before sending it to the database
       $this->validate();
       $status = "Booked";
+      $isPriorityBooking = $this->shouldUsePriorityBooking();
 
-      if (!$this->isPrivilegedBook && (int) ($this->number_occupants ?? 0) > (int) ($this->vacancies ?? 0)) {
+      if (!$isPriorityBooking && (int) ($this->number_occupants ?? 0) > (int) ($this->vacancies ?? 0)) {
         $this->addError('number_occupants', 'The number of occupants exceeds the available slots');
         return;
       }
@@ -278,6 +281,11 @@ new class extends Component
      * Privileged Booking to the database
     */
     public function bookPrivileged(){
+      if (!$this->shouldUsePriorityBooking()) {
+        $this->book();
+        return;
+      }
+
       $this->syncOccupantsWithCapacity();
 
       // Validate the data before sending it to the database
@@ -313,10 +321,15 @@ new class extends Component
 
         // Void each row of the things to be voided
         if(count($toVoid)>0){
-          forEach($toVoid as $voidable){
-            // Change this to do it only on Students
-            if($voidable->user->role->role_name!="Student"){
-              session()->flash('error','Could not book this room because a lecturer "'.$voidable->user->name.'"has booked this room at '.$voidable->startTimeSlot->start_time.' to '.$voidable->endTimeSlot->end_time.' for: '.$voidable["purpose"] );
+          foreach($toVoid as $voidable){
+            if(!$this->canOverrideBooking($voidable)){
+              $blockedByRole = (string) optional(optional($voidable->user)->role)->role_name;
+              $blockedByName = (string) optional($voidable->user)->name;
+              session()->flash(
+                'error',
+                'Could not complete high priority booking. '.$blockedByName.' ('.$blockedByRole.') already has this room from '
+                .$voidable->startTimeSlot->start_time.' to '.$voidable->endTimeSlot->end_time.' for: '.$voidable['purpose']
+              );
               $this->showForm=False;
               return;
             }
@@ -412,6 +425,7 @@ new class extends Component
       ->where('end_time_id','>=',"$start_time_id")
       ->where('room_id',$room_id)
       ->where('booking_date',"$prospected_date")
+      ->whereNot('status', 'Voided')
       ->get();
 
       return $utilised;
@@ -496,6 +510,84 @@ new class extends Component
       return $roleName === 'student' && $occupants < 2 && $reason !== 'individual study';
     }
 
+    public function shouldUsePriorityBooking(): bool
+    {
+      return $this->isPriorityEligibleRole() && $this->isPriorityReason();
+    }
+
+    private function isPriorityEligibleRole(): bool
+    {
+      $roleName = strtolower(trim((string) optional(auth()->user()->role)->role_name));
+
+      return $roleName !== '' && $roleName !== 'student';
+    }
+
+    private function isPriorityReason(): bool
+    {
+      $reason = strtolower(trim((string) $this->book_reason));
+
+      return in_array($reason, ['cat', 'examination', 'exam'], true);
+    }
+
+    private function normalizeOverrideRole(?string $roleName): string
+    {
+      $normalized = strtolower(trim((string) $roleName));
+
+      if (str_contains($normalized, 'admin')) {
+        return 'admin';
+      }
+
+      if (str_contains($normalized, 'registrar')) {
+        return 'registrar';
+      }
+
+      if (str_contains($normalized, 'lecturer')) {
+        return 'lecturer';
+      }
+
+      if (str_contains($normalized, 'student')) {
+        return 'student';
+      }
+
+      return 'other';
+    }
+
+    private function isHighPriorityPurpose(?string $purpose): bool
+    {
+      $normalized = strtolower(trim((string) $purpose));
+
+      return in_array($normalized, ['cat', 'exam', 'examination'], true);
+    }
+
+    private function canOverrideBooking(Booking $booking): bool
+    {
+      $actorRole = $this->normalizeOverrideRole((string) optional(auth()->user()->role)->role_name);
+      $targetRole = $this->normalizeOverrideRole((string) optional(optional($booking->user)->role)->role_name);
+      $targetIsHighPriority = $this->isHighPriorityPurpose((string) $booking->purpose);
+
+      // Any regular booking is overridable by lecturer/registrar/admin.
+      if (!$targetIsHighPriority) {
+        return in_array($actorRole, ['lecturer', 'registrar', 'admin'], true);
+      }
+
+      if ($actorRole === 'admin') {
+        // Admin cannot override another admin's CAT/Examination booking.
+        return $targetRole !== 'admin';
+      }
+
+      if ($actorRole === 'registrar') {
+        // Registrar cannot override admin/registrar CAT/Examination bookings.
+        return in_array($targetRole, ['student', 'lecturer', 'other'], true);
+      }
+
+      if ($actorRole === 'lecturer') {
+        // Lecturer cannot override admin/registrar/lecturer CAT/Examination bookings.
+        return in_array($targetRole, ['student', 'other'], true);
+      }
+
+      return false;
+    }
+
     /**
      * Compute the vacancies on every update of start_time_id or end_time_id
     */
@@ -508,6 +600,11 @@ new class extends Component
     }
 
     public function updatedNumberOccupants(){
+      $this->syncOccupantsWithCapacity();
+    }
+
+    public function updatedBookReason(): void
+    {
       $this->syncOccupantsWithCapacity();
     }
 };
@@ -575,7 +672,7 @@ new class extends Component
           <div class="mb-4">
           <div class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Book Room Details</div>
           </div>
-          <form wire:submit="{{$this->isPrivilegedBook ? "bookPrivileged" : "book"}}">
+          <form wire:submit="{{ $this->shouldUsePriorityBooking() ? 'bookPrivileged' : 'book' }}">
               @csrf
               <div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -663,7 +760,7 @@ new class extends Component
                   <div>
                     <label for="number_occupants" class="{{ $drawerLabelClass }}">Number of Occupants</label>
                     <input required wire:model.live.debounce.500ms="number_occupants"
-                     @if(auth()->user()->role->role_name!="Student") disabled @endif
+                     @if($this->shouldUsePriorityBooking()) disabled @endif
                      type="number" min="1" name="number_occupants" max="{{ (int) ($room_capacity ?? 1) }}" class="{{ $drawerInputClass }} @error('number_occupants') is-invalid @enderror" value="{{old('number_occupants')}}">
                     @error('number_occupants')
                       <div class="invalid-feedback">
@@ -708,7 +805,7 @@ new class extends Component
                   @enderror
 
                   {{-- Edit if the error in number of occupants entered, number of vacancies etc --}}
-                  @if (auth()->user()->role->role_name=="Student" && ((int) $this->vacancies <= 0 || (int) $this->vacancies < (int) $this->number_occupants))
+                  @if (!$this->shouldUsePriorityBooking() && ((int) $this->vacancies <= 0 || (int) $this->vacancies < (int) $this->number_occupants))
                     <div class="invalid-feedback md:col-span-2">
                       The number of occupants exceeds the available slots.
                     </div>
@@ -720,13 +817,13 @@ new class extends Component
                   <button type="button" wire:click="cancel" class="inline-flex items-center justify-center border border-white/20 hover:bg-white/5 text-gray-300 text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors">
                     <i class="bi bi-arrow-left"></i> Back
                   </button>
-                  @if(auth()->user()->role->role_name=="Student")
-                    <button type="submit" class="w-full bg-white text-[#1d2d54] text-sm font-bold py-3.5 px-6 rounded-xl shadow-md transition-all duration-200 hover:bg-[#c99d3b] hover:text-[#1d2d54] cursor-pointer text-center" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
-                        <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
+                  @if($this->shouldUsePriorityBooking())
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white text-center">
+                        <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm High Priority Booking
                     </button>
                   @else
-                    <button type="submit" class="w-full bg-white text-[#1d2d54] text-sm font-bold py-3.5 px-6 rounded-xl shadow-md transition-all duration-200 hover:bg-[#c99d3b] hover:text-[#1d2d54] cursor-pointer text-center">
-                        <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm High Priority Booking
+                    <button type="submit" class="w-full bg-white text-[#02338D] font-bold font-sans py-3 rounded-lg shadow-md transition duration-150 mt-6 cursor-pointer hover:bg-gradient-to-r hover:from-[#0048AD] hover:to-[#FF383C] hover:text-white text-center" {{ $this->vacancies <= 0 || $this->vacancies<$this->number_occupants ? 'disabled' : '' }}>
+                        <i class="bi-icons bi-bookmark-plus-fill"></i> Confirm Booking
                     </button>
                   @endif
               </div>

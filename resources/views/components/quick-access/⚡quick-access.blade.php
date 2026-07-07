@@ -17,6 +17,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -24,10 +25,14 @@ new class extends Component
 {
     use WithPagination;
     protected $paginationTheme = "bootstrap";
-    public $search;
+    #[Url(as: 'q', except: '')]
+    public $search = '';
     public $search_date;
-    public $search_building=1; //Crook Behaviour, this can be done in a much better manner. 
+    #[Url(as: 'building', except: '')]
+    public $search_building = '';
+    #[Url(as: 'from', except: '')]
     public $search_from_time = "";
+    #[Url(as: 'to', except: '')]
     public $search_to_time = "";
     public $orderDirection1 = "asc";
     public $orderDirection2 = "asc";
@@ -94,9 +99,11 @@ new class extends Component
       ->where('ts.start_time','>=','07:00:00')
       ->where('ts.end_time','<=','21:00:00')
       ->where('ts.end_time','!=','00:00:00')
-      ->where('rooms.building_id',$this->search_building)
       ->where('rooms.room_name','like',"%$this->search%")
       ->where('d.lesson_day','like',"%$dayOfWeek%")
+      ->when($this->search_building !== '' && $this->search_building !== null, function ($query) {
+        $query->where('rooms.building_id', (int) $this->search_building);
+      })
       ->select([
           'rooms.id as room_id',
           'rooms.room_name as room_name',
@@ -198,20 +205,70 @@ new class extends Component
         return $startTime . '|' . $endTime . '|' . $buildingName . '|' . $roomName;
       })->values();
 
-      // Manually Paginate
-      $perPage = env('PAGINATION_COUNT',50);
+      // Only include rooms whose end time has not yet passed for the selected day.
+      // Apply this before pagination so empty state reflects the full filtered dataset,
+      // not only the current page.
+      $filtered = $filtered->filter(function ($roomAvailable) {
+        return (Carbon::parse($this->now))->diffInSeconds(
+          Carbon::parse("$this->search_date " . data_get($roomAvailable, 'end_time')),
+          false
+        ) >= 0;
+      })->values();
+
+      // Manually paginate. In "All Buildings" mode, paginate by building (1 building per page).
       $page = Paginator::resolveCurrentPage();
+      $queryParams = array_filter([
+        'q' => $this->search,
+        'building' => $this->search_building,
+        'from' => $this->search_from_time,
+        'to' => $this->search_to_time,
+      ], fn ($value) => $value !== '' && $value !== null);
 
+      if ($this->search_building === '' || $this->search_building === null) {
+        $groupedByBuilding = $filtered
+          ->groupBy('building_name')
+          ->map(fn ($items, $buildingName) => [
+            'building_name' => $buildingName,
+            'rooms' => $items->values(),
+          ])
+          ->values();
 
-      $roomsAvailable = new LengthAwarePaginator(
-        $filtered->forPage($page,$perPage),
-        $filtered->count(),
-        $perPage,
-        $page,
-        ["path" => Paginator::resolveCurrentPath()]
-      );
+        $perPage = 1;
+        $paginatedGroups = $groupedByBuilding->forPage($page, $perPage)->values();
 
-      return view('components.quick-access.⚡quick-access',compact('roomsAvailable','timeSlots','rooms','buildings'));
+        $roomsByBuilding = $paginatedGroups
+          ->mapWithKeys(fn ($group) => [
+            $group['building_name'] => $group['rooms'],
+          ]);
+
+        $roomsAvailable = new LengthAwarePaginator(
+          $paginatedGroups,
+          $groupedByBuilding->count(),
+          $perPage,
+          $page,
+          [
+            "path" => Paginator::resolveCurrentPath(),
+            "query" => $queryParams,
+          ]
+        );
+      } else {
+        $perPage = env('PAGINATION_COUNT',50);
+
+        $roomsAvailable = new LengthAwarePaginator(
+          $filtered->forPage($page,$perPage),
+          $filtered->count(),
+          $perPage,
+          $page,
+          [
+            "path" => Paginator::resolveCurrentPath(),
+            "query" => $queryParams,
+          ]
+        );
+
+        $roomsByBuilding = collect($roomsAvailable->items())->groupBy('building_name');
+      }
+
+      return view('components.quick-access.⚡quick-access',compact('roomsAvailable','roomsByBuilding','timeSlots','rooms','buildings'));
     }
 
     /**
@@ -267,17 +324,19 @@ new class extends Component
      */
     public function clearSearch(){
         $this->search = "";
+        $this->search_building = "";
         $this->search_from_time = "";
         $this->search_to_time = "";
+        $this->resetPage();
     }
 
-    public function updatedSearchFromTime(){
+    public function updatedSearchBuilding(){
       $this->resetPage();
     }
 
-    public function updatedSearchToTime(){
-      $this->resetPage();
-    }
+    public function updatedSearchFromTime(){}
+
+    public function updatedSearchToTime(){}
 
     /**
      * Show which data on the form
@@ -291,6 +350,7 @@ new class extends Component
       $this->room_capacity = $capacity;
       $this->room_id = $room->id;
       $this->room_name = $room->room_name;
+      $this->number_occupants = 1;
       $this->book_date = $this->search_date;
       $this->initial_start_time_id = BaseBookingController::mapStartTime($start_time);
       $this->start_time_id = BaseBookingController::mapStartTime($start_time);
@@ -319,35 +379,7 @@ new class extends Component
     */
     public function showBookFormPrivileged($building_id,$room_id,$start_time,$end_time,$capacity)
     {
-      $building = Building::findOrFail($building_id);
-      $room = Room::findOrFail($room_id);
-      $this->building_id = $building->id;
-      $this->building_name = $building->building_name;
-      $this->room_capacity = $capacity;
-      $this->room_id = $room->id;
-      $this->room_name = $room->room_name;
-      $this->number_occupants = $room->capacity;
-      $this->book_date = $this->search_date;
-      $this->initial_start_time_id = BaseBookingController::mapStartTime($start_time);
-      $this->start_time_id = BaseBookingController::mapStartTime($start_time);
-      $this->end_time_id = BaseBookingController::mapEndTime($end_time);
-      $this->initial_end_time_id = BaseBookingController::mapEndTime($end_time);
-      $this->dispatch('initiateShowForm',[
-        'showForm' => True,
-        'isPrivilegedBook' => True,
-        'building_id'=>$this->building_id,
-        'building_name'=>$this->building_name,
-        'room_capacity' => $this->room_capacity,
-        'room_id' => $this->room_id,
-        'room_name' => $this->room_name,
-        'number_occupants' => $this->number_occupants,
-        'book_date' => $this->book_date,
-        'initial_start_time_id' => $this->initial_start_time_id,
-        'start_time_id' => $this->start_time_id,
-        'end_time_id' => $this->end_time_id,
-        'initial_end_time_id' => $this->initial_end_time_id,
-        'search_date'=>$this->search_date
-      ]);
+      $this->showBookForm($building_id, $room_id, $start_time, $end_time, $capacity);
     }
 
     /**
@@ -368,7 +400,7 @@ new class extends Component
 }
 ?>
 
-<div x-data="{ sidebarOpen: false, selectedRoom: '' }" x-init="sidebarOpen = false; selectedRoom = ''">
+<div x-data="quickAccessDrawerState()" x-init="init()">
     {{-- Show the messages --}}
     @if (session()->has('success') && stripos((string) session('success'), 'registration successful') === false)
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -383,14 +415,6 @@ new class extends Component
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     @endif
-
-    @php
-      $visibleRooms = collect($roomsAvailable->items())->filter(function ($roomAvailable) {
-        return (Carbon::parse($this->now))->diffInSeconds(Carbon::parse("$this->search_date $roomAvailable->end_time"), false) >= 0;
-      })->values();
-
-      $roomsByBuilding = $visibleRooms->groupBy('building_name');
-    @endphp
 
     <div class="w-full px-4 sm:px-8 max-w-none bg-[#F2E6D9] dark:bg-[#0a0a0a] min-h-screen font-sans">
       <div class="w-full">
@@ -409,6 +433,7 @@ new class extends Component
                 name="search_building"
                 class="w-full sm:w-52 rounded-lg border border-[#1d2d54]/20 dark:border-[#1d2d54]/30 bg-white dark:bg-transparent px-3 py-2 text-sm text-[#1b1b18] dark:text-[#EDEDEC] focus:outline-none {{ $errors->has('search_building') ? 'is-invalid' : '' }}"
               >
+                <option value="">All Buildings</option>
                 @foreach ($buildings as $building)
                   <option value="{{ $building->id }}">{{ $building->building_name }}</option>
                 @endforeach
@@ -497,6 +522,7 @@ new class extends Component
             <form>
               <select wire:model.live.debounce.100ms="search_building" type="text" name="search_building"
                 class="w-full rounded-lg border border-[#1d2d54]/20 dark:border-[#1d2d54]/30 bg-white dark:bg-transparent px-3 py-2 text-sm text-[#1b1b18] dark:text-[#EDEDEC] focus:outline-none {{ $errors->has('search_building') ? 'is-invalid' : '' }}">
+                <option value="">All Buildings</option>
                 @foreach ($buildings as $building)
                   <option value="{{ $building->id }}">{{ $building->building_name }}</option>
                 @endforeach
@@ -572,29 +598,16 @@ new class extends Component
                           {{ $roomAvailable->start_time }} - {{ $roomAvailable->end_time }}
                         </td>
                         <td class="px-4 py-3 text-right align-middle">
-                          @if(auth()->user()->role->role_name=="Student")
-                            <a href="#" wire:click="showBookForm({{ $roomAvailable->building_id }},
-                              {{ $roomAvailable->room_id }},
-                              '{{ $roomAvailable->start_time }}',
-                              '{{ $roomAvailable->end_time }}',
-                              {{ $roomAvailable->capacity }})"
-                              x-on:click="sidebarOpen = true; selectedRoom = '{{ $roomAvailable->room_name }}'"
-                              class="bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
-                              title="Book">
-                              Book Room
-                            </a>
-                          @else
-                            <a href="#" wire:click="showBookFormPrivileged({{ $roomAvailable->building_id }},
-                              {{ $roomAvailable->room_id }},
-                              '{{ $roomAvailable->start_time }}',
-                              '{{ $roomAvailable->end_time }}',
-                              {{ $roomAvailable->capacity }})"
-                              x-on:click="sidebarOpen = true; selectedRoom = '{{ $roomAvailable->room_name }}'"
-                              class="bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
-                              title="Book">
-                              Priority Book
-                            </a>
-                          @endif
+                          <a href="#" wire:click="showBookForm({{ $roomAvailable->building_id }},
+                            {{ $roomAvailable->room_id }},
+                            '{{ $roomAvailable->start_time }}',
+                            '{{ $roomAvailable->end_time }}',
+                            {{ $roomAvailable->capacity }})"
+                            x-on:click="sidebarOpen = true; selectedRoom = '{{ $roomAvailable->room_name }}'"
+                            class="bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-xs font-medium py-2 px-4 rounded-lg"
+                            title="Book">
+                            Book Room
+                          </a>
                         </td>
                       </tr>
                     @endforeach
@@ -622,7 +635,7 @@ new class extends Component
           </div>
         @endif
 
-        <div class="mt-3" data-bs-theme="light">
+        <div class="mt-4 px-1 flex justify-end" data-bs-theme="light">
           {{ $roomsAvailable->links('pagination::bootstrap-5') }}
         </div>
       </div>
@@ -630,21 +643,19 @@ new class extends Component
     </div>
 
     <div
-      class="fixed right-2 sm:right-4 top-[4.5rem] bottom-[3.75rem] w-[calc(100vw-1rem)] sm:w-96 z-50 transform transition-transform duration-300 translate-x-full"
       x-show="sidebarOpen"
-      :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
+      x-transition:enter="transition ease-out duration-300 transform"
+      x-transition:enter-start="translate-x-full"
+      x-transition:enter-end="translate-x-0"
+      x-transition:leave="transition ease-in duration-200 transform"
+      x-transition:leave-start="translate-x-0"
+      x-transition:leave-end="translate-x-full"
+      class="fixed right-2 sm:right-4 top-[4.5rem] bottom-[3.75rem] w-[calc(100vw-1rem)] sm:w-full sm:max-w-md bg-[#02338D] backdrop-blur-md border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl z-50 p-6 overflow-y-auto text-white"
       style="display: none;"
     >
-      <div class="h-full bg-[#02338D]/95 backdrop-blur-md text-white shadow-2xl border border-[#02338D] rounded-xl sm:rounded-2xl p-6 overflow-y-auto">
-        <div class="flex items-center justify-between">
+      <div class="h-full">
+        <div class="flex items-center">
           <p class="text-xs font-sans text-gray-300 tracking-wide uppercase font-medium">Booking Action</p>
-          <button
-            type="button"
-            class="rounded-md border border-white/20 px-2.5 py-1 text-xs font-medium text-white hover:bg-white/10"
-            x-on:click="sidebarOpen = false; if (window.Livewire) { window.Livewire.dispatch('initiatedHideForm'); }"
-          >
-            Close
-          </button>
         </div>
 
         <h3 class="text-2xl font-bold font-sans text-white mt-4" x-text="selectedRoom"></h3>
@@ -655,3 +666,37 @@ new class extends Component
       </div>
     </div>
 </div>
+
+<script>
+function quickAccessDrawerState() {
+  return {
+    sidebarOpen: false,
+    selectedRoom: '',
+    listenersBound: false,
+
+    init() {
+      this.bindDrawerListeners();
+    },
+
+    bindDrawerListeners() {
+      if (this.listenersBound || !window.Livewire) {
+        return;
+      }
+
+      this.listenersBound = true;
+
+      window.Livewire.on('initiateShowForm', (payload) => {
+        const data = Array.isArray(payload) ? (payload[0] ?? {}) : (payload ?? {});
+        if (data.room_name) {
+          this.selectedRoom = data.room_name;
+        }
+        this.sidebarOpen = true;
+      });
+
+      window.Livewire.on('initiatedHideForm', () => {
+        this.sidebarOpen = false;
+      });
+    },
+  };
+}
+</script>
