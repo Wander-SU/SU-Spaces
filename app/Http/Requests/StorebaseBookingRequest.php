@@ -12,7 +12,10 @@ class StorebaseBookingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        if(auth()->user()->role->role_name=="System Admin" || auth()->user()->role->role_name=="Academic Registrar")
+        {
+            return true;
+        }
     }
 
     /**
@@ -23,7 +26,7 @@ class StorebaseBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'csv_file'=> 'required|file|mimes:csv,txt|max:10240'
         ];
     }
 }
