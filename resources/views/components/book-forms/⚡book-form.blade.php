@@ -271,7 +271,7 @@ new class extends Component
         $bookingToBeVoided = Booking::findOrFail($id);
         $bookingToBeVoided->status = "Voided";
         $bookingToBeVoided->save();
-        Mail::to($bookingToBeVoided->user->email)->send(new BookingVoided($bookingToBeVoided,$reason));
+        Mail::to($bookingToBeVoided->user->email)->queue(new BookingVoided($bookingToBeVoided,$reason));
       }catch(Throwable $e){
         session()->flash('failure',"Could not void the bookings of other students".$e->getMessage());
       }
