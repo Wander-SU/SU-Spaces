@@ -281,10 +281,14 @@ new class extends Component
      * Privileged Booking to the database
     */
     public function bookPrivileged(){
+      /**
+       * If it is not meant to be a priotity booking go to normal booking.
+      */
       if (!$this->shouldUsePriorityBooking()) {
         $this->book();
         return;
       }
+
 
       $this->syncOccupantsWithCapacity();
 
@@ -322,6 +326,12 @@ new class extends Component
         // Void each row of the things to be voided
         if(count($toVoid)>0){
           foreach($toVoid as $voidable){
+            /**
+             * If someone cannot override the booking; Admin -> Registrar -> Lecturer
+             * Show an error specifying who is preventing the override
+             * Form is closed
+             * Return/Exit the function
+            */
             if(!$this->canOverrideBooking($voidable)){
               $blockedByRole = (string) optional(optional($voidable->user)->role)->role_name;
               $blockedByName = (string) optional($voidable->user)->name;
