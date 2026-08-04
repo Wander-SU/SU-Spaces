@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     nginx
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring mbstring bcmath gd
+RUN docker-php-ext-install pdo pdo_pgsql mbstring bcmath gd
 
 WORKDIR /var/www
 
