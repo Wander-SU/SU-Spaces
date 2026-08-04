@@ -6,6 +6,7 @@ use App\Http\Requests\StorebaseBookingRequest;
 use App\Http\Requests\UpdatebaseBookingRequest;
 use App\Models\BaseBooking;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BaseBookingController extends Controller
@@ -462,5 +463,20 @@ class BaseBookingController extends Controller
         fclose($handle);
 
         return redirect()->route('baseBookings.index')->with("info","You inserted ".$importedRows." rows");
+    }
+
+    /**
+     * Upload the CSV
+     */
+    public function uploadCsv(StorebaseBookingRequest $request)
+    {
+        $path = $request->file('csv_file')->storeAs('','BaseTimetableData.csv','local');
+
+        if(!$path){
+            return redirect()->back()->with("error", "Failed to upload file to local storage.");
+        }
+
+        return redirect()->route('baseBookings.index')
+        ->with("info","You inserted a new file to the server, you can now edit the full timetable");
     }
 }

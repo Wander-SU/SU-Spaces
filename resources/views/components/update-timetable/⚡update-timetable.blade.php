@@ -639,6 +639,16 @@ new class extends Component
 
           {{-- Update the timetable fully --}}
           <form  class="d-none d-md-inline-block me-2"
+          action="{{ route('baseBookings.uploadCsv')}}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="file" name="csv_file" id="csv_file" class="d-none d-md-inline-block bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-sm font-medium py-1.5 px-1 rounded-lg">
+            <button type="submit" class="d-none d-md-inline-block bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-sm font-medium py-2 px-4 rounded-lg">
+                <i class="bi bi-plus-circle"></i> Upload File to Server
+            </button>
+          </form>
+
+          {{-- Update the timetable fully --}}
+          <form  class="d-none d-md-inline-block me-2"
           action="{{ route('baseBookings.updateFull') }}" method="POST">
             <button type="submit" class="d-none d-md-inline-block bg-[#941c1c] text-white hover:bg-gradient-to-r hover:from-[#F11D22] hover:to-[#FFCC00] hover:text-[#1b1b18] transition-colors text-sm font-medium py-2 px-4 rounded-lg">
                 <i class="bi bi-plus-circle"></i> Update Full Timetable
