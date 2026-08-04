@@ -1,27 +1,19 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
-# Install system dependencies & Postgres drivers
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libpq-dev \
-    nginx
+# Install official helper for smooth PHP extension installations
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring bcmath gd
+# Install exact extensions required for Laravel and PostgreSQL
+RUN install-php-extensions pdo_pgsql gd zip bcmath
 
 WORKDIR /var/www
 
 COPY . .
 
-# Install composer
+# Install Composer dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-EXPOSE 80
+EXPOSE 8080
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
