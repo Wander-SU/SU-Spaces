@@ -1,10 +1,19 @@
 FROM php:8.2-cli
 
-# Install official helper for smooth PHP extension installations
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+# Install system utilities & PostgreSQL client libraries
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libpq-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install exact extensions required for Laravel and PostgreSQL
-RUN install-php-extensions pdo_pgsql gd zip bcmath
+# Install standard PHP extensions required for Laravel & PostgreSQL
+RUN docker-php-ext-install pdo pdo_pgsql bcmath gd
 
 WORKDIR /var/www
 
