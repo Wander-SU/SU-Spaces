@@ -1,0 +1,27 @@
+FROM php:8.2-fpm
+
+# Install system dependencies & Postgres drivers
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libpq-dev \
+    nginx
+
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exmbstring bcmath gd
+
+WORKDIR /var/www
+
+COPY . .
+
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader
+
+EXPOSE 80
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
