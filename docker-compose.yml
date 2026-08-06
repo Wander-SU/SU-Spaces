@@ -1,0 +1,67 @@
+services:
+# Laravel App Container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: su_spaces_app
+    ports:
+    - "8081:80"
+    volumes:
+    - .:/var/www/html
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: psql_db
+      DB_PORT: 5432
+      DB_DATABASE: su_spaces
+      DB_USERNAME: laravel_user
+      DB_PASSWORD: secret_password
+    depends_on:
+    - psql_db 
+    networks:
+    - app-network
+
+  # Dedicated PSQL database container
+  psql_db: 
+    image: postgres:16
+    container_name: psql_db 
+    restart: always
+    environment:
+      POSTGRES_DB: su_spaces 
+      POSTGRES_USER: laravel_user
+      POSTGRES_PASSWORD: secret_password
+    ports:
+    - "3311:5432"
+    volumes:
+    - db_data:/var/lib/postgresql/data
+    networks:
+    - app-network
+
+# Dedicated queue worker
+  queue:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    container_name: su_spaces_queue
+    restart: always
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+    - .:/var/www/html
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: psql_db
+      DB_PORT: 5432
+      DB_DATABASE: su_spaces
+      DB_USERNAME: laravel_user
+      DB_PASSWORD: secret_password
+    depends_on:
+    - psql_db 
+    networks:
+    - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge 
