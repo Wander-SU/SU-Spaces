@@ -6,7 +6,7 @@ mkdir -p storage/framework/sessions storage/framework/views storage/framework/ca
 # Give the right permissions
 chmod -R 777 storage bootstrap/cache
 
-if ["$1"="apache2-foreground"];then
+if [ "$1" = "apache2-foreground" ];then
     echo "Running Database Migrations..."
     # Run database migrations automatically
     php artisan migrate --force
