@@ -6,17 +6,13 @@ mkdir -p storage/framework/sessions storage/framework/views storage/framework/ca
 # Give the right permissions
 chmod -R 777 storage bootstrap/cache
 
-# Wait for Psql to connect to the database
-echo "Waiting for Postgres"
-while ! nc -z $DB_HOST $DB_PORT; do
-    sleep 1
-done
-echo "Postgres is ready"
+if ["$1"="apache2-foreground"];then
+    echo "Running Database Migrations..."
+    # Run database migrations automatically
+    php artisan migrate --force
+fi
 
 sleep 5
-
-# Run database migrations automatically
-php artisan migrate --force
 
 # Start Apache in the foreground (keeps container running)
 exec "$@"
