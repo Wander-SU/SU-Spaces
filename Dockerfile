@@ -6,6 +6,7 @@ RUN apt-get update  && \
     libzip-dev git\
     netcat-openbsd\
     unzip zip\
+    postgresql-client\
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
