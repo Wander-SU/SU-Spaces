@@ -37,6 +37,6 @@ class PasswordResetLinkController extends Controller
         }
 
         // Always return the same message to avoid exposing whether an email exists.
-        return back()->with('status', 'If an account with that email exists, a reset link has been sent.');
+        return back()->with('status', 'If an account with that email exists, a reset link has been sent. Please check your spam or junk folder incase it is not in your inbox.');
     }
 }
