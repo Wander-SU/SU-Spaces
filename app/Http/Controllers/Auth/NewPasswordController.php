@@ -28,7 +28,7 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', 'min:8',new PasswordPolicy()],
         ], [
             'token.required' => 'This field is required.',
             'email.required' => 'This field is required.',

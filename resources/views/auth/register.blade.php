@@ -429,6 +429,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
+                        'X-Requested-With':'XMLHttpRequest',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
                     body: JSON.stringify(payload),
@@ -458,7 +459,7 @@
 
                 registrationTokenInput.disabled = false;
                 registrationTokenInput.focus();
-                tokenStatusMessage.textContent = data.message || 'Token sent. Check your email.';
+                tokenStatusMessage.textContent = data.message || 'Token sent. Check your email. Please check your spam folder';
                 tokenStatusMessage.classList.add('text-emerald-600', 'dark:text-emerald-400');
             } catch (error) {
                 tokenStatusMessage.textContent = 'Network error while sending token. Please try again.';

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\PasswordPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -49,7 +51,7 @@ class RegisteredUserController extends Controller
             'last_name' => ['required', 'string', 'max:100'],
             'gender' => ['required', Rule::in(['Male', 'Female'])],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', 'min:8',new PasswordPolicy()],
             'faculty' => ['required', Rule::in(self::FACULTIES)],
             'course' => [
                 'nullable',
@@ -168,13 +170,54 @@ class RegisteredUserController extends Controller
         }
 
         // Validate all registration fields before sending a verification token.
-        $validated = $request->validate([
+        // $validated = $request->validate([
+        //     'account_type' => ['required', Rule::in(['student', 'lecturer'])],
+        //     'first_name' => ['required', 'string', 'max:100'],
+        //     'last_name' => ['required', 'string', 'max:100'],
+        //     'gender' => ['required', Rule::in(['Male', 'Female'])],
+        //     'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+        //     'password' => ['required', 'confirmed', 'min:8', new PasswordPolicy()],
+        //     'faculty' => ['required', Rule::in(self::FACULTIES)],
+        //     'course' => [
+        //         'nullable',
+        //         'string',
+        //         'max:120',
+        //         'required_if:account_type,student',
+        //         function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+        //             if (($request->input('account_type') ?? '') !== 'student') {
+        //                 return;
+        //             }
+
+        //             $faculty = (string) $request->input('faculty');
+        //             $allowedCourses = self::COURSES_BY_FACULTY[$faculty] ?? [];
+
+        //             if (! in_array((string) $value, $allowedCourses, true)) {
+        //                 $fail('Select a valid course for the selected faculty.');
+        //             }
+        //         },
+        //     ],
+        //     'admission_number' => ['nullable', 'string', 'required_if:account_type,student', 'regex:/^\d{6}$/', 'unique:users,admission_number'],
+        //     'year_of_study' => ['nullable', Rule::in(['1', '2', '3', '4', '5']), 'required_if:account_type,student'],
+        //     'employee_id' => ['nullable', 'string', 'required_if:account_type,lecturer', 'regex:/^\d{5,6}$/', 'unique:users,employee_id'],
+        // ], [
+        //     'required' => 'This field is required.',
+        //     'required_if' => 'This field is required.',
+        //     'email.unique' => 'This email is already registered.',
+        //     'admission_number.unique' => 'This admission number has already been registered.',
+        //     'employee_id.unique' => 'This employee ID has already been registered.',
+        //     'admission_number.regex' => 'Admission number must be exactly 6 digits.',
+        //     'employee_id.regex' => 'Employee ID must be 5 or 6 digits.',
+        //     'password.confirmed' => 'Passwords do not match.',
+        // ]);
+
+        // Using the explicit validator class to escape bad redirects
+        $validator = Validator::make($request->all(),[
             'account_type' => ['required', Rule::in(['student', 'lecturer'])],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'gender' => ['required', Rule::in(['Male', 'Female'])],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', 'min:8', new PasswordPolicy()],
             'faculty' => ['required', Rule::in(self::FACULTIES)],
             'course' => [
                 'nullable',
@@ -207,6 +250,17 @@ class RegisteredUserController extends Controller
             'employee_id.regex' => 'Employee ID must be 5 or 6 digits.',
             'password.confirmed' => 'Passwords do not match.',
         ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'message'=>'The given data was invalid',
+                'errors'=> $validator->errors(),
+            ],422);
+        }
+
+        // Set up the validated text
+        $validated = $validator->validated();
+
 
         $sourceIdentifier = $validated['account_type'] === 'lecturer'
             ? ($validated['employee_id'] ?? '')
@@ -254,7 +308,7 @@ class RegisteredUserController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'message' => 'Token sent successfully. Check your email and paste it below.',
+            'message' => 'Token sent successfully. Check your email and paste it below. If not found in inbox, check your spam folder',
         ]);
     }
 
