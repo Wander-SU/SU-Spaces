@@ -200,7 +200,7 @@ class AvailabilityService
             $slots[] = [
                 'start' => self::fmt($a), 'end' => self::fmt($b), 'state' => 'busy',
                 'title' => $m[0] ?? $s->title,
-                'subtitle' => trim('In use • ' . $s->course_number . ' ' . ($s->course?? '')),
+                'subtitle' => trim('In use • ' . $s->course_number . ' • ' . ($s->unit_name?? '')),
             ];
             $cursor = $b;
         }

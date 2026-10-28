@@ -43,7 +43,7 @@ class RoomController extends Controller
                 : ' No more sessions today.';
         } else {
             $message = $current
-                ? 'In use: ' . trim($current->title . ' ' . ($current->description ?? ''))
+                ? 'In use: ' . trim($current->title . ' ' . ($current->unit_name ?? ''))
                   . ' until ' . Svc::fmt12(Svc::toMin($current->endTimeSlot->end_time)) . '.'
                 : 'Currently in use.';
         }
