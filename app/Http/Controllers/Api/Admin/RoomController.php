@@ -32,10 +32,10 @@ class RoomController extends Controller
 
         $room = $building->rooms()->create([
             'room_name' => $data['name'],
-            // 'code' => ($data['code'] ?? null) ?: null,
-            // 'floor' => $floor,
+            'code' => ($data['code'] ?? null) ?: null,
+            'floor' => $floor,
             'capacity' => $data['capacity'],
-            // 'type' => $data['type'],
+            'type' => $data['type'],
         ]);
 
         return response()->json(['id' => $room->id, 'name' => $room->room_name], 201);

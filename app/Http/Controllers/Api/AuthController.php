@@ -32,7 +32,7 @@ class AuthController extends Controller
         // Return the response as shown, token and user info
         return response()->json([
             'token' => $user->createToken($data['device_name'] ?? 'mobile')->plainTextToken,
-            'user' => ['name' => $user->name, 'is_admin' => (bool) $user->role->role_name],
+            'user' => ['name' => $user->name, 'is_admin' => $user->role?->role_name === 'System Admin'],
         ]);
     }
 
