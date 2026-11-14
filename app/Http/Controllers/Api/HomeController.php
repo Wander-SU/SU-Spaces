@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Services\AvailabilityService as Svc;
+use App\Support\AcademicTerms;
 use App\Support\RoomPresenter;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -58,7 +59,7 @@ class HomeController extends Controller
         return response()->json([
             'meta' => [
                 'date_label' => $now->format('l, M j'),
-                'semester' => config('spaces.semester'),
+                'semester' => AcademicTerms::label($now),
                 'free_count' => count($freeNow),
                 'total_free_now' => count($filtered),
             ],
