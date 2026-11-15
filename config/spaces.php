@@ -25,7 +25,7 @@ return [
             ['name' => 'Trimester 3', 'start' => 101, 'end' => 430],
         ]],
     ],
-    'free_now_limit' => 12,        // cards shown on the Home screen
+    'free_now_limit' => 100,        // cards shown on the Home screen
 
     // key => label / default illustration key / default capacity unit.
     // The keys must match what the Flutter app's RoomIllustration understands.
