@@ -58,7 +58,7 @@ class BannedUserLoginTest extends TestCase
             'password' => 'secret123',
         ]);
 
-        $response->assertRedirect(route('default'));
+        $response->assertRedirect(route('bookings.index'));
         $this->assertAuthenticatedAs($user);
     }
 }
