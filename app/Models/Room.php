@@ -14,7 +14,10 @@ class Room extends Model
 
     protected $fillable = [
         'room_name',
+        'code',
+        'floor',
         'capacity',
+        'type',
         'building_id'
     ];
 
@@ -34,5 +37,30 @@ class Room extends Model
     public function building(): BelongsTo
     {
         return $this->belongsTo(Building::class);
+    }
+
+    public function getFloorLabelAttribute(): string
+    {
+        return match (true) {
+            $this->floor === null => '',
+            $this->floor < 0      => 'Basement',
+            $this->floor === 0    => 'Ground Floor',
+            default               => 'Floor ' . $this->floor,
+        };
+    }
+
+    public function getUnitAttribute(): string
+    {
+        return config("spaces.types.{$this->type}.unit", 'seats');
+    }
+
+    public function getIllustrationKeyAttribute(): string
+    {
+        return config("spaces.types.{$this->type}.illustration", 'room');
+    }
+
+    public function getIllustrationSvgAttribute()
+    {
+        return null;
     }
 }

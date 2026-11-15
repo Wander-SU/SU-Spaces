@@ -57,7 +57,7 @@ class RoomController extends Controller
             'status_message' => $message,
             'schematic_svg' => $room->schematic_svg,
             'location' => [
-                'block' => $room->location_block ?: $room->building->name,
+                'block' => $room->building->building_name,
                 'level' => $room->level_label,
                 'hint' => $room->location_hint,
                 'svg' => $room->location_svg,

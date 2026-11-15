@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PhaseSeeder::class,
             BuildingSeeder::class,
             RoomSeeder::class,
+            RoomDetailsSeeder::class,
             UserSeeder::class,
             BookingSeeder::class,
             TimeSlotSeeder::class
