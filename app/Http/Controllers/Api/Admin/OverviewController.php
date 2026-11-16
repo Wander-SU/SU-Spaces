@@ -13,17 +13,27 @@ class OverviewController extends Controller
     public function index(Request $request)
     {
         $request->validate(['days' => ['nullable', 'integer', 'min:1', 'max:3650']]);
+        $since = $request->filled('days') ? now()->subDays((int) $request->query('days')) : null;
 
-        // One aggregate query for every building.
-        $stats = DB::table('room_daily_stats as s')
-            ->join('rooms as r', 'r.id', '=', 's.room_id')
-            ->when($request->filled('days'), fn ($q) => $q->where('s.date', '>=', now()->subDays((int) $request->query('days'))->toDateString()))
-            ->selectRaw('r.building_id, SUM(s.clicks) as clicks, SUM(s.searches) as searches')
-            ->groupBy('r.building_id')
+        // Clicks and searches per room.
+        $roomStats = DB::table('room_daily_stats')
+            ->when($since, fn ($q) => $q->where('date', '>=', $since->toDateString()))
+            ->selectRaw('room_id, SUM(clicks) as clicks, SUM(searches) as searches')
+            ->groupBy('room_id')
             ->get()
-            ->keyBy('building_id');
+            ->keyBy('room_id');
 
-        $phases = Phase::with(['buildings' => fn ($q) => $q->withCount('rooms')->orderBy('building_name')])
+        // Selections per room.
+        $selections = DB::table('room_selections')
+            ->when($since, fn ($q) => $q->where('created_at', '>=', $since))
+            ->selectRaw('room_id, COUNT(*) as total')
+            ->groupBy('room_id')
+            ->pluck('total', 'room_id');
+
+        $phases = Phase::with(['buildings' => fn ($q) => $q
+            ->withCount('rooms')
+            ->with('rooms:id,building_id,room_name')
+            ->orderBy('building_name')])
             ->orderBy('id')
             ->get();
 
@@ -31,13 +41,25 @@ class OverviewController extends Controller
             'phases' => $phases->map(fn ($p) => [
                 'id' => $p->id,
                 'name' => $p->phase_name,
-                'buildings' => $p->buildings->map(fn ($b) => [
-                    'id' => $b->id,
-                    'name' => $b->building_name,
-                    'clicks' => (int) ($stats[$b->id]->clicks ?? 0),
-                    'searches' => (int) ($stats[$b->id]->searches ?? 0),
-                    'room_count' => $b->rooms_count,
-                ])->values(),
+                'buildings' => $p->buildings->map(function ($b) use ($roomStats, $selections) {
+                    $rooms = $b->rooms->map(fn ($r) => [
+                        'id' => $r->id,
+                        'name' => $r->room_name,
+                        'clicks' => (int) ($roomStats[$r->id]->clicks ?? 0),
+                        'searches' => (int) ($roomStats[$r->id]->searches ?? 0),
+                        'selections' => (int) ($selections[$r->id] ?? 0),
+                    ])->sortBy([['clicks', 'desc'], ['name', 'asc']])->values();
+
+                    return [
+                        'id' => $b->id,
+                        'name' => $b->building_name,
+                        'clicks' => $rooms->sum('clicks'),
+                        'searches' => $rooms->sum('searches'),
+                        'selections' => $rooms->sum('selections'),
+                        'room_count' => $b->rooms_count,
+                        'rooms' => $rooms,
+                    ];
+                })->values(),
             ])->values(),
         ]);
     }

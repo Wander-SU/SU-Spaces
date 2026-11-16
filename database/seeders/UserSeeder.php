@@ -17,28 +17,28 @@ class UserSeeder extends Seeder
         User::truncate();
         // Known development accounts (change these passwords before sharing the project)
         User::create([
-            'name' => 'Maria Muwale',
-            'first_name' => 'Maria',
-            'last_name' => 'Muwale',
-            'email' => 'maria.muwale@strathmore.edu',
-            'password' => 'qwertyuiop',        // hashed automatically by the model
+            'name' => 'SU Spaces Admin',
+            'first_name' => 'SU Spaces',
+            'last_name' => 'Admin',
+            'email' => 'admin@su-spaces.test',
+            'password' => 'password',        // hashed automatically by the model
             'active' => 1,
             'role_id' => 1,                  // System Admin
-            'employee_id' => '192414',
-            'username' => '192414',
+            'employee_id' => '100001',
+            'username' => '100001',
             'office_location' => 'Admin Block',
         ]);
 
         User::create([
-            'name' => 'Maria Muwale',
-            'first_name' => 'Maria',
-            'last_name' => 'Muwale',
-            'email' => 'mmuwale12@gmail.com',
-            'password' => 'qwertyuiop',
+            'name' => 'Test Student',
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'email' => 'student@su-spaces.test',
+            'password' => 'password',
             'active' => 1,
             'role_id' => 2,                  // Student
-            'admission_number' => '123456',
-            'username' => '123456',
+            'admission_number' => '000001',
+            'username' => '000001',
         ]);
     }
 }
