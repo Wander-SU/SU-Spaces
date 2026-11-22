@@ -32,7 +32,7 @@ class OverviewController extends Controller
 
         $phases = Phase::with(['buildings' => fn ($q) => $q
             ->withCount('rooms')
-            ->with('rooms:id,building_id,room_name')
+            ->with('rooms')
             ->orderBy('building_name')])
             ->orderBy('id')
             ->get();
@@ -45,6 +45,11 @@ class OverviewController extends Controller
                     $rooms = $b->rooms->map(fn ($r) => [
                         'id' => $r->id,
                         'name' => $r->room_name,
+                        'code' => $r->code ?? '',
+                        'floor' => $r->floor_label,
+                        'area' => $r->area ?? '',
+                        'capacity' => $r->capacity,
+                        'type' => $r->type,
                         'clicks' => (int) ($roomStats[$r->id]->clicks ?? 0),
                         'searches' => (int) ($roomStats[$r->id]->searches ?? 0),
                         'selections' => (int) ($selections[$r->id] ?? 0),

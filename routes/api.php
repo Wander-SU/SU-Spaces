@@ -42,5 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/overview', [OverviewController::class, 'index']);//✅
         Route::post('/phases/{phase}/buildings', [AdminBuildingController::class, 'store']);//✅
         Route::post('/buildings/{building}/rooms', [AdminRoomController::class, 'store']);//✅
+        Route::put('/rooms/{room}', [AdminRoomController::class, 'update'])->whereNumber('room');
+        Route::delete('/rooms/{room}', [AdminRoomController::class, 'destroy'])->whereNumber('room');
     });
 });
