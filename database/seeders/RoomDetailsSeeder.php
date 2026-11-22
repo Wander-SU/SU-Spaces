@@ -11,9 +11,14 @@ class RoomDetailsSeeder extends Seeder
     {
         foreach (Room::all() as $room) {
             $room->floor = $this->floorFromName($room->room_name);
+            $room->area = $this->areaOverrides[$room->room_name] ?? null;
             $room->save();   // type keeps its default of 'room'
         }
     }
+    /** Area within a building: 'Room name' => 'Left wing' etc. */
+    private array $areaOverrides = [
+        // 'LT 1' => 'Left wing',
+    ];
 
     private function floorFromName(string $name): int
     {

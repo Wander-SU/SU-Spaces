@@ -34,4 +34,15 @@ return [
         'computer_lab' => ['label' => 'Computer Lab', 'illustration' => 'computer_lab', 'unit' => 'workstations'],
         'room'      => ['label' => 'Room', 'illustration' => 'seminar',      'unit' => 'seats'],
     ],
+
+    // Silent booking: how many rooms one person may select within a rolling window.
+    'selection' => [
+        'max_per_window' => 2,
+        'window_minutes' => 60,
+    ],
+
+    // Optional areas within a building: building name => allowed areas.
+    'areas' => [
+        'Central Building' => ['Left wing', 'Middle section', 'Right wing'],
+    ],
 ];

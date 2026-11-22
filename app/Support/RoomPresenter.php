@@ -15,6 +15,7 @@ class RoomPresenter
             'code' => $r->code ?? '',
             'building' => $r->building->building_name,
             'floor' => $r->floor_label,
+            'area' => $r->area ?? '',
             'type' => $r->type,
             'capacity' => $r->capacity,
             'capacity_unit' => $r->unit,
