@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\BuildingController as AdminBuildingController;
 use App\Http\Controllers\Api\Admin\OverviewController;
 use App\Http\Controllers\Api\Admin\RoomController as AdminRoomController;
+use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BuildingController;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +37,9 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/rooms/{room}/select', [RoomSelectionController::class, 'store'])->whereNumber('room');
     Route::post('/logout', [AuthController::class, 'logout']);//✅
-
+    Route::get('/me/selections', [RoomSelectionController::class, 'mine']);
+    Route::get('/me/feedback-prompts', [RoomSelectionController::class, 'prompts']);
+    Route::post('/selections/{selection}/feedback', [RoomSelectionController::class, 'feedback'])->whereNumber('selection');
     // ---- Admin ----
     Route::middleware(EnsureAdmin::class)->prefix('admin')->group(function () {
         Route::get('/overview', [OverviewController::class, 'index']);//✅
@@ -44,5 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/buildings/{building}/rooms', [AdminRoomController::class, 'store']);//✅
         Route::put('/rooms/{room}', [AdminRoomController::class, 'update'])->whereNumber('room');
         Route::delete('/rooms/{room}', [AdminRoomController::class, 'destroy'])->whereNumber('room');
+        Route::get('/reports', [AdminReportController::class, 'index']);
     });
 });
