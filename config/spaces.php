@@ -41,6 +41,14 @@ return [
         'window_minutes' => 60,
     ],
 
+    'feedback' => [
+        // DEV PREVIEW: email stands in for a push notification. Turn off in production.
+        'email_preview' => env('FEEDBACK_EMAIL_PREVIEW', false),
+    ],
+    'maintenance' => [
+        'email' => env('MAINTENANCE_EMAIL'),
+    ],
+
     // Optional areas within a building: building name => allowed areas.
     'areas' => [
         'Central Building' => ['Left wing', 'Middle section', 'Right wing'],

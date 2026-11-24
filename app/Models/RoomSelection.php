@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RoomSelection extends Model
 {
@@ -35,5 +36,10 @@ class RoomSelection extends Model
     public function scopeOverlapping(Builder $q, $from, $to): Builder
     {
         return $q->where('starts_at', '<', $to)->where('ends_at', '>', $from);
+    }
+
+    public function feedback(): HasOne
+    {
+        return $this->hasOne(RoomFeedback::class);
     }
 }
