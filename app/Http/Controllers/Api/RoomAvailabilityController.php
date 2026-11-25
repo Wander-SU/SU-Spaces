@@ -10,6 +10,8 @@ use App\Support\UsageTracker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
+use App\Models\RoomSelection;
+use Carbon\Carbon;
 
 class RoomAvailabilityController extends Controller
 {
@@ -22,18 +24,27 @@ class RoomAvailabilityController extends Controller
             'to' => ['required', 'date_format:H:i', 'after:from'],
             'type' => ['nullable', Rule::in(array_keys(config('spaces.types')))],
             'building_id' => ['nullable', 'integer', 'exists:buildings,id'],
-            'min_seats' => ['nullable', 'integer', 'min:1'],
             'sort' => ['nullable', Rule::in(['nearest', 'capacity', 'name'])],
+            'participants' => ['nullable', 'integer', 'min:1', 'max:5000'],
         ]);
         $from = Svc::toMin($data['from']);
         $to = Svc::toMin($data['to']);
+        $participants = $data['participants'] ?? null;
 
         // 1 query: candidate rooms (type is filtered later so the chip counts stay correct).
         $rooms = Room::with('building:id,building_name')
             ->when($data['building_id'] ?? null, fn ($q, $id) => $q->where('building_id', $id))
-            ->when($data['min_seats'] ?? null, fn ($q, $n) => $q->where('capacity', '>=', $n))
+            ->when($participants, fn ($q, $n) => $q->where('capacity', '>=', $n))
             ->get();
-        
+
+        $date = $data['date'];
+        $taken = RoomSelection::overlapping(
+                Carbon::createFromFormat('Y-m-d H:i', "$date {$data['from']}"),
+                Carbon::createFromFormat('Y-m-d H:i', "$date {$data['to']}"))
+            ->selectRaw('room_id, SUM(participants) as total')
+            ->groupBy('room_id')
+            ->pluck('total', 'room_id');
+
         // Convert the date to a day of the week
         $data['date']=date('l',strtotime($data['date']));
 
@@ -59,13 +70,19 @@ class RoomAvailabilityController extends Controller
                 continue;
             }
 
+            $seatsLeft = max(0, $room->capacity - (int) ($taken[$room->id] ?? 0));
+            $fits = $participants === null || $seatsLeft >= $participants;
+
             $entry = [
                 'room' => $room,
+                'fits' => $fits,
                 'card' => RoomPresenter::card($room, [
-                    'status' => $status,
+                    'status'       => $status,
+                    'seats_left' => $seatsLeft,
+                    'fits'         => $fits,
                     'free_windows' => Svc::present($free),
                     'busy_windows' => Svc::present($busy),
-                ]),
+                ]), 
             ];
             $status === 'free' ? $fully->push($entry) : $partly->push($entry);
         }
@@ -104,12 +121,20 @@ class RoomAvailabilityController extends Controller
      */
     private function sorted(Collection $entries, string $sort): Collection
     {
-        return (match ($sort) {
+        $ordered = (match ($sort) {
             'capacity' => $entries->sortByDesc(fn ($e) => $e['room']->capacity),
-            'name' => $entries->sortBy(fn ($e) => $e['room']->name, SORT_NATURAL | SORT_FLAG_CASE),
-            default => $entries->sortBy(fn ($e) => sprintf(
-                '%s|%03d|%s', $e['room']->building->name, $e['room']->floor + 10, $e['room']->name
+            'name'     => $entries->sortBy(fn ($e) => $e['room']->room_name, SORT_NATURAL | SORT_FLAG_CASE),
+            default    => $entries->sortBy(fn ($e) => sprintf(
+                '%s|%03d|%s',
+                $e['room']->building->building_name,
+                ($e['room']->floor ?? 0) + 10,
+                $e['room']->room_name
             )),
         })->values();
+
+        // Rooms big enough for the group first, keeping the chosen order inside each half.
+        [$fit, $tight] = $ordered->partition(fn ($e) => $e['fits']);
+
+        return $fit->values()->merge($tight->values());
     }
 }

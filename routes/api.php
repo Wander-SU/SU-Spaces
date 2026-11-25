@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\BuildingController as AdminBuildingController;
 use App\Http\Controllers\Api\Admin\OverviewController;
 use App\Http\Controllers\Api\Admin\RoomController as AdminRoomController;
+use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BuildingController;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\RoomAvailabilityController;
 use App\Http\Controllers\Api\RoomController;
+use App\Http\Controllers\Api\RoomSelectionController;
 use App\Http\Middleware\EnsureAdmin;
 use Illuminate\Http\Request;
 
@@ -26,18 +28,25 @@ Route::get('/buildings', [BuildingController::class, 'index']);//✅
 Route::get('/rooms/availability', [RoomAvailabilityController::class, 'index']);//✅
 Route::get('/rooms/{room}', [RoomController::class, 'show'])->whereNumber('room');//✅
 Route::get('/rooms/{room}/schedule', [RoomController::class, 'schedule'])->whereNumber('room');//✅
+Route::get('/rooms/{room}/selections', [RoomSelectionController::class, 'index'])->whereNumber('room');
 
 // ---- Auth ----
 Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:5,1');//✅
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');//✅
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/rooms/{room}/select', [RoomSelectionController::class, 'store'])->whereNumber('room');
     Route::post('/logout', [AuthController::class, 'logout']);//✅
-
+    Route::get('/me/selections', [RoomSelectionController::class, 'mine']);
+    Route::get('/me/feedback-prompts', [RoomSelectionController::class, 'prompts']);
+    Route::post('/selections/{selection}/feedback', [RoomSelectionController::class, 'feedback'])->whereNumber('selection');
     // ---- Admin ----
     Route::middleware(EnsureAdmin::class)->prefix('admin')->group(function () {
         Route::get('/overview', [OverviewController::class, 'index']);//✅
         Route::post('/phases/{phase}/buildings', [AdminBuildingController::class, 'store']);//✅
         Route::post('/buildings/{building}/rooms', [AdminRoomController::class, 'store']);//✅
+        Route::put('/rooms/{room}', [AdminRoomController::class, 'update'])->whereNumber('room');
+        Route::delete('/rooms/{room}', [AdminRoomController::class, 'destroy'])->whereNumber('room');
+        Route::get('/reports', [AdminReportController::class, 'index']);
     });
 });
