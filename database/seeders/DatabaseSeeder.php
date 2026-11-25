@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Http\Controllers\BaseBookingController;
 use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -37,6 +38,10 @@ class DatabaseSeeder extends Seeder
         User::factory(6)->itSupport()->create();
         User::factory(4)->admin()->create();
         Booking::factory(100)->create();
+
+        // Call the base booking controller to seed the base timetable data immediately
+        $base_booking_controller =  app()->make(BaseBookingController::class);
+        $base_booking_controller->updateFull();
 
         // Enable the foreign key constraints at the end
         Schema::enableForeignKeyConstraints();
