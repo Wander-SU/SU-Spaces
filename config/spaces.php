@@ -9,7 +9,7 @@ return [
     'search_window' => ['start' => '08:00', 'end' => '20:00'],
 
     'semester' => 'Fall Semester', // or compute from a semesters table
-    'free_now_limit' => 12,        // cards shown on the Home screen
+    'free_now_limit' => 70,        // cards shown on the Home screen
 
     // key => label / default illustration key / default capacity unit.
     // The keys must match what the Flutter app's RoomIllustration understands.
