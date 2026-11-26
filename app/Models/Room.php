@@ -21,7 +21,8 @@ class Room extends Model
         'area',
         'capacity',
         'type',
-        'building_id'
+        'building_id',
+        'room_description'
     ];
 
     // A room has many bookings
